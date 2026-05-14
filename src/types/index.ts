@@ -28,7 +28,7 @@ export interface Product {
   tags: string[];
   featured?: boolean;
   badge?: string;
-  specs?: Record<string, string>;
+  specs?: Record<string, string | undefined>;
   leadTime?: string;
 }
 
