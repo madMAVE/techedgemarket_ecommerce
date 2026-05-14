@@ -1,0 +1,66 @@
+{
+  "overview": {
+    "totalRevenue": 48720000,
+    "revenueChange": 22.4,
+    "totalOrders": 1284,
+    "ordersChange": 17.8,
+    "totalCustomers": 312,
+    "customersChange": 29.1,
+    "avgOrderValue": 37945,
+    "aovChange": 4.2,
+    "openServiceTickets": 18,
+    "serviceChange": -12.5,
+    "pendingPOs": 6,
+    "inventoryValue": 9847200,
+    "grossMargin": 34.2,
+    "marginChange": 1.8
+  },
+  "monthlySales": [
+    { "month":"Apr","revenue":3200000,"orders":88,"customers":42,"profit":1094400 },
+    { "month":"May","revenue":3550000,"orders":97,"customers":48,"profit":1214100 },
+    { "month":"Jun","revenue":3800000,"orders":103,"customers":51,"profit":1299600 },
+    { "month":"Jul","revenue":3420000,"orders":93,"customers":44,"profit":1169640 },
+    { "month":"Aug","revenue":3680000,"orders":100,"customers":49,"profit":1258560 },
+    { "month":"Sep","revenue":4100000,"orders":112,"customers":55,"profit":1402200 },
+    { "month":"Oct","revenue":4450000,"orders":121,"customers":58,"profit":1521900 },
+    { "month":"Nov","revenue":4200000,"orders":114,"customers":53,"profit":1436400 },
+    { "month":"Dec","revenue":3900000,"orders":106,"customers":47,"profit":1333800 },
+    { "month":"Jan","revenue":4800000,"orders":130,"customers":62,"profit":1641600 },
+    { "month":"Feb","revenue":4620000,"orders":125,"customers":59,"profit":1580040 },
+    { "month":"Mar","revenue":5000000,"orders":135,"customers":66,"profit":1710000 }
+  ],
+  "categorySales": [
+    { "category":"Automation","sales":14580000,"percentage":29.9,"growth":28.4 },
+    { "category":"Switchgear","sales":12190000,"percentage":25.0,"growth":18.2 },
+    { "category":"Drives & Motors","sales":9460000,"percentage":19.4,"growth":24.1 },
+    { "category":"Safety Systems","sales":5840000,"percentage":12.0,"growth":31.5 },
+    { "category":"Sensors & Instrumentation","sales":4380000,"percentage":9.0,"growth":16.8 },
+    { "category":"Cables & Wiring","sales":1460000,"percentage":3.0,"growth":9.2 },
+    { "category":"Control Panels","sales":810000,"percentage":1.7,"growth":12.0 }
+  ],
+  "topProducts": [
+    { "id":"p001","name":"Siemens S7-1200 PLC","units":218,"revenue":10573000,"growth":34.2 },
+    { "id":"p002","name":"ABB ACS880 VFD 11kW","units":97,"revenue":12028000,"growth":28.1 },
+    { "id":"p003","name":"Schneider Masterpact NW 800A","units":43,"revenue":14104000,"growth":15.4 },
+    { "id":"p006","name":"Sick S300 Safety Scanner","units":76,"revenue":15960000,"growth":41.2 },
+    { "id":"p007","name":"Keyence LR-ZB250CN Sensor","units":389,"revenue":7197000,"growth":22.8 }
+  ],
+  "serviceMetrics": {
+    "totalTickets": 128,
+    "resolved": 104,
+    "inProgress": 14,
+    "open": 10,
+    "avgResolutionHours": 9.4,
+    "customerSatisfaction": 4.6,
+    "preventiveMaintenance": 38,
+    "breakdownCalls": 52,
+    "commissioningJobs": 38
+  },
+  "recentTransactions": [
+    { "id":"txn-001","customer":"AutoTek Manufacturing","amount":6670800,"status":"processing","date":"2025-03-22" },
+    { "id":"txn-002","customer":"GreenPower Electrical","amount":9440600,"status":"shipped","date":"2025-03-18" },
+    { "id":"txn-003","customer":"Indopack Machines","amount":3602450,"status":"completed","date":"2025-03-15" },
+    { "id":"txn-004","customer":"Flexitron Automation","amount":6071400,"status":"completed","date":"2025-03-10" },
+    { "id":"txn-005","customer":"Reliance Industries","amount":5400000,"status":"completed","date":"2025-03-08" }
+  ]
+}

@@ -1,0 +1,43 @@
+[
+  {
+    "id":"po-001","poNumber":"TEM-PO-2025-0088",
+    "supplier":{ "id":"sup-001","name":"ABB India Pvt. Ltd.","email":"orders.india@abb.com","phone":"+91-80-2222-0000","country":"India","rating":4.8,"leadTimeDays":5,"category":"Drives & Switchgear" },
+    "items":[
+      { "productId":"p002","productName":"ABB ACS880 VFD 11kW","sku":"ABB-ACS880-11KW","partNumber":"ACS880-01-025A-3","quantity":10,"unitCost":720.00,"totalCost":7200.00 },
+      { "productId":"p015","productName":"ABB S804PV DC Breaker 125A","sku":"ABB-S804PV-125A","partNumber":"2CCS884001R0845","quantity":30,"unitCost":190.00,"totalCost":5700.00 }
+    ],
+    "status":"received","requestDate":"2025-02-20","approvedDate":"2025-02-21","expectedDate":"2025-02-28","receivedDate":"2025-03-01","totalAmount":12900.00,"currency":"INR","requestedBy":"Vikram Patel","notes":"Regular quarterly stock replenishment"
+  },
+  {
+    "id":"po-002","poNumber":"TEM-PO-2025-0089",
+    "supplier":{ "id":"sup-002","name":"Siemens India Ltd.","email":"pia.orders@siemens.com","phone":"+91-22-6277-4444","country":"India","rating":4.9,"leadTimeDays":3,"category":"Automation" },
+    "items":[
+      { "productId":"p001","productName":"Siemens SIMATIC S7-1200 PLC","sku":"SIE-S7-1200-CPU1214C","partNumber":"6ES7214-1AG40-0XB0","quantity":20,"unitCost":285.00,"totalCost":5700.00 }
+    ],
+    "status":"ordered","requestDate":"2025-03-18","approvedDate":"2025-03-19","expectedDate":"2025-03-24","receivedDate":null,"totalAmount":5700.00,"currency":"INR","requestedBy":"Anjali Singh","notes":"Urgent – stock nearly depleted due to large orders"
+  },
+  {
+    "id":"po-003","poNumber":"TEM-PO-2025-0090",
+    "supplier":{ "id":"sup-003","name":"Eaton Electric India","email":"india.orders@eaton.com","phone":"+91-20-4143-0000","country":"India","rating":4.5,"leadTimeDays":21,"category":"Switchgear" },
+    "items":[
+      { "productId":"p005","productName":"Eaton HVL Load-Break Switch 630A","sku":"EAT-HVL-630A","partNumber":"HVL/R-630A-36kV","quantity":5,"unitCost":2800.00,"totalCost":14000.00 }
+    ],
+    "status":"approved","requestDate":"2025-03-20","approvedDate":"2025-03-21","expectedDate":"2025-04-11","receivedDate":null,"totalAmount":14000.00,"currency":"INR","requestedBy":"Vikram Patel","notes":"Out of stock – critical. MV equipment, needs pre-approval from GM."
+  },
+  {
+    "id":"po-004","poNumber":"TEM-PO-2025-0091",
+    "supplier":{ "id":"sup-004","name":"Mitsubishi Electric India","email":"fa.india@mesamb.com","phone":"+91-44-4218-0000","country":"India","rating":4.7,"leadTimeDays":7,"category":"Automation" },
+    "items":[
+      { "productId":"p013","productName":"Mitsubishi MELSEC iQ-R R08CPU","sku":"MIT-R08CPU","partNumber":"R08CPU","quantity":8,"unitCost":820.00,"totalCost":6560.00 }
+    ],
+    "status":"submitted","requestDate":"2025-03-25","approvedDate":null,"expectedDate":null,"receivedDate":null,"totalAmount":6560.00,"currency":"INR","requestedBy":"Anjali Singh","notes":"Awaiting finance approval"
+  },
+  {
+    "id":"po-005","poNumber":"TEM-PO-2025-0087",
+    "supplier":{ "id":"sup-005","name":"Schneider Electric India","email":"sch.orders@se.com","phone":"+91-124-491-8000","country":"India","rating":4.8,"leadTimeDays":10,"category":"Switchgear" },
+    "items":[
+      { "productId":"p003","productName":"Schneider Masterpact NW 800A MCCB","sku":"SCH-NW800-3P","partNumber":"NW08H1-800A-3P","quantity":8,"unitCost":1900.00,"totalCost":15200.00 }
+    ],
+    "status":"received","requestDate":"2025-01-10","approvedDate":"2025-01-11","expectedDate":"2025-01-21","receivedDate":"2025-01-22","totalAmount":15200.00,"currency":"INR","requestedBy":"Vikram Patel","notes":"Q1 switchgear stock"
+  }
+]

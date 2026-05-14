@@ -1,0 +1,111 @@
+[
+  {
+    "id": "ord-001",
+    "orderNumber": "TEM-2025-00142",
+    "date": "2025-03-15",
+    "status": "delivered",
+    "items": [
+      { "productId": "p001", "productName": "Siemens SIMATIC S7-1200 PLC", "sku": "SIE-S7-1200-CPU1214C", "quantity": 3, "unitPrice": 485.00, "totalPrice": 1455.00 },
+      { "productId": "p007", "productName": "Keyence LR-ZB250CN Photoelectric Sensor", "sku": "KEY-LR-ZB250CN", "quantity": 10, "unitPrice": 185.00, "totalPrice": 1850.00 }
+    ],
+    "subtotal": 3305.00, "tax": 297.45, "shipping": 0, "total": 3602.45,
+    "customer": { "id": "c001", "name": "Raj Mehta", "email": "raj@indopack.in", "company": "Indopack Machines Pvt. Ltd." },
+    "shippingAddress": { "street": "Plot 22, MIDC Industrial Area", "city": "Pune", "state": "Maharashtra", "zip": "411019", "country": "India" },
+    "paymentMethod": "Bank Transfer (NEFT)",
+    "poReference": "IPM/PO/25-0388",
+    "trackingNumber": "DTDC9912345678",
+    "estimatedDelivery": "2025-03-22",
+    "trackingEvents": [
+      { "date": "2025-03-22", "time": "14:10", "status": "delivered", "location": "Pune, MH", "description": "Delivered and signed by store keeper" },
+      { "date": "2025-03-21", "time": "08:45", "status": "out_for_delivery", "location": "Pune Depot", "description": "Out for delivery" },
+      { "date": "2025-03-19", "time": "18:00", "status": "in_transit", "location": "Mumbai Hub", "description": "Package in transit" },
+      { "date": "2025-03-16", "time": "10:30", "status": "shipped", "location": "TechEdge Warehouse, Hyderabad", "description": "Dispatched from warehouse" },
+      { "date": "2025-03-15", "time": "15:00", "status": "confirmed", "location": "TechEdge HQ", "description": "Order confirmed, invoice generated" }
+    ],
+    "notes": "Handle with care – fragile electronics"
+  },
+  {
+    "id": "ord-002",
+    "orderNumber": "TEM-2025-00143",
+    "date": "2025-03-18",
+    "status": "shipped",
+    "items": [
+      { "productId": "p003", "productName": "Schneider Masterpact NW 800A MCCB", "sku": "SCH-NW800-3P", "quantity": 2, "unitPrice": 3280.00, "totalPrice": 6560.00 },
+      { "productId": "p009", "productName": "Rittal TS 8 Baying Enclosure 600x2000x600", "sku": "RIT-TS8-6002000", "quantity": 2, "unitPrice": 890.00, "totalPrice": 1780.00 }
+    ],
+    "subtotal": 8340.00, "tax": 750.60, "shipping": 350.00, "total": 9440.60,
+    "customer": { "id": "c002", "name": "Priya Nair", "email": "priya@greenpower.co.in", "company": "GreenPower Electrical Contractors" },
+    "shippingAddress": { "street": "14, Nehru Industrial Estate", "city": "Chennai", "state": "Tamil Nadu", "zip": "600010", "country": "India" },
+    "paymentMethod": "LC (Letter of Credit)",
+    "poReference": "GP/PO/2025/112",
+    "trackingNumber": "BLUEDART8871234",
+    "estimatedDelivery": "2025-03-26",
+    "trackingEvents": [
+      { "date": "2025-03-20", "time": "09:00", "status": "shipped", "location": "Hyderabad, TS", "description": "Heavy freight dispatched" },
+      { "date": "2025-03-18", "time": "17:20", "status": "confirmed", "location": "TechEdge HQ", "description": "PO verified and order placed in production queue" }
+    ],
+    "notes": "Deliver to site supervisor – call before delivery"
+  },
+  {
+    "id": "ord-003",
+    "orderNumber": "TEM-2025-00144",
+    "date": "2025-03-22",
+    "status": "processing",
+    "items": [
+      { "productId": "p002", "productName": "ABB ACS880 Variable Speed Drive 11kW", "sku": "ABB-ACS880-11KW", "quantity": 4, "unitPrice": 1240.00, "totalPrice": 4960.00 },
+      { "productId": "p011", "productName": "Pilz PNOZ X3 Safety Relay", "sku": "PIL-PNOZX3", "quantity": 8, "unitPrice": 145.00, "totalPrice": 1160.00 }
+    ],
+    "subtotal": 6120.00, "tax": 550.80, "shipping": 0, "total": 6670.80,
+    "customer": { "id": "c003", "name": "Sameer Kulkarni", "email": "sameer@autotek.in", "company": "AutoTek Manufacturing" },
+    "shippingAddress": { "street": "G5, Sanand Industrial Zone", "city": "Ahmedabad", "state": "Gujarat", "zip": "382110", "country": "India" },
+    "paymentMethod": "Credit (30 Days Net)",
+    "poReference": "ATM-PO-7821",
+    "trackingNumber": null,
+    "estimatedDelivery": "2025-03-30",
+    "trackingEvents": [
+      { "date": "2025-03-22", "time": "12:00", "status": "processing", "location": "TechEdge Warehouse", "description": "Items being picked and packed" }
+    ]
+  },
+  {
+    "id": "ord-004",
+    "orderNumber": "TEM-2025-00138",
+    "date": "2025-03-10",
+    "status": "delivered",
+    "items": [
+      { "productId": "p006", "productName": "Sick S300 Safety Laser Scanner", "sku": "SICK-S300-6011DA", "quantity": 2, "unitPrice": 2100.00, "totalPrice": 4200.00 },
+      { "productId": "p012", "productName": "Belden 3107A Industrial Ethernet Cable (300m)", "sku": "BLD-3107A-300M", "quantity": 3, "unitPrice": 420.00, "totalPrice": 1260.00 }
+    ],
+    "subtotal": 5460.00, "tax": 491.40, "shipping": 120.00, "total": 6071.40,
+    "customer": { "id": "c004", "name": "Meena Shah", "email": "meena@flexitron.in", "company": "Flexitron Automation" },
+    "shippingAddress": { "street": "C-12, Okhla Phase-II", "city": "New Delhi", "state": "Delhi", "zip": "110020", "country": "India" },
+    "paymentMethod": "Bank Transfer (RTGS)",
+    "poReference": "FXA/PUR/25-004",
+    "trackingNumber": "FEDEX7712009",
+    "estimatedDelivery": "2025-03-18",
+    "trackingEvents": [
+      { "date": "2025-03-18", "time": "11:30", "status": "delivered", "location": "New Delhi", "description": "Package delivered to receiving dock" },
+      { "date": "2025-03-17", "time": "07:00", "status": "out_for_delivery", "location": "Delhi Hub", "description": "Out for delivery" },
+      { "date": "2025-03-14", "time": "20:00", "status": "in_transit", "location": "Nagpur Junction", "description": "In transit" },
+      { "date": "2025-03-11", "time": "09:00", "status": "shipped", "location": "Hyderabad", "description": "Dispatched" },
+      { "date": "2025-03-10", "time": "16:00", "status": "confirmed", "location": "TechEdge HQ", "description": "Order confirmed" }
+    ]
+  },
+  {
+    "id": "ord-005",
+    "orderNumber": "TEM-2025-00131",
+    "date": "2025-03-02",
+    "status": "cancelled",
+    "items": [
+      { "productId": "p005", "productName": "Eaton xEnergy HVL Load-Break Switch 630A", "sku": "EAT-HVL-630A", "quantity": 1, "unitPrice": 4750.00, "totalPrice": 4750.00 }
+    ],
+    "subtotal": 4750.00, "tax": 427.50, "shipping": 500.00, "total": 5677.50,
+    "customer": { "id": "c005", "name": "Arun Verma", "email": "arun@deltautility.com", "company": "Delta Utility Projects" },
+    "shippingAddress": { "street": "Sector 4, UPSIDC Industrial Area", "city": "Lucknow", "state": "Uttar Pradesh", "zip": "226016", "country": "India" },
+    "paymentMethod": "Bank Transfer",
+    "poReference": "DUP-PO-2025-041",
+    "trackingNumber": null,
+    "estimatedDelivery": null,
+    "trackingEvents": [],
+    "notes": "Cancelled – project delayed by client"
+  }
+]
