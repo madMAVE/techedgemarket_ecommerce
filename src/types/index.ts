@@ -20,6 +20,7 @@ export interface Product {
   brand: string;
   model: string;
   image: string;
+  images?: string[];
   rating: number;
   reviews: number;
   stock: number;

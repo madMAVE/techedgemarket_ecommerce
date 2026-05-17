@@ -1,21 +1,25 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Star, ShoppingCart, FileText, Package } from "lucide-react";
+import { Star, ShoppingCart, FileText } from "lucide-react";
 import type { Product } from "@/types";
 import { formatINR, getDiscount } from "@/utils/helpers";
+import ImageSlider from "@/components/ui/ImageSlider";
 
 export default function ProductCard({ product }: { product: Product }) {
   const disc = product.originalPrice ? getDiscount(product.price, product.originalPrice) : null;
   return (
     <div className="card-hover flex flex-col overflow-hidden group">
       <div className="relative h-52 bg-slate-50 overflow-hidden">
-        <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="300px"/>
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+        <ImageSlider
+          images={product.images?.length ? product.images : [product.image]}
+          alt={product.name}
+          sizes="300px"
+        />
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           {product.badge && <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase bg-primary-600 text-white shadow">{product.badge}</span>}
           {disc && <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase bg-red-500 text-white">-{disc}%</span>}
         </div>
-        {product.stock===0 && <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center"><span className="font-display font-bold text-slate-600 border-2 border-slate-300 px-4 py-2 rounded-xl">Out of Stock</span></div>}
-        {product.stock>0 && product.stock<8 && <div className="absolute bottom-3 right-3"><span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500 text-white">Only {product.stock} left</span></div>}
+        {product.stock===0 && <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm flex items-center justify-center"><span className="font-display font-bold text-slate-600 border-2 border-slate-300 px-4 py-2 rounded-xl">Out of Stock</span></div>}
+        {product.stock>0 && product.stock<8 && <div className="absolute bottom-3 right-3 z-10"><span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500 text-white">Only {product.stock} left</span></div>}
       </div>
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-2">

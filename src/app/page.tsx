@@ -117,7 +117,7 @@ export default function HomePage() {
             </div>
             <Link href="/shop" className="btn-ghost flex items-center gap-1 text-primary-600 hover:text-primary-700 font-bold">View All<ChevronRight className="w-4 h-4"/></Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="relative">
             <FeaturedProducts />
           </div>
         </div>
