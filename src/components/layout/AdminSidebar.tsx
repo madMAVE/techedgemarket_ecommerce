@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, Zap, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList } from "lucide-react";
+import Image from "next/image";
+import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList } from "lucide-react";
 
 const LINKS = [
   { href:"/admin",                  label:"Dashboard",      icon:LayoutDashboard, section:"Overview" },
@@ -26,12 +27,8 @@ export default function AdminSidebar() {
     <aside className="sidebar w-60 min-h-screen flex flex-col shrink-0">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-slate-200">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center shadow-sm"><Zap className="w-4 h-4 text-white"/></div>
-          <div>
-            <div className="font-display font-bold text-[18px] text-slate-900 tracking-wider leading-none">Tech<span className="text-primary-600">Edge</span></div>
-            <div className="text-[8px] text-slate-400 uppercase tracking-[0.2em] font-bold leading-none mt-0.5">Control Centre</div>
-          </div>
+        <Link href="/" className="block">
+          <Image src="/techedgemarket_ecommerce/logo/TEM-dark.png" alt="TechEdge Market" width={180} height={50} className="h-10 w-auto object-contain" />
         </Link>
       </div>
 

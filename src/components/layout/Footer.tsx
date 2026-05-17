@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Zap, Phone, Mail, MapPin, Award, ShieldCheck, Clock, Linkedin, Youtube } from "lucide-react";
+import Image from "next/image";
+import { Phone, Mail, MapPin, Award, ShieldCheck, Clock } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -22,8 +23,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div>
           <Link href="/" className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center"><Zap className="w-4 h-4 text-white"/></div>
-            <div className="font-display font-bold text-xl text-white">Tech<span className="text-yellow-400">Edge</span> Market</div>
+            <div className="bg-white rounded-lg p-1.5">
+              <Image src="/techedgemarket_ecommerce/logo/TEM-dark.png" alt="TechEdge Market" width={160} height={45} className="h-8 w-auto object-contain" />
+            </div>
           </Link>
           <p className="text-slate-400 text-sm leading-relaxed mb-4">India's trusted B2B marketplace for industrial automation, switchgear, spare parts and engineering services.</p>
           <div className="space-y-2 text-sm">

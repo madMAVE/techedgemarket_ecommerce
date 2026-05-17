@@ -47,7 +47,7 @@
 
   /* ── Cards ── */
   .card         { @apply bg-white rounded-2xl border border-slate-200 shadow-card; }
-  .card-hover   { @apply card hover:shadow-card-lg hover:-translate-y-px transition-all duration-200; }
+  .card-hover   { @apply card hover:shadow-card-lg transition-shadow duration-200; }
   .card-blue    { @apply rounded-2xl border border-primary-200 bg-primary-50; }
   .card-gold    { @apply rounded-2xl border border-gold-200 bg-amber-50; }
   .stat-card    { @apply card p-6; }

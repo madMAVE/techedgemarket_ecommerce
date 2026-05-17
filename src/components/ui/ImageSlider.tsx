@@ -33,23 +33,23 @@ export default function ImageSlider({ images, alt, sizes = "300px" }: ImageSlide
 
   return (
     <div className="relative h-full w-full overflow-hidden group/slider">
-      {/* Slides track */}
-      <div
-        className="flex h-full transition-transform duration-300 ease-in-out group-hover/slider:scale-105"
-        style={{ transform: `translateX(-${current * 100}%)` }}
-      >
-        {images.map((src, i) => (
-          <div key={i} className="relative h-full w-full shrink-0">
-            <Image
-              src={src}
-              alt={`${alt} — view ${i + 1}`}
-              fill
-              className="object-cover transition-transform duration-500"
-              sizes={sizes}
-            />
-          </div>
-        ))}
-      </div>
+       {/* Slides track */}
+       <div
+         className="flex h-full transition-transform duration-300 ease-in-out"
+         style={{ transform: `translateX(-${current * 100}%)` }}
+       >
+         {images.map((src, i) => (
+           <div key={i} className="relative h-full w-full shrink-0 overflow-hidden">
+             <Image
+               src={src}
+               alt={`${alt} — view ${i + 1}`}
+               fill
+               className="object-cover transition-transform duration-500 group-hover/slider:scale-110"
+               sizes={sizes}
+             />
+           </div>
+         ))}
+       </div>
 
       {/* Prev / Next arrows — only shown when multiple images */}
       {count > 1 && (
