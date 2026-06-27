@@ -1,0 +1,41 @@
+Here are the details for the 2 products:
+
+---
+
+**Single Dual Channel Data Logger**
+**Price:** Rs 11,875 / Unit | Min Order: 10 Units
+**Item Code:** PLC-960
+**Brochure:** https://pdf.indiamart.com/impdf/3926245333/2349477/single-dual-channel-data-logger.pdf
+**Product Details:**
+Connectivity Type: USB | Display: Dual Display | Number of Channels: Single Channel, Multichannel, Dual Channel | Mounting Type: Panel Mount | Export of Data: XL | Parameter to be Monitored: Temperature, Pressure, Humidity | Brand: Swastik | Type of Data Logger: Digital Data Logger | Model: PLC | Power Supply: 230 V AC | Memory: External 8 GB SD Card | Usage: Industrial | Warranty: 1 year against manufacturing defect | Accuracy: 0.5%
+**Specifications:**
+Data logger: 2/4/6/8 Channel | Input: RTD/PT-100-3W | Range: 0–400°C | Logging: 4 GB external SD card with real time | Log Rate: 1–999 Min | Display: Dual — upper display shows process value, lower display shows channel no. | Channel skip facility | Supply: 230 VAC ±10%, 50 Hz | Size: 96×96 mm
+**Additional Info:**
+Pay Mode: L/C (Letter of Credit), T/T (Bank Transfer) | Port of Dispatch: Ahmedabad | Production Capacity: 1000 units/week | Delivery Time: Immediate | Packaging: As per international standard
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2026/5/607209997/YO/DV/HX/2349477/single-dual-channel-data-logger-500x500.png
+- https://5.imimg.com/data5/SELLER/Default/2026/5/607209988/VU/UW/PU/2349477/single-dual-channel-data-logger-500x500.png
+- https://5.imimg.com/data5/SELLER/Default/2026/5/607210015/LJ/NN/JC/2349477/single-dual-channel-data-logger-500x500.png
+- https://5.imimg.com/data5/SELLER/Default/2026/5/607210023/IX/CU/YB/2349477/single-dual-channel-data-logger-500x500.png
+- https://5.imimg.com/data5/SELLER/Default/2026/5/607210057/CE/OT/NM/2349477/single-dual-channel-data-logger-500x500.png
+
+---
+
+**Paperless Data Logger**
+**Price:** Rs 30,000 / Unit | Min Order: 1 Unit
+**Item Code:** SPR-600
+**Brochure:** https://pdf.indiamart.com/impdf/17281320888/MY-2349477/paperless-data-logger-recorder.pdf
+**Product Details:**
+Type of Data Logger: Digital Data Logger | Usage/Application: Industrial, Laboratory | Parameter to be Monitored: Temperature, Humidity, Pressure | Export of Data: PDF / Excel Format | Display: 4.3 Inch TFT | Dimension: 96×96 mm | Model: SPR-600 | Brand: Cautoni-Swastik | Interface: Software/PLC | No. of Channels: Multichannel, 6/12/18 Channel | Power Supply: 85V AC to 285V AC (SMPS) | Warranty: 1 year against manufacturing defect | Memory: Flash memory / USB pen drive support | Accuracy: 0.1% in temperature/RH
+**Specifications:**
+Full-featured universal input | All output types: printer, RS-485, SD card | Successfully exported to various countries | Main uses: pharmaceutical industry, textile, process industry, paper & pulp industry, petrochemical industry
+**Additional Info:**
+Pay Mode: T/T (Bank Transfer) | Port of Dispatch: Ahmedabad | Production Capacity: 100/week | Delivery Time: 2 days after receipt of payment | Packaging: As per international standard
+**Images:**
+- https://5.imimg.com/data5/YR/VJ/MY-2349477/paperless-data-logger-2f-recorder-500x500.png
+- https://5.imimg.com/data5/TK/NL/MY-2349477/whatsapp-image-2017-11-14-at-12-45-07-500x500.jpeg
+- https://5.imimg.com/data5/NQ/XH/MY-2349477/pr3-500x500.jpeg
+- https://5.imimg.com/data5/FE/UI/MY-2349477/paperless-data-logger-2f-recorder-500x500.jpg
+- https://5.imimg.com/data5/QX/IT/MY-2349477/paperless-data-logger-2f-recorder-500x500.jpg
+- https://5.imimg.com/data5/SL/YX/XT/SELLER-2349477/paperless-data-logger-recorder-500x500.png
+- https://5.imimg.com/data5/LM/BS/HV/SELLER-2349477/paperless-data-logger-recorder-500x500.png

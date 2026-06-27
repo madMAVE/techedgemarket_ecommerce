@@ -7,7 +7,8 @@ import ImageSlider from "@/components/ui/ImageSlider";
 export default function ProductCard({ product }: { product: Product }) {
   const disc = product.originalPrice ? getDiscount(product.price, product.originalPrice) : null;
   return (
-    <div className="card-hover flex flex-col overflow-hidden group">
+    <div className="card-hover flex flex-col overflow-hidden group cursor-pointer">
+      <Link href={`/shop/${product.id}`} className="flex flex-col flex-1">
       <div className="relative h-52 bg-slate-50 overflow-hidden">
         <ImageSlider
           images={product.images?.length ? product.images : [product.image]}
@@ -40,14 +41,15 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
           <p className="text-[10px] text-slate-400 mt-0.5">+ GST 18%</p>
         </div>
-        <div className="flex gap-2">
-          <Link href={`/shop/${product.id}`} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:border-primary-400 hover:text-primary-700 transition-all">
-            <FileText className="w-3.5 h-3.5"/>Details
-          </Link>
-          <button disabled={product.stock===0} className="flex-1 btn-primary flex items-center justify-center gap-1.5 !py-2 !px-3 !text-xs !rounded-xl">
-            <ShoppingCart className="w-3.5 h-3.5"/>Add
-          </button>
-        </div>
+      </div>
+      </Link>
+      <div className="px-5 pb-5 flex gap-2">
+        <Link href={`/shop/${product.id}`} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:border-primary-400 hover:text-primary-700 transition-all">
+          <FileText className="w-3.5 h-3.5"/>Details
+        </Link>
+        <button disabled={product.stock===0} className="flex-1 btn-primary flex items-center justify-center gap-1.5 !py-2 !px-3 !text-xs !rounded-xl">
+          <ShoppingCart className="w-3.5 h-3.5"/>Add
+        </button>
       </div>
     </div>
   );

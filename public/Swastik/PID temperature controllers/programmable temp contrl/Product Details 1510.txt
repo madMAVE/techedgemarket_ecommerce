@@ -1,0 +1,25 @@
+Product Details: 1510/--
+Control Type	PID/On-Off
+Model No.	AK6-A
+Size	48 x 48 mm
+Input Type	RTD, Thermocouple
+Control output Type	Relay/SSR
+Brand	Cautoni-Swastik
+Certifications	CE
+Accuracy	+/- 0.5% FS
+Resolution	1 Degree C/ 0.1 Degree C
+Display Type	6 Digit Dual Display
+Voltage	90-270 VAC/DC
+Frequency	50/60 Hz
+Humidity (%)	35-85%
+Temperature Range	- 200 to 2300 Degree C
+Cautoni-Swastik Make Ak6 series smart temperature controller, Dual Display in white colour as well as in Red colour, With relay & SSR output put it in SMART raneg of Temperature controller.
+
+Additional Information:
+
+Item Code: AK6-AKL-200
+Pay Mode Terms: L/C (Letter of Credit),T/T (Bank Transfer)
+Port of Dispatch: Ahmedabad
+Production Capacity: 1000pc per week
+Delivery Time: Immediate
+Packaging Details: As per international standard
