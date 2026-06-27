@@ -1,0 +1,55 @@
+Here are the details for the 3 products:
+
+---
+
+**Programmable Logic Controllers**
+**Price:** Rs 13,500 / Piece
+**Item Code:** HPCM12Q8
+**Brochure:** https://pdf.indiamart.com/impdf/24198870755/2349477/hpe.pdf
+**Product Details:**
+Manufacturer Series: HPC 12P8R | I/O Points: 20 Points, 28 Points | Output Type: Digital | Brand: CAUTONI | Usage/Application: PLC | Number of Inputs: 12
+**Specifications:**
+Model: HPC-12P8R (20 IOs) | HPC-14P3T-12R (29 IOs)
+**Additional Info:**
+Production Capacity: Multiple | Delivery Time: Immediate | Packaging: Swastik Standard Carton Packaging
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2023/4/298038785/PK/MS/BM/2349477/cautoni-plc-500x500.JPG
+- https://5.imimg.com/data5/SELLER/Default/2023/4/298038465/CH/ZQ/SG/2349477/cautoni-plc-500x500.JPG
+- https://5.imimg.com/data5/SELLER/Default/2023/4/298039055/TU/CO/VA/2349477/cautoni-plc-500x500.JPG
+
+---
+
+**HMI Inbuilt PLC (4.3 Inch — Model DW-4G-M8Q8-CS)**
+**Price:** Rs 18,560 / Piece
+**Item Code:** 169212086
+**Brochure:** https://pdf.indiamart.com/impdf/24010360597/2349477/hmi-inbuilt-plc.pdf
+**Product Details:**
+Mounting Type: Panel Mount | Brand: CAUTONI | Model: DW-4G-M8Q8-CS | Phase: Single Phase | Display Size: 4.3 inch | Digital Output: 12 | SD Card Slot: Yes | Usage/Application: Automation | IP Rating: IP65 | COM Port: RS Port | Interface Type: RS485 | Type of Input: DIO, AIO TC Input, CT Input | Ambient Operating Humidity: >80% | Flash Memory: 128 MB | Connectivity Type: RS485 | Ambient Operating Temperature: 50°C | Backlight Color: 65535 True Color | Touch Screen Type: Capacitive Touch | Display Resolution: 480×272 | Operating System: Ladder | Port Type: USB | Country of Origin: Made in India
+**Specifications:**
+HMI with Integrated PLC | Cautoni-Swastik introduced range of HMI with PLC (Combo)
+**Additional Info:**
+Production Capacity: Multiple | Delivery Time: 4–5 days | Packaging: Swastik Standard Carton Packing
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2021/10/QF/ED/YC/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg
+- https://5.imimg.com/data5/SELLER/Default/2021/10/XO/SY/WQ/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg
+- https://5.imimg.com/data5/SELLER/Default/2021/10/KH/NC/IE/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg
+- https://5.imimg.com/data5/SELLER/Default/2021/10/PT/UL/JD/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg
+- https://5.imimg.com/data5/SELLER/Default/2021/10/RW/YH/VB/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg
+
+---
+
+**HMI Inbuilt PLC (7 Inch — Model DW-7S-M8-Q8-CS)**
+**Price:** Rs 24,750 / Piece
+**Item Code:** DW-7S
+**Brochure:** https://pdf.indiamart.com/impdf/24194552233/2349477/hmi-inbuilt-plc.pdf
+**Product Details:**
+Mounting Type: Panel Mount | Brand: CAUTONI | Model: DW-7S-M8-Q8-CS | Phase: Single Phase | Display Size: 7 inch | Digital Output: 20 DO | SD Card Slot: Yes | Usage/Application: Automation | COM Port: RS-485 | Type of Input: Temperature, Analog, Digital Input | Ambient Operating Humidity: >80% | Frequency: 64 kHz High Speed Pulse Output | Flash Memory: 128 MB | Connectivity Type: RS-485 | Ambient Operating Temperature: 50°C | Backlight Color: 65535 True Color | Touch Screen Type: Capacitive Touch | Display Resolution: 800×480 Pixels | Operating System: Ladder | Country of Origin: Made in India
+**Specifications:**
+HMI 7 inch with Inbuilt PLC | Available with Mix Input and Output Combination | Ladder Programming / Easy HMI Programming
+**Additional Info:**
+Production Capacity: 300/month | Delivery Time: Immediate | Packaging: Swastik Standard Carton Package
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2021/11/JK/IM/FF/2349477/combo-7-inch-1-500x500.jpeg
+- https://5.imimg.com/data5/SELLER/Default/2021/11/JF/OA/QF/2349477/combo-7-inch-2-500x500.jpeg
+- https://5.imimg.com/data5/SELLER/Default/2021/11/WU/WR/TC/2349477/combo-7-inch-3-500x500.jpeg
+- https://5.imimg.com/data5/SELLER/PDFImage/2024/1/373414174/DA/UT/IQ/2349477/hmi-inbuilt-plc-500x500.png

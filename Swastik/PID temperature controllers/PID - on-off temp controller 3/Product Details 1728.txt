@@ -1,0 +1,23 @@
+Product Details: 1728/--
+Output Type	Relay + SSR
+Input Type	Thermocouple, Current (mA), Voltage (mV), RTD
+Control Type	On-Off
+Supply Voltage	100–240 VAC
+Display Type	4 Digit/7 Segment
+Size	96 x 96 mm
+Voltage	180-240 V
+Resolution	1 Degree C/ 0.1 Degree C
+Accuracy	+/- 0.5% FS
+Control Outputs	3 Outputs
+Communication	RS485
+Mounting Type	Panel Mount
+Model No.	GT8-E
+Frequency	50/60 Hz
+Brand	Cautoni-Swastik
+Control output Type	Relay/SSR
+Cautoni- swastik make ,Range of GT8 series controller came up with more then 35 variant, 
+
+Specifications:
+PID control for both Heating and cooling
+Avoid temperature fluctuation by On/OFF cooling
+Cooling type changes in to PID intelligent control form ON-OFF return difference control

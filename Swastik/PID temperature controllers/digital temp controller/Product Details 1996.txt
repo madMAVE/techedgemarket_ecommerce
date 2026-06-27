@@ -1,0 +1,18 @@
+Product Details: 1996/--
+Control Type	PID/On-Off
+Brand	Cautoni-Swastik
+Model No.	AK6-AKL-800 ARC Extinction
+Size	72 x 72 mm
+Input Type	RTD, Thermocouple
+Control output Type	Relay
+Accuracy	+/- 0.5% FS
+Resolution	1 Degree C
+Display Type	4 Digit/7 Segment
+Voltage	230 VAC
+Frequency	50/60 Hz
+ARC TECHNOLOGY
+Designed for Food Machine,
+Packaging Machine,
+Heat Press Machine
+High performance
+Direct Load up to 2000 w

@@ -1,0 +1,40 @@
+Product Details: 6671/--
+Control Type	PID
+Size	96 x 96 mm
+Brand	Cautoni-Swastik
+Current	1000A
+Pole Type	Single phase / 3 Phase
+Voltage	85-265 VAC
+Display Type	4 Digit/7 Segment
+Resolution	0.1 Degree C or 1 Degree C
+Accuracy	+/- 0.5% FS
+Control output Type	Relay
+Temperature Range	-200 to 2300 Degree C
+Input Type	Thermocouple, RTD, Current (mA), Voltage (mV)
+Model No.	GR818F
+Frequency	50/60 Hz
+Color	Black
+Material	ABS plastic body
+Function	Soft Start Fucntion for Smooth Controlling
+Connection type	STAR with neutral & Without Neutral / DELTA Connection
+Port	RS-485 / modbus protocol
+Specifications:
+Single phase & Three phase Thyristor Output
+Protection against Single phase & Over Current protection
+Output: Single phase / Three phase thyristor output
+Phase Angle output
+Connection type : STAR with Neutral & without Neutral / delta connection
+Suitable for resistive load & Inductive load
+suitable for single phase & Three phase Thyristor output
+Communication: RS 485 modbus
+Special Function: 10 Programme with 12 STEP for PROFILE CONTROL application
+
+
+Additional Information:
+
+Item Code: GR818F-Series
+Pay Mode Terms: L/C (Letter of Credit),T/T (Bank Transfer)
+Port of Dispatch: Ahmedabad
+Production Capacity: 1000 per month
+Delivery Time: Immediate
+Packaging Details: As per international Standard

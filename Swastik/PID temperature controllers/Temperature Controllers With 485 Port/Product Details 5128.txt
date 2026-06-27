@@ -1,0 +1,43 @@
+Product Details: 5128/--
+Model No.	GR818-A
+Input Type	Current (mA), Voltage (mV), RTD, Thermocouple
+Control output Type	Analog (mA/mV), Relay/SSR
+Type	Automatic
+Brand	Cautoni-Swastik
+Current	100A
+Control Type	PID/On-Off
+Accuracy	+/- 0.5% FS
+Resolution	1 Degree C/ 0.1 Degree C
+Display Type	4 Digit/7 Segment
+Voltage	85-265 VAC
+Frequency	50/60 Hz
+Color	Black
+Material	ABS Plastic Body
+Specifications:
+Model name	GR-818-A
+Display	4 Digit Dual display
+Sensor	T/C : K,E,J,S,B,N,R,T, W3-25, W3-26 RTD :PT-100-3w
+Output	2 / 3 Relay output
+Function	Running Current /Max Current value / Min Current value /total current indication
+Indication :	For relay / Alarm status / Alarm information
+Communication	RS-485 / modbus protocol
+Sampling Type	300 ms
+Current Measure Range	Range up to 100 amp AC- 1/2 channel CT Input
+Control mode for current measure	High/Low/ High-Low Alarm selectable on Heater current
+Control Action	PID / Two-way PID / On-Off
+Keyboard	Knob Setting
+Range	- 50.0*C to 199.9*C / 0-1600*C
+Operating Temperature	0 -50*C / 95% Rh
+Mounting	Flush Panel Mounting
+Size	96X96 /72X72/48X48/ 48X96 in mm
+Supply	SMPS OR linear
+
+
+Additional Information:
+
+Item Code: GR818-AT-122
+Pay Mode Terms: L/C (Letter of Credit),T/T (Bank Transfer)
+Port of Dispatch: Ahmedabad
+Production Capacity: 3000 per month
+Delivery Time: Immediate
+Packaging Details: As per international Standard

@@ -1,0 +1,32 @@
+Product Details: 1333/--
+Control Type	PID/On-Off
+Model No.	AK3-A
+Size	48 x 48 mm
+Input Type	Thermocouple, RTD
+Control output Type	Relay/SSR
+Certifications	CE
+Brand	Cautoni-Swastik
+Resolution	1 Degree C
+Voltage	230 VAC
+Accuracy	0.5% of Full Scale, 50/60 Hz
+Temperature Range	-200 to 2300 Degree C
+Display	Single display
+cautoni swatsik make AK3 series temperature controller Economic range of PID controller (Single display)
+Model: Ak3-AKL / APL -100
+Input:J,K,E / RTD 
+Output : Relay OR SSR
+Display: 4 Digit SIngle Display
+Action : PID OR On-OFf selectable
+Supply : 180 V AC to 240 V AC
+Size : 48 X 48 in mm 
+Available in all standard size 
+
+
+Additional Information:
+
+Item Code: AK3-Series
+Pay Mode Terms: T/T (Bank Transfer),Other
+Port of Dispatch: Ahmedabad
+Production Capacity: 2000 no/week
+Delivery Time: Immediate
+Packaging Details: As per international standard

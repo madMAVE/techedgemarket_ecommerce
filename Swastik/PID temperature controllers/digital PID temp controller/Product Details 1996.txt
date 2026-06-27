@@ -1,0 +1,33 @@
+Product Details: 1996/--
+Model No.	AK6-800
+Size	48 x 48 mm
+Input Type	Thermocouple, RTD
+Control output Type	Relay
+Brand	Cautoni-Swastik
+Certifications	ISO
+Control Type	PID
+Accuracy	+/- 0.5% FS
+Resolution	1 Degree C
+Voltage	230 VAC
+Frequency	50/60 Hz
+Humidity (%)	35-85%
+Sensor Input	K,E,J,N / PT-100
+Color	Black
+Application	Specially Designed for Packaging Industry
+Control Output	8 A Relay
+Display	Dual Display
+Load	Direct Heater Load Up to 2000 W
+ARC technology
+- High performance
+- Direct load up to 2000 W
+- Designed for Food machine, packaging machine & Heat press
+machine.
+
+Additional Information:
+
+Item Code: AK6-DKL-800
+Pay Mode Terms: L/C (Letter of Credit),T/T (Bank Transfer)
+Port of Dispatch: Ahmedabad
+Production Capacity: 1000/week
+Delivery Time: Immediate
+Packaging Details: As per International Standard

@@ -1,0 +1,72 @@
+Here are the 4 listings extracted from the page:
+
+---
+
+## 1. Programmable Logic Controllers
+**Price:** Rs 6,930 / Piece | Min Order: 1 Piece
+**Item Code:** MPC-M8-R8-CS
+**Brochure:** https://pdf.indiamart.com/impdf/2850781147991/2349477/micro-plc.pdf
+**Product Details:**
+Brand: Cautoni-Swastiik | PLC Power: 24 VDC | Communication Port: RS-485 | Output Type: Digital | Programming: Ladder Programming | Usage/Application: Automation | I/O Points: 16 DIO, 24 DIO | Mounting Type: DIN Rail | Display Type: 16X2 LCD Display | Number of Inputs: 8/12 Digital Input | Number of Outputs: 8/12 Relay Output | Program Memory: 512K Flash Memory | Program Language: Ladder | Instruction Time: <0.01 Micro Second | Isolation: 1.2 KVA Opto Isolation | Warranty: 12 Months | Processor: 32 Bit Micro Processor | Country of Origin: Made in India
+**Features:**
+32 bit multitasking processor | Dual Line Programmable LCD Display | Programming Port RS-485 For PLC/Display | Flexible 18 point input/output | Ladder Programming | 24 VDC Power Supply | Din-Rail mounting | D/I: 8/12 Point (NPN/PNP Type) | D/O: 8/12 Point (Transistor/Relay) | TI/AI: 2 Point (Temperature/Analog) | A/O: 4/8 Point (4-20 mA / 0-10 VDC)
+**Additional Info:**
+Production Capacity: 1000/Month | Delivery Time: 1-2 Days After Confirmation | Packaging: Cautoni Standard Packaging
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2023/4/299516314/QL/WY/NM/2349477/micro-plc-with-display-500x500.jpg
+- https://5.imimg.com/data5/SELLER/Default/2023/4/299517265/LZ/WH/ND/2349477/micro-plc-with-display-500x500.jpeg
+- https://5.imimg.com/data5/SELLER/Default/2023/4/299517263/NA/HN/PW/2349477/micro-plc-with-display-500x500.jpeg
+- https://5.imimg.com/data5/SELLER/Default/2023/4/299516509/UF/DU/VR/2349477/micro-plc-with-display-500x500.jpeg
+
+---
+
+## 2. Digital Process Indicator
+**Price:** Rs 1,097 / Unit | Min Order: 10 Units
+**Item Code:** PIC-481
+**Brochure:** https://pdf.indiamart.com/impdf/5661073088/2349477/digital-process-indicator.pdf
+**Product Details:**
+Display Type: Digital | Brand: Swastik | Model: PIC-481 | Range: -1999 to 9999 selectable | Sensor: 0-10V DC, 4-20mA, 0-20mA | Size: 48X48 / 48X96 / 72X72 / 96X96 in mm | Supply: 24V DC Transmitter Supply | Accuracy: 0.01% | Resolution: Adjustable | Enclosure: Plastic
+**Features:**
+Application specific design | Selectable resolution | Low maintenance cost | Input: 4-20 mA / 0-20 mA / 0-10 VDC | 4 Digit Single Display | Available in sizes: 96X96, 72X72, 48X96, 48X48
+**Additional Info:**
+Production Capacity: 1000/week | Delivery Time: Immediate After Receipt of Payment | Pay Mode: L/C, T/T | Port of Dispatch: Ahmedabad | Packaging: As per international standard
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2023/4/298046762/ZT/IM/ZO/2349477/digital-process-indicator-500x500.JPG
+- https://5.imimg.com/data5/SELLER/Default/2023/4/298046924/NZ/UG/RY/2349477/digital-process-indicator-500x500.JPG
+- https://5.imimg.com/data5/SELLER/Default/2023/4/298046953/MZ/OT/WX/2349477/digital-process-indicator-500x500.JPG
+
+---
+
+## 3. Process Control Instrument
+**Price:** Rs 2,350 / Unit | Min Order: 10 Units
+**Item Code:** SPC-961
+**Brochure:** https://pdf.indiamart.com/impdf/9839116597/2349477/process-control-system.pdf
+**Product Details:**
+Brand: Swastik | Voltage: 12V DC, 24V DC | IP Rating: IP68 | Input: 0-10VDC / 0-20mA / 4-20mA | Output: Relay / 2 Relay | Specification 1: Input Selectable | Specifications 2: 24V DC Transmitter Supply | Specifications 3: Re-transmission 4-20
+**Features:**
+Optimal quality standards | High durability | Cost-effective | Accuracy: 0.9% FS | Working Environment: -10~55°C | Temperature Range: -50 to 150°C
+**Additional Info:**
+Production Capacity: 100 units/week | Delivery Time: Immediate | Pay Mode: L/C, T/T | Port of Dispatch: Ahmedabad | Packaging: As per international standard
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2023/4/299591104/AP/OX/LR/2349477/process-control-system-500x500.JPG
+- https://5.imimg.com/data5/SELLER/Default/2024/1/373421842/MN/KK/ZA/2349477/process-control-instrument-500x500.jpg
+
+---
+
+## 4. Profile Temperature Controller
+**Price:** Rs 5,865 / Piece
+**Item Code:** GR818P-AT-120
+**Brochure:** https://pdf.indiamart.com/impdf/9218322030/2349477/profiler-controller.pdf
+**Product Details:**
+Model No.: GR858P | Size: 48x48 mm | Control Type: PID | Input Type: Thermocouple, RTD | Control Output Type: Relay/SSR, Analog (mA/mV) | Brand: Cautoni-Swastik | Type: Automatic | Accuracy: 0.3% FS | Display Type: 4 Digit Dual Display (Upper: 4D Red, Lower: 4D Green) | Voltage: 85-265 VAC | Frequency: 50/60 Hz | Warranty: 1 Year Against Manufacturing Defect | Humidity: 35-85% (Non Condensation) | Temperature Range: -200 to 2300°C | Application: Multi Stage / Multi Profile & Heat/Cool Cycle | Control Output: 2 to 3 Relay / Analog | Port: RS-485 / Modbus Protocol
+**Features:**
+32 Step Profile Controller | Two way PID Controller | Input: Temperature Control | Output: Relay | Alarm x2 | Available in sizes: 48X48 & 96X96 mm
+**Additional Info:**
+Production Capacity: 1000 pcs/month | Delivery Time: Immediate | Pay Mode: T/T | Port of Dispatch: Ahmedabad | Packaging: As per international standard
+**Images:**
+- https://5.imimg.com/data5/AM/JT/MY-2349477/profiler-controller-500x500.jpg
+- https://5.imimg.com/data5/SELLER/Default/2020/12/FA/XT/GJ/2349477/gr818p-series-profiler-controller-500x500.JPG
+- https://5.imimg.com/data5/SELLER/Default/2020/12/FH/JD/TZ/2349477/gr818p-series-profiler-controller-500x500.JPG
+- https://5.imimg.com/data5/SELLER/Default/2020/12/SQ/KV/LA/2349477/gr818p-series-profiler-controller-500x500.JPG
+
+---

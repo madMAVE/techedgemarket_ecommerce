@@ -1,0 +1,33 @@
+Here are the details for the 2 products:
+
+---
+
+**SCR Power Regulator**
+**Price:** Rs 33,554 / Unit | Min Order: 1 Unit
+**Item Code:** TR-SCR
+**Brochure:** https://pdf.indiamart.com/impdf/17280722055/2349477/scr-power-regulator.pdf
+**Product Details:**
+Load Voltage: 415 V AC | Phase: Three Phase | Control Method: Phase Angle | Input Signal: 4-20 mA | Digit Display Size: Dual | Type: Automatic | Model: SCR Power Regulator | Max Operating Temperature: <60°C | Brand: Cautoni-Swastik | Min Operating Temperature: 0-55°C | Smooth Control: Yes | Current Control: Yes | Cooling: Natural & Forced Cooling as per load capacity
+**Features:**
+Input: supports several analog inputs | Output: supports star, triangle, wiring | Strong anti-interference function passing 1800V common-mode and differential-mode ground experiment | Input broken alarm and stop-phase detection | Combined trigger mode of pulse & optocoupler | Supports soft start, current limit & manual percentage output | Dual Display: for input percentage and power limit value
+**Additional Info:**
+Pay Mode: T/T (Bank Transfer) | Port of Dispatch: Ahmedabad | Production Capacity: 100/month | Delivery Time: 2 days after receipt of payment | Packaging: As per international standard
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2026/5/607509392/SW/NM/OP/2349477/scr-power-regulator-500x500.png
+- https://5.imimg.com/data5/SELLER/Default/2026/5/607509371/VI/BA/GR/2349477/scr-power-regulator-500x500.png
+
+---
+
+**Thyristor Trigger Modules**
+**Price:** Rs 5,652 / Unit | Min Order: 1 Unit
+**Item Code:** TRK-1
+**Brochure:** https://pdf.indiamart.com/impdf/17282643088/SELLER-2349477/trk-series-cautoni-swastik-thyristor-trigger-module.pdf
+**Product Details:**
+Part Number: TRK | Package/Case: Module | Brand: Cautoni-Swastik | Structure: Three Phase — SCR/Diode | Display: 4 Digit Single Display | Size: 72×87 mm | Input: 0-5V, 1-5V, 0-10V DC, 0-10mA, 0-20mA, 4-20mA | Supply: 180V AC to 240V AC | Ambient Temperature: 0°C to 50°C | Trigger Mode: Strong trigger less than 1000A SCR
+**Features:**
+Input: analog input (0-5V, 0-10V, 0-20mA, 4-20mA) | Output: Star, triangle, wiring | No external sync line required | Three phase star type wire with midline — automatically recognizes single-phase, two-phase and three-phase output | Strong anti-interference function passing 1800V common-mode and differential-mode ground experiment | Stop-phase detection | Combined trigger mode of pulse and optocoupler | Supports power, current limit and soft start
+**Additional Info:**
+Pay Mode: T/T (Bank Transfer) | Port of Dispatch: Ahmedabad | Production Capacity: 100/week | Delivery Time: Immediate | Packaging: As per international standard
+**Images:**
+- https://5.imimg.com/data5/SELLER/Default/2024/1/373418175/NG/CE/PH/2349477/thyristor-trigger-modules-500x500.png
+- https://5.imimg.com/data5/SELLER/Default/2024/1/373418170/ZW/VR/QF/2349477/thyristor-trigger-modules-500x500.jpeg

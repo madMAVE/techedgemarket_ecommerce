@@ -1,0 +1,18 @@
+Product Details: 1728/--
+Control Type	PID/On-Off
+Brand	Cautoni-Swastik
+Model No.	GT8-B
+Size	48 x 96 mm
+Input Type	Current (mA), Voltage (mV), RTD, Thermocouple
+Control output Type	Relay/SSR
+Accuracy	+/- 0.5% FS
+Resolution	1 Degree C/ 0.1 Degree C
+Display Type	4 Digit/7 Segment
+Voltage	180-240 V
+Frequency	50/60 Hz
+Cautoni- swastik make ,Range of GT8 series controller came up with more then 35 variant, 
+
+Specifications:
+PID control for both Heating and cooling
+Avoid temperature fluctuation by On/OFF cooling
+Cooling type changes in to PID intelligent control form ON-OFF return difference control
