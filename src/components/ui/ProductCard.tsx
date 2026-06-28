@@ -24,7 +24,7 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-black text-primary-600 uppercase tracking-widest">{product.brand}</span>
+          {product.brandLogo && <img src={product.brandLogo} alt={product.brand} className="h-8 w-8 object-contain rounded" />}
           <span className="text-[10px] text-slate-400">{product.category}</span>
         </div>
         <h3 className="font-display font-bold text-slate-900 text-[17px] leading-tight mb-1 truncate-2">{product.name}</h3>

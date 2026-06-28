@@ -18,6 +18,7 @@ export interface Product {
   category: ProductCategory;
   subcategory?: string;
   brand: string;
+  brandLogo?: string;
   model: string;
   image: string;
   images?: string[];

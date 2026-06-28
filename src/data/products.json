@@ -3,8 +3,8 @@
     "id": "p001",
     "name": "Siemens SIMATIC S7-1200 PLC",
     "description": "Compact programmable logic controller for small to medium automation tasks. Features integrated PROFINET interface, onboard I/O, and support for IEC 61131-3 programming languages. Ideal for machine control, process automation, and motion control applications.",
-    "price": 485.0,
-    "originalPrice": 560.0,
+    "price": 485,
+    "originalPrice": 560,
     "category": "Automation",
     "subcategory": "PLCs",
     "brand": "Siemens",
@@ -35,13 +35,14 @@
       "Communication": "PROFINET, RS485",
       "Supply Voltage": "24 VDC"
     },
-    "leadTime": "2\u20133 days"
+    "leadTime": "2–3 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/siemens-logo.jpg"
   },
   {
     "id": "p002",
     "name": "ABB ACS880 Variable Speed Drive 11kW",
     "description": "Industrial all-compatible drive for demanding applications. Built-in safety functions (STO, SS1), adaptive programming, and direct torque control for precise motor management across heavy industries.",
-    "price": 1240.0,
+    "price": 1240,
     "originalPrice": null,
     "category": "Drives & Motors",
     "subcategory": "Variable Speed Drives",
@@ -67,20 +68,21 @@
     "badge": "New",
     "specs": {
       "Power": "11 kW",
-      "Input Voltage": "380\u2013480 V AC, 3-phase",
+      "Input Voltage": "380–480 V AC, 3-phase",
       "Output Current": "25 A",
       "Control Method": "Direct Torque Control (DTC)",
       "Protection": "IP21",
       "Safety": "STO (Safe Torque Off)"
     },
-    "leadTime": "3\u20135 days"
+    "leadTime": "3–5 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/ABB_logo.png"
   },
   {
     "id": "p003",
     "name": "Schneider Masterpact NW 800A MCCB",
     "description": "Air circuit breaker for LV power distribution. Provides overload, short-circuit, and earth fault protection. Micrologic trip unit with advanced metering and communication via Modbus.",
-    "price": 3280.0,
-    "originalPrice": 3900.0,
+    "price": 3280,
+    "originalPrice": 3900,
     "category": "Switchgear",
     "subcategory": "Circuit Breakers",
     "brand": "Schneider Electric",
@@ -108,13 +110,14 @@
       "Communication": "Modbus RTU",
       "Standard": "IEC 60947-2"
     },
-    "leadTime": "7\u201310 days"
+    "leadTime": "7–10 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/schneider-logo.png"
   },
   {
     "id": "p004",
     "name": "Omron CJ2M CPU31 PLC Module",
     "description": "High-performance modular PLC CPU with EtherNet/IP port. Suited for high-speed counting, motion control, and complex process logic. Scalable I/O architecture.",
-    "price": 620.0,
+    "price": 620,
     "originalPrice": null,
     "category": "Automation",
     "subcategory": "PLCs",
@@ -138,16 +141,17 @@
       "Program Capacity": "20 K steps",
       "I/O Points": "Up to 2560",
       "Built-in Ports": "USB, EtherNet/IP",
-      "Execution Speed": "0.04 \u00b5s / instruction",
+      "Execution Speed": "0.04 µs / instruction",
       "Supply Voltage": "24 VDC"
     },
-    "leadTime": "3\u20135 days"
+    "leadTime": "3–5 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/OMRON_Logo.svg.png"
   },
   {
     "id": "p005",
     "name": "Eaton xEnergy HVL Load-Break Switch 630A",
     "description": "HV load-break switch for medium voltage switchgear panels. Designed for reliable switching of HV lines up to 36 kV. Compact design for space-saving MV distribution boards.",
-    "price": 4750.0,
+    "price": 4750,
     "originalPrice": null,
     "category": "Switchgear",
     "subcategory": "Load Break Switches",
@@ -174,14 +178,15 @@
       "Insulation Medium": "SF6-free, Air",
       "Standard": "IEC 62271-103"
     },
-    "leadTime": "14\u201321 days"
+    "leadTime": "14–21 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/Eaton_logo.png"
   },
   {
     "id": "p006",
     "name": "Sick S300 Safety Laser Scanner",
     "description": "Compact safety laser scanner for machine guarding and AGV navigation. Protective field up to 3 m, warning field up to 50 m. OSSD outputs, PROFINET interface.",
-    "price": 2100.0,
-    "originalPrice": 2450.0,
+    "price": 2100,
+    "originalPrice": 2450,
     "category": "Safety Systems",
     "subcategory": "Safety Scanners",
     "brand": "SICK",
@@ -210,116 +215,14 @@
       "Safety Category": "Cat.3 PLd / SIL2",
       "Protection": "IP65"
     },
-    "leadTime": "5\u20137 days"
-  },
-  {
-    "id": "p007",
-    "name": "Keyence LR-ZB250CN Photoelectric Sensor",
-    "description": "Long-range CMOS laser sensor with BGS (Background Suppression). Detects objects at up to 250 cm. NPN/PNP selectable output. Stainless steel housing for harsh environments.",
-    "price": 185.0,
-    "originalPrice": null,
-    "category": "Sensors & Instrumentation",
-    "subcategory": "Photoelectric Sensors",
-    "brand": "Keyence",
-    "model": "LR-ZB250CN",
-    "image": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80",
-    "rating": 4.7,
-    "reviews": 256,
-    "stock": 67,
-    "sku": "KEY-LR-ZB250CN",
-    "partNumber": "LR-ZB250CN",
-    "tags": [
-      "sensor",
-      "keyence",
-      "photoelectric",
-      "laser",
-      "detection"
-    ],
-    "featured": false,
-    "specs": {
-      "Detection Range": "250 cm",
-      "Light Source": "650 nm red laser",
-      "Output": "NPN/PNP selectable",
-      "Supply Voltage": "12\u201324 VDC",
-      "Response Time": "1 ms",
-      "Protection": "IP67"
-    },
-    "leadTime": "1\u20132 days"
-  },
-  {
-    "id": "p008",
-    "name": "Rockwell Allen-Bradley PowerFlex 525 VFD 7.5kW",
-    "description": "Compact AC drive with EtherNet/IP connectivity. Dual-port EtherNet/IP allows daisy-chain topology. Built-in EMC filter. Suitable for HVAC, pumps, conveyors.",
-    "price": 875.0,
-    "originalPrice": 980.0,
-    "category": "Drives & Motors",
-    "subcategory": "Variable Speed Drives",
-    "brand": "Allen-Bradley",
-    "model": "25B-D017N114",
-    "image": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80",
-    "rating": 4.8,
-    "reviews": 311,
-    "stock": 22,
-    "sku": "AB-PF525-7P5KW",
-    "partNumber": "25B-D017N114",
-    "tags": [
-      "vfd",
-      "allen-bradley",
-      "powerflex",
-      "drive",
-      "7.5kw"
-    ],
-    "featured": true,
-    "badge": "Sale",
-    "specs": {
-      "Power": "7.5 kW",
-      "Voltage": "400\u2013480 V AC, 3-phase",
-      "Output Current": "17 A",
-      "Communication": "EtherNet/IP (dual port)",
-      "EMC Filter": "Built-in Class C2",
-      "Protection": "IP20"
-    },
-    "leadTime": "3\u20135 days"
-  },
-  {
-    "id": "p009",
-    "name": "Rittal TS 8 Baying Enclosure 600x2000x600",
-    "description": "Heavy-duty steel control panel enclosure. Baying system allows expansion. IP55 protection, continuous cable entry zones, and full gland plate. Ideal for MCC and control panel builds.",
-    "price": 890.0,
-    "originalPrice": null,
-    "category": "Control Panels",
-    "subcategory": "Enclosures",
-    "brand": "Rittal",
-    "model": "TS8 8805.500",
-    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
-    "rating": 4.6,
-    "reviews": 148,
-    "stock": 31,
-    "sku": "RIT-TS8-6002000",
-    "partNumber": "8805.500",
-    "tags": [
-      "enclosure",
-      "rittal",
-      "control panel",
-      "mcc",
-      "ts8"
-    ],
-    "featured": false,
-    "specs": {
-      "Dimensions": "600 x 2000 x 600 mm (WxHxD)",
-      "Material": "1.5 mm steel",
-      "Protection": "IP55 / NEMA 12",
-      "Colour": "RAL 7035",
-      "Baying": "Yes",
-      "Gland Plate": "Removable top/bottom"
-    },
-    "leadTime": "5\u20137 days"
+    "leadTime": "5–7 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/sick-logo.svg"
   },
   {
     "id": "p010",
     "name": "Fluke 435-II Power Quality Analyser",
     "description": "Three-phase power quality and energy analyser. Measures power, harmonics, flicker, unbalance, and transients. 500 Hz bandwidth. Ideal for troubleshooting and energy audits.",
-    "price": 3450.0,
+    "price": 3450,
     "originalPrice": null,
     "category": "Sensors & Instrumentation",
     "subcategory": "Power Analysers",
@@ -347,81 +250,14 @@
       "Memory": "8 MB internal",
       "Standards": "EN 50160, IEC 61000-4-30"
     },
-    "leadTime": "7\u201310 days"
-  },
-  {
-    "id": "p011",
-    "name": "Pilz PNOZ X3 Safety Relay",
-    "description": "Safety relay module for E-stop, safety gate, and light curtain monitoring. 3 safety contacts + 1 auxiliary. Suitable up to PL e / Cat.4.",
-    "price": 145.0,
-    "originalPrice": null,
-    "category": "Safety Systems",
-    "subcategory": "Safety Relays",
-    "brand": "Pilz",
-    "model": "PNOZ X3",
-    "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80",
-    "rating": 4.8,
-    "reviews": 389,
-    "stock": 54,
-    "sku": "PIL-PNOZX3",
-    "partNumber": "774306",
-    "tags": [
-      "safety relay",
-      "pilz",
-      "pnoz",
-      "estop",
-      "safety"
-    ],
-    "featured": false,
-    "specs": {
-      "Contacts": "3 NO + 1 NC",
-      "Supply Voltage": "24 VDC",
-      "Safety Category": "Cat.4 PLe / SIL3",
-      "Response Time": "\u2264 15 ms",
-      "Width": "22.5 mm"
-    },
-    "leadTime": "1\u20132 days"
-  },
-  {
-    "id": "p012",
-    "name": "Belden 3107A Industrial Ethernet Cable (300m)",
-    "description": "Industrial Shielded Cat6A Ethernet cable for harsh environments. Oil-resistant PVC jacket, drag-chain rated, 600V rating. 300m drum.",
-    "price": 420.0,
-    "originalPrice": 510.0,
-    "category": "Cables & Wiring",
-    "subcategory": "Ethernet Cables",
-    "brand": "Belden",
-    "model": "3107A",
-    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
-    "rating": 4.7,
-    "reviews": 167,
-    "stock": 18,
-    "sku": "BLD-3107A-300M",
-    "partNumber": "3107A 0101000",
-    "tags": [
-      "cable",
-      "belden",
-      "ethernet",
-      "cat6a",
-      "industrial"
-    ],
-    "featured": false,
-    "badge": "Sale",
-    "specs": {
-      "Category": "Cat6A",
-      "Shielding": "F/UTP (Foil/Unshielded Twisted Pair)",
-      "Jacket": "Oil-resistant PVC",
-      "Voltage Rating": "600 V",
-      "Temperature": "-20\u00b0C to +80\u00b0C",
-      "Drum Length": "300 m"
-    },
-    "leadTime": "2\u20133 days"
+    "leadTime": "7–10 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/fluke-logo.png"
   },
   {
     "id": "p013",
     "name": "Mitsubishi MELSEC iQ-R Series PLC R08CPU",
     "description": "High-speed modular PLC with nanosecond-level processing. Supports motion control, safety, C language, and multiple field networks. Ideal for automotive and semiconductor manufacturing.",
-    "price": 1380.0,
+    "price": 1380,
     "originalPrice": null,
     "category": "Automation",
     "subcategory": "PLCs",
@@ -449,48 +285,15 @@
       "Networks": "CC-Link IE, PROFINET, EtherNet/IP",
       "USB Port": "USB 2.0"
     },
-    "leadTime": "5\u20137 days"
-  },
-  {
-    "id": "p014",
-    "name": "Endress+Hauser Promag P 300 Flow Meter",
-    "description": "Electromagnetic flow meter for conductive liquids. High accuracy \u00b10.4%. Hart 7, PROFIBUS PA, Modbus interfaces. Suitable for water treatment, chemicals, and food processes.",
-    "price": 1850.0,
-    "originalPrice": null,
-    "category": "Sensors & Instrumentation",
-    "subcategory": "Flow Meters",
-    "brand": "Endress+Hauser",
-    "model": "10P40-AA0A2R00A4",
-    "image": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80",
-    "rating": 4.8,
-    "reviews": 88,
-    "stock": 7,
-    "sku": "EH-PROMAG-P300",
-    "partNumber": "10P40-AA0A2R00A4",
-    "tags": [
-      "flow meter",
-      "endress+hauser",
-      "promag",
-      "electromagnetic",
-      "hart"
-    ],
-    "featured": false,
-    "specs": {
-      "Measurement": "Electromagnetic",
-      "Accuracy": "\u00b10.4% of reading",
-      "Fluid Conductivity": "\u2265 5 \u00b5S/cm",
-      "DN": "40 mm",
-      "Pressure": "PN 16",
-      "Communication": "HART 7, PROFIBUS PA, Modbus"
-    },
-    "leadTime": "10\u201314 days"
+    "leadTime": "5–7 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/Mitsubishi-logo.png"
   },
   {
     "id": "p015",
     "name": "ABB S804PV-S125 DC Circuit Breaker 125A",
     "description": "DC circuit breaker for solar PV and battery storage systems. Suitable for 1000 V DC systems. UL489B listed. Two-pole, snap-on DIN rail mount.",
-    "price": 310.0,
-    "originalPrice": 370.0,
+    "price": 310,
+    "originalPrice": 370,
     "category": "Switchgear",
     "subcategory": "DC Circuit Breakers",
     "brand": "ABB",
@@ -518,41 +321,8 @@
       "Mounting": "DIN Rail 35 mm",
       "Standard": "IEC 60947-2, UL 489B"
     },
-    "leadTime": "2\u20133 days"
-  },
-  {
-    "id": "p016",
-    "name": "Balluff BTL7-E500-M0400 Linear Position Sensor",
-    "description": "Magnetostrictive linear position transducer for hydraulic cylinders and linear stages. Non-contact, wear-free measurement. Resolution 1 \u00b5m. SSI/Analog/IO-Link output.",
-    "price": 680.0,
-    "originalPrice": null,
-    "category": "Sensors & Instrumentation",
-    "subcategory": "Position Sensors",
-    "brand": "Balluff",
-    "model": "BTL7-E500-M0400-B-KA05",
-    "image": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80",
-    "rating": 4.8,
-    "reviews": 62,
-    "stock": 12,
-    "sku": "BAL-BTL7-E500-400",
-    "partNumber": "BTL7-E500-M0400-B-KA05",
-    "tags": [
-      "position sensor",
-      "balluff",
-      "magnetostrictive",
-      "linear",
-      "io-link"
-    ],
-    "featured": false,
-    "specs": {
-      "Measuring Length": "400 mm",
-      "Resolution": "1 \u00b5m",
-      "Repeatability": "\u00b10.002 mm",
-      "Output": "SSI, Analog (0\u201310V/4\u201320mA), IO-Link",
-      "Supply Voltage": "24 VDC",
-      "Protection": "IP67"
-    },
-    "leadTime": "5\u20137 days"
+    "leadTime": "2–3 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/ABB_logo.png"
   },
   {
     "id": "p017",
@@ -592,7 +362,8 @@
       "Output Type": "Digital",
       "Mounting": "Panel Mount"
     },
-    "leadTime": "2-3 days"
+    "leadTime": "2-3 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p018",
@@ -632,7 +403,8 @@
       "Control Type": "Touch Screen",
       "Mounting": "Panel Mount"
     },
-    "leadTime": "4-5 days"
+    "leadTime": "4-5 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p019",
@@ -672,7 +444,8 @@
       "Dimension": "164x129x43 mm",
       "Mounting": "Panel Mount"
     },
-    "leadTime": "2-3 days"
+    "leadTime": "2-3 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p020",
@@ -717,7 +490,8 @@
       "Supply": "230 VAC +/-10%, 50 Hz",
       "Connectivity": "USB"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p021",
@@ -761,7 +535,8 @@
       "Interface": "RS-485, Printer, SD Card",
       "Export Format": "PDF / Excel"
     },
-    "leadTime": "2 days"
+    "leadTime": "2 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p022",
@@ -803,7 +578,8 @@
       "Counting": "Up/Down Programmable",
       "Memory": "Selectable memory option"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p023",
@@ -844,7 +620,8 @@
       "Lower Display": "Channel number",
       "Mounting": "Panel mounting"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p024",
@@ -886,7 +663,8 @@
       "Display": "Single Display",
       "Max Current": "10A"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p025",
@@ -928,7 +706,8 @@
       "Phase": "Single Phase",
       "Frequency": "50 to 60 Hz"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p026",
@@ -965,7 +744,8 @@
       "Phase": "Single Phase",
       "Automation Grade": "Automatic"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p027",
@@ -1006,7 +786,8 @@
       "Control Outputs": "2 Output",
       "Automation Grade": "Semi Automatic"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p028",
@@ -1048,7 +829,8 @@
       "Supply Voltage": "230 VAC",
       "Size": "48x96 (multiple sizes available)"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p029",
@@ -1090,7 +872,8 @@
       "Supply": "230 VAC",
       "Sensor Type": "Proximity/NPN/PNP"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p030",
@@ -1131,7 +914,8 @@
       "Mounting": "Flush panel Mounting",
       "Size": "96x96/48x96/72x72/29x56/36x72"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p031",
@@ -1174,7 +958,8 @@
       "Supply": "230 VAC",
       "Size": "96x96, 72x72, 48x48"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p032",
@@ -1216,7 +1001,8 @@
       "Size": "72x72, 96x96 mm",
       "Mounting": "Panel"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p033",
@@ -1258,7 +1044,8 @@
       "Mounting": "Flush panel mounting",
       "Material": "ABS Plastic Body"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p034",
@@ -1297,7 +1084,8 @@
       "Sensor": "Proximity, photocell, encoder, potential free contact",
       "Size": "96x96 / 72x72 / 48x96 / 48x48 mm"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p035",
@@ -1336,7 +1124,8 @@
       "Size": "96x96 mm",
       "Application": "Pharmaceutical Industry"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p036",
@@ -1378,7 +1167,8 @@
       "Counting Range": "0-9999",
       "Frequency": "50/60 Hz"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p037",
@@ -1419,7 +1209,8 @@
       "Temp Range": "-50 C to 2300 C",
       "Mounting": "Wall mounting"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p038",
@@ -1458,7 +1249,8 @@
       "Mounting": "Wall Mounted",
       "Alarm Output": "2"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p039",
@@ -1499,7 +1291,8 @@
       "Input": "4-20 mA",
       "Alarm Output": "2"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p040",
@@ -1539,7 +1332,8 @@
       "Mounting Type": "Panel Mount",
       "Type": "Digital"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p041",
@@ -1576,7 +1370,8 @@
       "Usage/Application": "Industrial",
       "Country of Origin": "Made in India"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p042",
@@ -1612,7 +1407,8 @@
       "Display Type": "LED",
       "Usage/Application": "Industrial"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p043",
@@ -1654,7 +1450,8 @@
       "Size": "96x96",
       "Enclosure": "Plastic"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p044",
@@ -1694,7 +1491,8 @@
       "Power Supply": "230 VAC +/-10%, 50 Hz",
       "Size": "48x48/48x96/72x72/96x96"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p045",
@@ -1734,7 +1532,8 @@
       "Cutout Size": "96x96 mm",
       "Display Color": "Red"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p046",
@@ -1772,7 +1571,8 @@
       "Size": "48x96",
       "Display Type": "RED Single display"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p047",
@@ -1810,7 +1610,8 @@
       "Phase": "Single phase",
       "Size": "48x96"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p048",
@@ -1850,7 +1651,8 @@
       "AC Voltage": "230 V AC",
       "Mounting Type": "Panel Mount"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p049",
@@ -1892,7 +1694,8 @@
       "Voltage": "180-240 V",
       "Frequency": "50/60 Hz"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p050",
@@ -1936,7 +1739,8 @@
       "Size": "96x96 / 72x72 / 48x48 / 48x96 mm",
       "Supply": "85-265 VAC"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p051",
@@ -1982,7 +1786,8 @@
       "Communication": "RS-485 Modbus",
       "Profile Control": "10 Programs with 12 STEP"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p052",
@@ -2025,7 +1830,8 @@
       "Voltage": "230 VAC",
       "Direct Load": "Up to 2000W"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p053",
@@ -2071,7 +1877,8 @@
       "Temperature Range": "-200 to 2300 C",
       "Humidity": "35-85%"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p054",
@@ -2115,7 +1922,8 @@
       "Certifications": "CE, ISO",
       "Power Supply": "SMPS"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p055",
@@ -2157,7 +1965,8 @@
       "Display": "4 Digit Single Display",
       "Action": "PID or On-Off selectable"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p056",
@@ -2202,7 +2011,8 @@
       "Display": "Dual Display",
       "Direct Load": "Up to 2000W"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p057",
@@ -2245,7 +2055,8 @@
       "Mounting": "Panel Mount",
       "Input Type": "Thermocouple, Current (mA), Voltage (mV), RTD"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p058",
@@ -2286,135 +2097,8 @@
       "Voltage": "180-240 V",
       "Frequency": "50/60 Hz"
     },
-    "leadTime": "Immediate"
-  },
-  {
-    "id": "p059",
-    "name": "Programmable Logic Controllers HPC-12P8R",
-    "description": "Cautoni PLC with 20/28 I/O points. 32-bit processor, dual-line programmable LCD display. RS-485 programming port. Ladder programming with DIN rail mounting. 24VDC supply.",
-    "price": 13500,
-    "originalPrice": null,
-    "category": "HMI & PLC",
-    "subcategory": "Programmable Logic Controllers",
-    "brand": "CAUTONI",
-    "model": "HPC-12P8R",
-    "images": [
-      "https://5.imimg.com/data5/SELLER/Default/2023/4/298038785/PK/MS/BM/2349477/cautoni-plc-500x500.JPG",
-      "https://5.imimg.com/data5/SELLER/Default/2023/4/298038465/CH/ZQ/SG/2349477/cautoni-plc-500x500.JPG",
-      "https://5.imimg.com/data5/SELLER/Default/2023/4/298039055/TU/CO/VA/2349477/cautoni-plc-500x500.JPG"
-    ],
-    "rating": 4.5,
-    "reviews": 0,
-    "stock": 50,
-    "sku": "SWA-HPC-12P8R",
-    "partNumber": "HPC-12P8R",
-    "tags": [
-      "plc",
-      "programmable logic controller",
-      "cautoni",
-      "ladder",
-      "din rail"
-    ],
-    "featured": false,
-    "specs": {
-      "I/O Points": "20 Points, 28 Points",
-      "Output Type": "Digital",
-      "Number of Inputs": "12",
-      "Usage/Application": "PLC"
-    },
-    "leadTime": "Immediate"
-  },
-  {
-    "id": "p060",
-    "name": "HMI Inbuilt PLC 4.3 Inch DW-4G-M8Q8-CS",
-    "description": "HMI with integrated PLC combo unit. 4.3-inch capacitive touch, 480x272 resolution, 65535 true colors. 12 digital outputs, RS485, USB, SD card slot. IP65 rated.",
-    "price": 18560,
-    "originalPrice": null,
-    "category": "HMI & PLC",
-    "subcategory": "HMI with PLC",
-    "brand": "CAUTONI",
-    "model": "DW-4G-M8Q8-CS",
-    "images": [
-      "https://5.imimg.com/data5/SELLER/Default/2021/10/QF/ED/YC/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg",
-      "https://5.imimg.com/data5/SELLER/Default/2021/10/XO/SY/WQ/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg",
-      "https://5.imimg.com/data5/SELLER/Default/2021/10/KH/NC/IE/2349477/plc-with-4-3-inch-touch-screen-hmi-500x500.jpg"
-    ],
-    "rating": 4.5,
-    "reviews": 0,
-    "stock": 50,
-    "sku": "SWA-DW-4G-M8Q8-CS",
-    "partNumber": "DW-4G-M8Q8-CS",
-    "tags": [
-      "hmi",
-      "plc",
-      "combo",
-      "4.3 inch",
-      "touch screen",
-      "cautoni",
-      "ip65"
-    ],
-    "featured": true,
-    "badge": "New",
-    "specs": {
-      "Display Size": "4.3 inch",
-      "Resolution": "480x272",
-      "Touch Screen": "Capacitive Touch",
-      "Backlight": "65535 True Color",
-      "Digital Output": "12",
-      "SD Card Slot": "Yes",
-      "Flash Memory": "128 MB",
-      "COM Port": "RS485",
-      "Port Type": "USB",
-      "IP Rating": "IP65",
-      "Operating System": "Ladder",
-      "Mounting": "Panel Mount"
-    },
-    "leadTime": "4-5 days"
-  },
-  {
-    "id": "p061",
-    "name": "HMI Inbuilt PLC 7 Inch DW-7S-M8-Q8-CS",
-    "description": "7-inch HMI with inbuilt PLC. 800x480 resolution, capacitive touch. 20 digital outputs, RS-485, SD card slot. Ladder/easy HMI programming. Mix input and output combinations available.",
-    "price": 24750,
-    "originalPrice": null,
-    "category": "HMI & PLC",
-    "subcategory": "HMI with PLC",
-    "brand": "CAUTONI",
-    "model": "DW-7S-M8-Q8-CS",
-    "images": [
-      "https://5.imimg.com/data5/SELLER/Default/2021/11/JK/IM/FF/2349477/combo-7-inch-1-500x500.jpeg",
-      "https://5.imimg.com/data5/SELLER/Default/2021/11/JF/OA/QF/2349477/combo-7-inch-2-500x500.jpeg",
-      "https://5.imimg.com/data5/SELLER/Default/2021/11/WU/WR/TC/2349477/combo-7-inch-3-500x500.jpeg"
-    ],
-    "rating": 4.5,
-    "reviews": 0,
-    "stock": 50,
-    "sku": "SWA-DW-7S-M8-Q8-CS",
-    "partNumber": "DW-7S",
-    "tags": [
-      "hmi",
-      "plc",
-      "combo",
-      "7 inch",
-      "touch screen",
-      "cautoni"
-    ],
-    "featured": true,
-    "badge": "Premium",
-    "specs": {
-      "Display Size": "7 inch",
-      "Resolution": "800x480 Pixels",
-      "Touch Screen": "Capacitive Touch",
-      "Backlight": "65535 True Color",
-      "Digital Output": "20 DO",
-      "SD Card Slot": "Yes",
-      "Flash Memory": "128 MB",
-      "COM Port": "RS-485",
-      "Frequency": "64 kHz High Speed Pulse Output",
-      "Operating System": "Ladder",
-      "Mounting": "Panel Mount"
-    },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p062",
@@ -2462,7 +2146,8 @@
       "Analog Input": "2 Point (Temperature/Analog)",
       "Analog Output": "4/8 Point (4-20 mA / 0-10 VDC)"
     },
-    "leadTime": "1-2 days"
+    "leadTime": "1-2 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p063",
@@ -2503,7 +2188,8 @@
       "Working Environment": "-10 to 55 C",
       "Temperature Range": "-50 to 150 C"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p064",
@@ -2548,7 +2234,8 @@
       "Profile Steps": "32 Step",
       "Alarm": "x2"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p065",
@@ -2592,7 +2279,8 @@
       "Current Control": "Yes",
       "Cooling": "Natural & Forced Cooling as per load capacity"
     },
-    "leadTime": "2 days"
+    "leadTime": "2 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p066",
@@ -2632,7 +2320,8 @@
       "Ambient Temperature": "0 C to 50 C",
       "Trigger Mode": "Strong trigger less than 1000A SCR"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p067",
@@ -2674,7 +2363,8 @@
       "Frequency": "50/60 Hz",
       "Usage": "Oven, Lab Equipment, Scientific Industry"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p068",
@@ -2716,7 +2406,8 @@
       "Accuracy": "+/- 0.5% FS",
       "Frequency": "50/60 Hz"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p069",
@@ -2760,7 +2451,8 @@
       "Voltage": "90-270 VAC/DC",
       "Frequency": "50/60 Hz"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p070",
@@ -2802,7 +2494,8 @@
       "Frequency": "50/60 Hz",
       "Color": "White"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p071",
@@ -2850,7 +2543,8 @@
       "Response Time": "Less than 0.6s",
       "Power consumption": "Less than 5 W"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p072",
@@ -2889,7 +2583,8 @@
       "Frequency": "50/60 Hz",
       "Material": "ABS Plastic Body"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p073",
@@ -2934,7 +2629,8 @@
       "Accuracy": "0.5% of FS",
       "Control Action": "PID / TWO WAY PID / ON-OFF"
     },
-    "leadTime": "2-3 days"
+    "leadTime": "2-3 days",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/cautoni-swastik-logo.jpeg"
   },
   {
     "id": "p074",
@@ -2980,7 +2676,8 @@
       "Supply": "230 VAC",
       "Enclosure": "Metallic"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p075",
@@ -3018,7 +2715,8 @@
       "Output": "2 Relay (High/Low Alarm)",
       "Optional": "RS-485 Communication"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   },
   {
     "id": "p076",
@@ -3058,6 +2756,7 @@
       "Size": "48x48 / 48x96 / 72x72 / 96x96 mm",
       "Enclosure": "Plastic"
     },
-    "leadTime": "Immediate"
+    "leadTime": "Immediate",
+    "brandLogo": "/techedgemarket_ecommerce/brand-logos/swastik.png"
   }
 ]

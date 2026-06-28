@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
-import { ShoppingCart, Menu, X, Phone, Award } from "lucide-react";
+import { ShoppingCart, Menu, X, Phone, Award, Search } from "lucide-react";
+import { SearchableDropdown, type DropdownOption } from "@/components/ui/SearchableDropdown";
+import { getAllProducts } from "@/utils/data";
 
 const NAV = [
   { label:"Products",  href:"/shop" },
@@ -15,7 +17,24 @@ const NAV = [
 
 export default function Navbar({ cartCount=0 }: { cartCount?: number }) {
   const path = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  const products = getAllProducts();
+  const productOptions: DropdownOption[] = products.map(p => ({
+    value: p.id,
+    label: p.name,
+    searchValue: `${p.name} ${p.brand} ${p.partNumber}`.toLowerCase(),
+    icon: p.brandLogo ? (
+      <img src={p.brandLogo} alt={p.brand} className="h-5 w-5 object-contain shrink-0 rounded" />
+    ) : undefined,
+  }));
+
+  const handleProductSelect = (value: string) => {
+    if (value) {
+      router.push(`/shop/${value}`);
+    }
+  };
 
   return (
     <>
@@ -39,9 +58,9 @@ export default function Navbar({ cartCount=0 }: { cartCount?: number }) {
       <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16 gap-8">
           {/* Logo */}
-          <Link href="/" className="shrink-0">
+          <a href="/techedgemarket_ecommerce/" className="shrink-0">
             <Image src="/techedgemarket_ecommerce/logo/TEM-dark.png" alt="TechEdge Market" width={180} height={50} className="h-10 w-auto object-contain" />
-          </Link>
+          </a>
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1 flex-1">
@@ -55,6 +74,15 @@ export default function Navbar({ cartCount=0 }: { cartCount?: number }) {
 
           {/* Right */}
           <div className="flex items-center gap-3 shrink-0">
+            <div className="hidden sm:block w-[32rem]">
+              <SearchableDropdown
+                options={productOptions}
+                onValueChange={handleProductSelect}
+                placeholder="Search products..."
+                emptyMessage="No products found."
+                buttonClassName="h-9 text-sm border-slate-200 bg-slate-50 hover:bg-slate-100"
+              />
+            </div>
             <Link href="/cart" className="relative p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-all">
               <ShoppingCart className="w-5 h-5"/>
               {cartCount>0 && <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">{cartCount}</span>}
