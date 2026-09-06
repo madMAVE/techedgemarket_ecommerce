@@ -40,10 +40,30 @@ const store: { request: RequestInterceptor[]; response: ResponseInterceptor[]; e
 };
 
 // ── Token ──────────────────────────────────────────────────────────────────────
+const TOKEN_KEY = "techedge_auth_token";
 let _token: string | null = null;
-export const setAuthToken  = (t: string | null) => { _token = t; };
-export const getAuthToken  = () => _token;
-export const clearAuthToken = () => { _token = null; };
+
+export const setAuthToken = (t: string | null) => {
+  _token = t;
+  if (typeof window !== "undefined") {
+    if (t) localStorage.setItem(TOKEN_KEY, t);
+    else localStorage.removeItem(TOKEN_KEY);
+  }
+};
+
+export const getAuthToken = () => {
+  if (!_token && typeof window !== "undefined") {
+    _token = localStorage.getItem(TOKEN_KEY);
+  }
+  return _token;
+};
+
+export const clearAuthToken = () => {
+  _token = null;
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+};
 
 // ── Built-in request interceptors ─────────────────────────────────────────────
 store.request.push(
@@ -80,6 +100,8 @@ export const addResponseInterceptor = (fn: ResponseInterceptor) => store.respons
 export const addErrorInterceptor    = (fn: ErrorInterceptor)    => store.error.push(fn);
 
 // ── Core client ───────────────────────────────────────────────────────────────
+const API_BASE_URL = "http://localhost:7070";
+
 const DEFAULTS: Partial<RequestConfig> = {
   method: "GET",
   timeout: 30_000,
@@ -94,7 +116,7 @@ export async function apiClient<T = unknown>(config: RequestConfig): Promise<Api
   let cfg: RequestConfig = { ...DEFAULTS, ...config, headers: { ...DEFAULTS.headers, ...config.headers } };
   for (const fn of store.request) cfg = await fn(cfg);
 
-  let url = cfg.url;
+  let url = cfg.url.startsWith("http") ? cfg.url : `${API_BASE_URL}${cfg.url}`;
   if (cfg.params && Object.keys(cfg.params).length) url += `?${buildQS(cfg.params)}`;
 
   const controller = new AbortController();
@@ -105,10 +127,14 @@ export async function apiClient<T = unknown>(config: RequestConfig): Promise<Api
       method: cfg.method ?? "GET",
       headers: cfg.headers as HeadersInit,
       signal: controller.signal,
-      credentials: cfg.withCredentials ? "include" : "same-origin",
+      credentials: "include",
     };
-    if (cfg.body && cfg.method !== "GET" && cfg.method !== "DELETE")
-      opts.body = JSON.stringify(cfg.body);
+    if (cfg.body && cfg.method !== "GET" && cfg.method !== "DELETE") {
+      opts.body = cfg.body instanceof FormData ? cfg.body : JSON.stringify(cfg.body);
+      if (cfg.body instanceof FormData) {
+        delete (opts.headers as Record<string, string>)["Content-Type"];
+      }
+    }
 
     const raw = await fetch(url, opts);
     clearTimeout(tid);

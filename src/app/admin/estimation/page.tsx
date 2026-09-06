@@ -217,7 +217,7 @@ export default function EstimationPage() {
                           <tr key={item.product.id} className="tr-dark">
                             <td className="td-dark">
                               <p className="font-semibold text-iron-200">{item.product.name}</p>
-                              <p className="text-xs font-mono text-iron-500">{item.product.sku}</p>
+                              {item.product.sku && <p className="text-xs font-mono text-iron-500">{item.product.sku}</p>}
                             </td>
                             <td className="td-dark">
                               <div className="flex items-center border border-white/10 rounded-lg overflow-hidden w-24 mx-auto">
@@ -388,7 +388,7 @@ export default function EstimationPage() {
                         <td style={{ padding:"10px 12px", textAlign:"center", color:"#64748b" }}>{i+1}</td>
                         <td style={{ padding:"10px 12px" }}>
                           <div style={{ fontWeight:600 }}>{item.product.name}</div>
-                          <div style={{ fontSize:"10px", color:"#94a3b8", fontFamily:"monospace" }}>SKU: {item.product.sku} | PN: {item.product.partNumber}</div>
+                          <div style={{ fontSize:"10px", color:"#94a3b8", fontFamily:"monospace" }}>PN: {item.product.partNumber}{item.product.sku && ` | SKU: ${item.product.sku}`}</div>
                         </td>
                         <td style={{ padding:"10px 12px", textAlign:"center", fontWeight:700 }}>{item.qty}</td>
                         <td style={{ padding:"10px 12px" }}>₹{base.toLocaleString("en-IN")}</td>

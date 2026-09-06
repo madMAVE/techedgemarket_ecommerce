@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList } from "lucide-react";
+import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const LINKS = [
   { href:"/admin",                  label:"Dashboard",      icon:LayoutDashboard, section:"Overview" },
@@ -22,7 +23,19 @@ const LINKS = [
 
 export default function AdminSidebar() {
   const path = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAdminAuth();
   let lastSection = "";
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/admin/login");
+  };
+
+  const initials = user?.username
+    ? user.username.slice(0, 2).toUpperCase()
+    : "AD";
+
   return (
     <aside className="sidebar w-60 min-h-screen flex flex-col shrink-0">
       {/* Logo */}
@@ -55,16 +68,16 @@ export default function AdminSidebar() {
       <div className="px-3 pb-3 border-t border-slate-200 pt-3 space-y-0.5">
         <button className="nav-link nav-link-inactive w-full text-sm"><Bell className="w-4 h-4"/><span className="flex-1">Notifications</span><span className="w-5 h-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">3</span></button>
         <button className="nav-link nav-link-inactive w-full text-sm"><Settings className="w-4 h-4"/><span>Settings</span></button>
-        <button className="nav-link w-full text-sm text-red-500 hover:bg-red-50"><LogOut className="w-4 h-4"/><span>Sign Out</span></button>
+        <button onClick={handleLogout} className="nav-link w-full text-sm text-red-500 hover:bg-red-50"><LogOut className="w-4 h-4"/><span>Sign Out</span></button>
       </div>
 
       {/* User */}
       <div className="px-4 py-3 bg-slate-50 border-t border-slate-200">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-primary-600 flex items-center justify-center text-white text-xs font-black">VP</div>
+          <div className="w-8 h-8 rounded-xl bg-primary-600 flex items-center justify-center text-white text-xs font-black">{initials}</div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-slate-800 truncate">Vikram Patel</div>
-            <div className="text-xs text-slate-400 truncate">General Manager</div>
+            <div className="text-sm font-semibold text-slate-800 truncate">{user?.username || "Admin"}</div>
+            <div className="text-xs text-slate-400 truncate">{user?.role || "Administrator"}</div>
           </div>
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot shrink-0"/>
         </div>

@@ -18,7 +18,7 @@
     "stock": 28,
     "sku": "SIE-S7-1200-CPU1214C",
     "partNumber": "6ES7214-1AG40-0XB0",
-    "tags": [
+    "keywords": [
       "plc",
       "siemens",
       "simatic",
@@ -57,7 +57,7 @@
     "stock": 14,
     "sku": "ABB-ACS880-11KW",
     "partNumber": "ACS880-01-025A-3",
-    "tags": [
+    "keywords": [
       "vfd",
       "abb",
       "drive",
@@ -93,7 +93,7 @@
     "stock": 6,
     "sku": "SCH-NW800-3P",
     "partNumber": "NW08H1-800A-3P",
-    "tags": [
+    "keywords": [
       "mccb",
       "schneider",
       "switchgear",
@@ -129,7 +129,7 @@
     "stock": 19,
     "sku": "OMR-CJ2M-CPU31",
     "partNumber": "CJ2M-CPU31",
-    "tags": [
+    "keywords": [
       "plc",
       "omron",
       "cj2m",
@@ -163,7 +163,7 @@
     "stock": 4,
     "sku": "EAT-HVL-630A",
     "partNumber": "HVL/R-630A-36kV",
-    "tags": [
+    "keywords": [
       "switchgear",
       "eaton",
       "mv",
@@ -197,7 +197,7 @@
     "stock": 9,
     "sku": "SICK-S300-6011DA",
     "partNumber": "S30A-6011DA",
-    "tags": [
+    "keywords": [
       "safety",
       "scanner",
       "sick",
@@ -234,7 +234,7 @@
     "stock": 5,
     "sku": "FLK-435-II",
     "partNumber": "4352979",
-    "tags": [
+    "keywords": [
       "power quality",
       "fluke",
       "analyser",
@@ -269,7 +269,7 @@
     "stock": 11,
     "sku": "MIT-R08CPU",
     "partNumber": "R08CPU",
-    "tags": [
+    "keywords": [
       "plc",
       "mitsubishi",
       "melsec",
@@ -304,7 +304,7 @@
     "stock": 33,
     "sku": "ABB-S804PV-125A",
     "partNumber": "2CCS884001R0845",
-    "tags": [
+    "keywords": [
       "dc breaker",
       "abb",
       "solar",
@@ -344,7 +344,7 @@
     "stock": 50,
     "sku": "SWA-CX-43-HMI",
     "partNumber": "CX Series",
-    "tags": [
+    "keywords": [
       "hmi",
       "plc",
       "cautoni",
@@ -386,7 +386,7 @@
     "stock": 50,
     "sku": "SWA-10-HMI-PLC",
     "partNumber": "10-HMI-PLC",
-    "tags": [
+    "keywords": [
       "hmi",
       "plc",
       "cautoni",
@@ -424,7 +424,7 @@
     "stock": 50,
     "sku": "SWA-PLC-HMI-43",
     "partNumber": "PLC-HMI-4.3",
-    "tags": [
+    "keywords": [
       "hmi",
       "plc",
       "combo",
@@ -468,7 +468,7 @@
     "stock": 50,
     "sku": "SWA-PLC-960",
     "partNumber": "PLC-960",
-    "tags": [
+    "keywords": [
       "data logger",
       "swastik",
       "temperature",
@@ -514,7 +514,7 @@
     "stock": 50,
     "sku": "SWA-SPR-600",
     "partNumber": "SPR-600",
-    "tags": [
+    "keywords": [
       "data logger",
       "paperless",
       "recorder",
@@ -558,7 +558,7 @@
     "stock": 50,
     "sku": "SWA-UT-4821",
     "partNumber": "UT-4821",
-    "tags": [
+    "keywords": [
       "timer",
       "digital",
       "universal",
@@ -601,7 +601,7 @@
     "stock": 50,
     "sku": "SWA-SST-968",
     "partNumber": "SST-968",
-    "tags": [
+    "keywords": [
       "timer",
       "sequential",
       "digital",
@@ -643,7 +643,7 @@
     "stock": 50,
     "sku": "SWA-STW",
     "partNumber": "STW",
-    "tags": [
+    "keywords": [
       "timer",
       "thumbwheel",
       "digital",
@@ -686,7 +686,7 @@
     "stock": 50,
     "sku": "SWA-UT-481",
     "partNumber": "UT-481",
-    "tags": [
+    "keywords": [
       "timer",
       "universal",
       "single display",
@@ -729,7 +729,7 @@
     "stock": 50,
     "sku": "SWA-STW-U",
     "partNumber": "STW-U",
-    "tags": [
+    "keywords": [
       "timer",
       "thumbwheel",
       "multi-function",
@@ -767,7 +767,7 @@
     "stock": 50,
     "sku": "SWA-BOD-CARD",
     "partNumber": "BOD-Card",
-    "tags": [
+    "keywords": [
       "temperature controller",
       "bod",
       "incubator",
@@ -809,7 +809,7 @@
     "stock": 50,
     "sku": "SWA-STI-491",
     "partNumber": "STI-491",
-    "tags": [
+    "keywords": [
       "temperature indicator",
       "digital",
       "thermocouple",
@@ -852,7 +852,7 @@
     "stock": 50,
     "sku": "SWA-DCT-961",
     "partNumber": "DCT-961",
-    "tags": [
+    "keywords": [
       "counter",
       "totalizer",
       "digital",
@@ -895,7 +895,7 @@
     "stock": 50,
     "sku": "SWA-DCT-491",
     "partNumber": "DCT-491",
-    "tags": [
+    "keywords": [
       "counter",
       "totaliser",
       "stroke counter",
@@ -937,7 +937,7 @@
     "stock": 50,
     "sku": "SWA-PC-961",
     "partNumber": "PC-961",
-    "tags": [
+    "keywords": [
       "counter",
       "preset",
       "digital",
@@ -981,7 +981,7 @@
     "stock": 50,
     "sku": "SWA-BC-961",
     "partNumber": "BC-961",
-    "tags": [
+    "keywords": [
       "counter",
       "batch",
       "digital",
@@ -1024,7 +1024,7 @@
     "stock": 50,
     "sku": "SWA-LC-961",
     "partNumber": "LC-961",
-    "tags": [
+    "keywords": [
       "counter",
       "length",
       "digital",
@@ -1067,7 +1067,7 @@
     "stock": 50,
     "sku": "SWA-STW-C",
     "partNumber": "STW-C",
-    "tags": [
+    "keywords": [
       "counter",
       "thumbwheel",
       "digital",
@@ -1107,7 +1107,7 @@
     "stock": 50,
     "sku": "SWA-TBC-961",
     "partNumber": "TBC-961",
-    "tags": [
+    "keywords": [
       "counter",
       "tablet",
       "pharmaceutical",
@@ -1147,7 +1147,7 @@
     "stock": 50,
     "sku": "SWA-PI-4041",
     "partNumber": "PI-4041",
-    "tags": [
+    "keywords": [
       "jumbo display",
       "counter",
       "wall mount",
@@ -1190,7 +1190,7 @@
     "stock": 50,
     "sku": "SWA-PI-4042-2",
     "partNumber": "PI-4042-2",
-    "tags": [
+    "keywords": [
       "jumbo display",
       "process indicator",
       "wall mount",
@@ -1231,7 +1231,7 @@
     "stock": 50,
     "sku": "SWA-PI-4042",
     "partNumber": "PI-4042",
-    "tags": [
+    "keywords": [
       "jumbo display",
       "indicator",
       "wall mount",
@@ -1272,7 +1272,7 @@
     "stock": 50,
     "sku": "SWA-PI-2051",
     "partNumber": "PI-2051",
-    "tags": [
+    "keywords": [
       "jumbo display",
       "temperature controller",
       "pid",
@@ -1313,7 +1313,7 @@
     "stock": 50,
     "sku": "SWA-EM-96",
     "partNumber": "EM-96",
-    "tags": [
+    "keywords": [
       "energy meter",
       "kwh",
       "three phase",
@@ -1355,7 +1355,7 @@
     "stock": 50,
     "sku": "SWA-PM-96",
     "partNumber": "PM-96",
-    "tags": [
+    "keywords": [
       "power meter",
       "digital",
       "swastik",
@@ -1392,7 +1392,7 @@
     "stock": 50,
     "sku": "SWA-MFM-96",
     "partNumber": "MFM-96",
-    "tags": [
+    "keywords": [
       "multi function meter",
       "mfm",
       "energy meter",
@@ -1430,7 +1430,7 @@
     "stock": 50,
     "sku": "SWA-AVF-961",
     "partNumber": "AVF-961",
-    "tags": [
+    "keywords": [
       "avf meter",
       "ampere",
       "volt",
@@ -1473,7 +1473,7 @@
     "stock": 50,
     "sku": "SWA-DPM-961",
     "partNumber": "DPM-961",
-    "tags": [
+    "keywords": [
       "ampere meter",
       "ac",
       "digital",
@@ -1514,7 +1514,7 @@
     "stock": 50,
     "sku": "SWA-DPM-961-V-3P",
     "partNumber": "DPM-961-V-3P",
-    "tags": [
+    "keywords": [
       "volt meter",
       "three phase",
       "digital",
@@ -1555,7 +1555,7 @@
     "stock": 50,
     "sku": "SWA-DPM-491-V-DC",
     "partNumber": "DPM-491-V-DC",
-    "tags": [
+    "keywords": [
       "dc voltmeter",
       "digital",
       "panel meter",
@@ -1594,7 +1594,7 @@
     "stock": 50,
     "sku": "SWA-DPM-721-V-AC",
     "partNumber": "DPM-721-V-AC",
-    "tags": [
+    "keywords": [
       "ac voltmeter",
       "digital",
       "panel meter",
@@ -1633,7 +1633,7 @@
     "stock": 50,
     "sku": "SWA-AVF-961-4D",
     "partNumber": "AVF-961-4D",
-    "tags": [
+    "keywords": [
       "avf meter",
       "4 digit",
       "voltage",
@@ -1674,7 +1674,7 @@
     "stock": 50,
     "sku": "SWA-GT8-D",
     "partNumber": "GT8-D",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "on-off",
@@ -1717,7 +1717,7 @@
     "stock": 50,
     "sku": "SWA-GR818-A",
     "partNumber": "GR818-AT-122",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "current measure",
@@ -1763,7 +1763,7 @@
     "stock": 50,
     "sku": "SWA-GR818F",
     "partNumber": "GR818F-Series",
-    "tags": [
+    "keywords": [
       "thyristor",
       "power controller",
       "pid",
@@ -1810,7 +1810,7 @@
     "stock": 50,
     "sku": "SWA-AK6-AKL-800",
     "partNumber": "AK6-AKL-800",
-    "tags": [
+    "keywords": [
       "pid",
       "arc extinction",
       "temperature controller",
@@ -1855,7 +1855,7 @@
     "stock": 50,
     "sku": "SWA-AK6-A",
     "partNumber": "AK6-AKL-200",
-    "tags": [
+    "keywords": [
       "pid",
       "smart",
       "temperature controller",
@@ -1900,7 +1900,7 @@
     "stock": 50,
     "sku": "SWA-GT8-A",
     "partNumber": "GT8-Series",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "dual display",
@@ -1944,7 +1944,7 @@
     "stock": 50,
     "sku": "SWA-AK3-A",
     "partNumber": "AK3-Series",
-    "tags": [
+    "keywords": [
       "pid",
       "economic",
       "temperature controller",
@@ -1988,7 +1988,7 @@
     "stock": 50,
     "sku": "SWA-AK6-800",
     "partNumber": "AK6-DKL-800",
-    "tags": [
+    "keywords": [
       "pid",
       "arc",
       "packaging",
@@ -2034,7 +2034,7 @@
     "stock": 50,
     "sku": "SWA-GT8-E",
     "partNumber": "GT8-E",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "rs485",
@@ -2078,7 +2078,7 @@
     "stock": 50,
     "sku": "SWA-GT8-B",
     "partNumber": "GT8-B",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "48x96",
@@ -2120,7 +2120,7 @@
     "stock": 50,
     "sku": "SWA-MPC-M8-R8-CS",
     "partNumber": "MPC-M8-R8-CS",
-    "tags": [
+    "keywords": [
       "micro plc",
       "lcd display",
       "ladder",
@@ -2168,7 +2168,7 @@
     "stock": 50,
     "sku": "SWA-SPC-961",
     "partNumber": "SPC-961",
-    "tags": [
+    "keywords": [
       "process control",
       "instrument",
       "relay",
@@ -2211,7 +2211,7 @@
     "stock": 50,
     "sku": "SWA-GR818P-AT-120",
     "partNumber": "GR818P-AT-120",
-    "tags": [
+    "keywords": [
       "profile controller",
       "pid",
       "32 step",
@@ -2256,7 +2256,7 @@
     "stock": 50,
     "sku": "SWA-TR-SCR",
     "partNumber": "TR-SCR",
-    "tags": [
+    "keywords": [
       "scr",
       "power regulator",
       "three phase",
@@ -2301,7 +2301,7 @@
     "stock": 50,
     "sku": "SWA-TRK-1",
     "partNumber": "TRK-1",
-    "tags": [
+    "keywords": [
       "thyristor",
       "trigger module",
       "three phase",
@@ -2343,7 +2343,7 @@
     "stock": 50,
     "sku": "SWA-TC-4821-P",
     "partNumber": "TC-4821-P",
-    "tags": [
+    "keywords": [
       "temperature controller",
       "pid",
       "dual display",
@@ -2386,7 +2386,7 @@
     "stock": 50,
     "sku": "SWA-AK3-D",
     "partNumber": "AK3-D",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "economic",
@@ -2429,7 +2429,7 @@
     "stock": 50,
     "sku": "SWA-AK6-B",
     "partNumber": "AK6-B",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "smart",
@@ -2474,7 +2474,7 @@
     "stock": 50,
     "sku": "SWA-STC-9611",
     "partNumber": "STC-9611",
-    "tags": [
+    "keywords": [
       "temperature controller",
       "knob setting",
       "on-off",
@@ -2517,7 +2517,7 @@
     "stock": 50,
     "sku": "SWA-STC-961",
     "partNumber": "STC-961",
-    "tags": [
+    "keywords": [
       "temperature controller",
       "push to set",
       "pid",
@@ -2566,7 +2566,7 @@
     "stock": 50,
     "sku": "SWA-DTC-961",
     "partNumber": "DTC-961",
-    "tags": [
+    "keywords": [
       "temperature controller",
       "on-off",
       "digital",
@@ -2606,7 +2606,7 @@
     "stock": 50,
     "sku": "SWA-GT8",
     "partNumber": "GT8",
-    "tags": [
+    "keywords": [
       "pid",
       "temperature controller",
       "universal",
@@ -2652,7 +2652,7 @@
     "stock": 50,
     "sku": "SWA-SCN-1908",
     "partNumber": "SCN-1908",
-    "tags": [
+    "keywords": [
       "temperature scanner",
       "8 channel",
       "digital",
@@ -2699,7 +2699,7 @@
     "stock": 50,
     "sku": "SWA-SCN-968",
     "partNumber": "SCN-968",
-    "tags": [
+    "keywords": [
       "temperature scanner",
       "digital",
       "swastik",
@@ -2738,7 +2738,7 @@
     "stock": 50,
     "sku": "SWA-PIC-481",
     "partNumber": "PIC-481",
-    "tags": [
+    "keywords": [
       "process indicator",
       "digital",
       "4-20ma",

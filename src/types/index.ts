@@ -7,7 +7,15 @@ export type ProductCategory =
   | "Sensors & Instrumentation"
   | "Cables & Wiring"
   | "Safety Systems"
-  | "Control Panels";
+  | "Control Panels"
+  | "HMI & PLC"
+  | "Data Loggers"
+  | "Timers & Counters"
+  | "Temperature Controllers"
+  | "Panel Meters"
+  | "Process Indicators"
+  | "Power Controllers"
+  | "Temperature Scanners";
 
 export interface Product {
   id: string;
@@ -23,15 +31,16 @@ export interface Product {
   image: string;
   images?: string[];
   rating: number;
-  reviews: number;
+  reviews?: number;
   stock: number;
-  sku: string;
+  sku?: string;
   partNumber: string;
-  tags: string[];
+  keywords: string[];
   featured?: boolean;
   badge?: string;
-  specs?: Record<string, string | undefined>;
+  specs?: Record<string, any> | null;
   leadTime?: string;
+  isActive?: boolean;
 }
 
 // ── Cart ──────────────────────────────────────────────────────────────────────

@@ -39,7 +39,7 @@ export default function CartPage() {
                 <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-slate-50 shrink-0"><Image src={item.product.image} alt={item.product.name} fill className="object-cover" sizes="96px"/></div>
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <div><p className="text-[10px] font-black text-primary-600 uppercase tracking-widest">{item.product.brand}</p><h3 className="font-display font-bold text-slate-900 text-lg leading-tight">{item.product.name}</h3><p className="text-xs font-mono text-slate-400 mt-0.5">SKU: {item.product.sku}</p></div>
+                    <div><p className="text-[10px] font-black text-primary-600 uppercase tracking-widest">{item.product.brand}</p><h3 className="font-display font-bold text-slate-900 text-lg leading-tight">{item.product.name}</h3>{item.product.sku && <p className="text-xs font-mono text-slate-400 mt-0.5">SKU: {item.product.sku}</p>}</div>
                     <button onClick={()=>remove(idx)} className="p-2 text-slate-300 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4"/></button>
                   </div>
                   <div className="flex items-center justify-between mt-4">

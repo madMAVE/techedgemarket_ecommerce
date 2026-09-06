@@ -47,9 +47,6 @@ export default function Navbar({ cartCount=0 }: { cartCount?: number }) {
           </div>
           <div className="hidden sm:flex items-center gap-4 text-primary-200">
             <a href="tel:+914012345678" className="flex items-center gap-1 hover:text-white transition-colors"><Phone className="w-3 h-3"/>+91-40-1234-5678</a>
-            <span className="opacity-40">|</span>
-            <Link href="/admin" className="hover:text-white transition-colors">Admin</Link>
-            <Link href="/business" className="hover:text-white transition-colors">Analytics</Link>
           </div>
         </div>
       </div>
@@ -101,10 +98,7 @@ export default function Navbar({ cartCount=0 }: { cartCount?: number }) {
               <Link key={n.href} href={n.href} onClick={()=>setOpen(false)}
                 className="block px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50">{n.label}</Link>
             ))}
-            <div className="border-t border-slate-100 pt-2 mt-2">
-              <Link href="/admin" onClick={()=>setOpen(false)} className="block px-4 py-2 text-xs text-slate-400 hover:text-slate-600">Admin Panel</Link>
-              <Link href="/business" onClick={()=>setOpen(false)} className="block px-4 py-2 text-xs text-slate-400 hover:text-slate-600">Analytics</Link>
-            </div>
+
           </div>
         )}
       </nav>

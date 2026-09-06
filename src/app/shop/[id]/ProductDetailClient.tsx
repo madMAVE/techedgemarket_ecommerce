@@ -1,10 +1,10 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ImageSlider from "@/components/ui/ImageSlider";
-import { useProducts } from "@/context/ProductContext";
+import { api } from "@/lib/interceptor";
 import { formatINR, getDiscount } from "@/utils/helpers";
 import {
   ChevronRight, Star, ShoppingCart, ArrowLeft,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "@/types";
+import type { Product, ProductCategory } from "@/types";
 
 function StockBadge({ stock }: { stock: number }) {
   if (stock === 0)
@@ -58,10 +58,7 @@ function RelatedCard({ product }: { product: Product }) {
   );
 }
 
-function RelatedProducts({ product, all }: { product: Product; all: Product[] }) {
-  const related = all
-    .filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand))
-    .slice(0, 4);
+function RelatedProducts({ product, related }: { product: Product; related: Product[] }) {
   if (!related.length) return null;
   return (
     <div className="mt-16">
@@ -74,10 +71,92 @@ function RelatedProducts({ product, all }: { product: Product; all: Product[] })
 }
 
 export default function ProductDetailClient({ id }: { id: string }) {
-  const { products } = useProducts();
-  const product = products.find(p => p.id === id);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [openSpecs, setOpenSpecs] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get<any>(`/api/products/${id}`);
+        const p = res.data?.data ?? res.data;
+        if (!p) { setProduct(null); return; }
+        const mapped: Product = {
+          id: p.id,
+          name: p.name,
+          description: p.description || "",
+          price: p.price,
+          originalPrice: p.originalPrice || null,
+          category: (p.category || "Automation") as unknown as ProductCategory,
+          subcategory: p.subcategory,
+          brand: p.brand?.name || p.brand || p.brandName || "Unknown",
+          brandLogo: p.brand?.logo || p.brandLogo,
+          model: p.model || "",
+          image: p.image || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80",
+          images: p.images || [],
+          rating: p.rating || 4.5,
+          reviews: p.reviewCount || p.reviews || 0,
+          stock: p.stock || 0,
+          sku: p.sku || "",
+          partNumber: p.partNumber || "",
+          keywords: p.keywords || [],
+          featured: p.featured || false,
+          badge: p.badge,
+          specs: p.specs || {},
+          leadTime: p.leadTime,
+          isActive: p.isActive ?? true,
+        };
+        setProduct(mapped);
+
+        const relRes = await api.get<any>("/api/products", { category: mapped.category, limit: "5" });
+        const relData = relRes.data?.data ?? relRes.data;
+        const relItems = (relData?.items || []).map((rp: any) => ({
+          id: rp.id,
+          name: rp.name,
+          description: rp.description || "",
+          price: rp.price,
+          originalPrice: rp.originalPrice || null,
+          category: (rp.category || "Automation") as unknown as ProductCategory,
+          brand: rp.brand?.name || rp.brand || "Unknown",
+          model: rp.model || "",
+          image: rp.image || "",
+          images: rp.images || [],
+          rating: rp.rating || 4.5,
+          reviews: rp.reviewCount || 0,
+          stock: rp.stock || 0,
+          sku: rp.sku || "",
+          partNumber: rp.partNumber || "",
+          keywords: rp.keywords || [],
+          featured: rp.featured || false,
+          badge: rp.badge,
+          specs: rp.specs || {},
+          leadTime: rp.leadTime,
+          isActive: rp.isActive ?? true,
+        })).filter((rp: Product) => rp.id !== id).slice(0, 4);
+        setRelated(relItems);
+      } catch {
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -192,7 +271,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
 
             {/* Name */}
             <h1 className="font-display font-bold text-3xl text-slate-900 leading-tight">{product.name}</h1>
-            <p className="font-mono text-xs text-slate-400 mt-1">PN: {product.partNumber} · SKU: {product.sku}</p>
+            <p className="font-mono text-xs text-slate-400 mt-1">PN: {product.partNumber}{product.sku && ` · SKU: ${product.sku}`}</p>
 
             {/* Rating */}
             <div className="flex items-center gap-2 mt-3">
@@ -233,7 +312,7 @@ export default function ProductDetailClient({ id }: { id: string }) {
         </div>
 
         {/* Related */}
-        <RelatedProducts product={product} all={products} />
+        <RelatedProducts product={product} related={related} />
       </div>
 
       <Footer />
