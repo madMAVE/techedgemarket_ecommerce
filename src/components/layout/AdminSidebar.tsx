@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList, Mail } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const LINKS = [
@@ -17,6 +17,7 @@ const LINKS = [
   { href:"/procurement",            label:"Procurement",    icon:Truck,           section:null },
   { href:"/prospects",              label:"Prospects",      icon:Users,           section:"Sales & Service" },
   { href:"/admin/service-tickets",  label:"Service Tickets",icon:ClipboardList,   section:null },
+  { href:"/admin/emails",           label:"Emails",         icon:Mail,            section:null },
   { href:"/services",               label:"Services Page",  icon:Wrench,          section:null },
   { href:"/",                       label:"Public Site",    icon:Globe,           section:"Store" },
 ];

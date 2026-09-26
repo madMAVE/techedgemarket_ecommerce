@@ -100,7 +100,7 @@ export const addResponseInterceptor = (fn: ResponseInterceptor) => store.respons
 export const addErrorInterceptor    = (fn: ErrorInterceptor)    => store.error.push(fn);
 
 // ── Core client ───────────────────────────────────────────────────────────────
-const API_BASE_URL = "http://localhost:7070";
+const API_BASE_URL = "https://techedgemarket-ecommerce-backend.vercel.app";
 
 const DEFAULTS: Partial<RequestConfig> = {
   method: "GET",
