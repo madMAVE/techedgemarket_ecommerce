@@ -71,6 +71,7 @@ function RelatedProducts({ product, related }: { product: Product; related: Prod
 }
 
 export default function ProductDetailClient({ id }: { id: string }) {
+  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -226,9 +227,6 @@ export default function ProductDetailClient({ id }: { id: string }) {
               <p className="text-xs text-slate-400 mt-1">+ GST 18% · {product.leadTime ? `Lead time: ${product.leadTime}` : "Ships in 2-3 days"}</p>
             </div>
 
-            {/* Description */}
-            <p className="text-sm text-slate-600 leading-relaxed mt-5">{product.description}</p>
-
             {/* Quantity + Actions */}
             <div className="flex items-center gap-4 mt-6">
               <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white">
@@ -236,10 +234,10 @@ export default function ProductDetailClient({ id }: { id: string }) {
                 <span className="px-4 py-2 text-sm font-semibold text-slate-900 min-w-[3rem] text-center">{qty}</span>
                 <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="px-3 py-2.5 text-slate-600 hover:bg-slate-100 transition-colors font-bold">+</button>
               </div>
-              <button disabled={product.stock === 0} className="flex-1 bg-green-600 text-white font-semibold py-2.5 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button disabled={product.stock === 0} className="flex-1 bg-green-600 text-white font-semibold py-2.5 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => router.push(`/order/${product.id}`)}>
                 Buy Now
               </button>
-              <button disabled={product.stock === 0} className="flex-1 btn-primary flex items-center justify-center gap-2 !py-2.5 !rounded-xl">
+              <button disabled={product.stock === 0} className="flex-1 btn-primary flex items-center justify-center gap-2 !py-2.5 !rounded-xl" onClick={() => router.push(`/order/${product.id}`)}>
                 <ShoppingCart className="w-4 h-4" />Add to Cart
               </button>
             </div>
@@ -288,6 +286,9 @@ export default function ProductDetailClient({ id }: { id: string }) {
               {product.badge && <span className="px-3 py-1 rounded-lg text-xs font-black uppercase bg-primary-600 text-white">{product.badge}</span>}
               {disc && <span className="px-3 py-1 rounded-lg text-xs font-black uppercase bg-red-500 text-white">-{disc}% OFF</span>}
             </div>
+
+            {/* Description */}
+            <p className="text-sm text-slate-600 leading-relaxed mt-6">{product.description}</p>
 
             {/* Specs section */}
             {product.specs && Object.keys(product.specs).length > 0 && (

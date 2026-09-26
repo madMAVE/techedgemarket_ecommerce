@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ProductProvider } from "@/context/ProductContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: { default: "TechEdge Market", template: "%s | TechEdge Market" },
@@ -16,11 +17,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased">
-        <AdminAuthProvider>
-          <ProductProvider>
-            {children}
-          </ProductProvider>
-        </AdminAuthProvider>
+        <AuthProvider>
+          <AdminAuthProvider>
+            <ProductProvider>
+              {children}
+            </ProductProvider>
+          </AdminAuthProvider>
+        </AuthProvider>
       </body>
     </html>
   );

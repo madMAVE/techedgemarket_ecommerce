@@ -57,7 +57,13 @@ function mapProduct(p: any): Product {
     stock: p.stock || 0,
     sku: p.sku || "",
     partNumber: p.partNumber || "",
-    keywords: p.keywords || [],
+    keywords: Array.isArray(p.keywords)
+      ? p.keywords.flatMap((k: any) => {
+          const raw = typeof k === "string" ? k : k.word || k.keyword || k.name || k.value || "";
+          if (raw === "[object Object]") return [];
+          return raw.split(";").map((s: string) => s.trim()).filter(Boolean);
+        })
+      : [],
     featured: p.featured || false,
     badge: p.badge,
     specs: p.specs || {},
@@ -111,10 +117,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const refetch = useCallback(() => {
-    fetchProducts(currentParams.current);
-  }, [fetchProducts]);
-
   useEffect(() => {
     fetchFeatured();
   }, [fetchFeatured]);
@@ -143,12 +145,11 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       });
       const newProduct = { ...p, id: res.data?.id || p.id, sku: res.data?.sku || p.sku };
       setProducts(prev => [newProduct, ...prev]);
-      refetch();
     } catch (err) {
       console.error("Failed to add product:", err);
       throw err;
     }
-  }, [refetch]);
+  }, []);
 
   const updateProduct = useCallback(async (p: Product) => {
     try {
@@ -173,23 +174,21 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         isActive: p.isActive ?? true,
       });
       setProducts(prev => prev.map(x => x.id === p.id ? p : x));
-      refetch();
     } catch (err) {
       console.error("Failed to update product:", err);
       throw err;
     }
-  }, [refetch]);
+  }, []);
 
   const deleteProduct = useCallback(async (id: string) => {
     try {
       await api.delete(`/api/products/${id}`);
       setProducts(prev => prev.filter(x => x.id !== id));
-      refetch();
     } catch (err) {
       console.error("Failed to delete product:", err);
       throw err;
     }
-  }, [refetch]);
+  }, []);
 
   const toggleFeatured = useCallback(async (id: string) => {
     try {
@@ -197,12 +196,11 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       setProducts(prev =>
         prev.map(x => x.id === id ? { ...x, featured: !x.featured } : x)
       );
-      refetch();
     } catch (err) {
       console.error("Failed to toggle featured:", err);
       throw err;
     }
-  }, [refetch]);
+  }, []);
 
   const getProductById = useCallback(
     (id: string) => products.find(p => p.id === id),

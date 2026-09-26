@@ -37,15 +37,28 @@ type Form = {
   name:string; description:string; price:string; originalPrice:string;
   category:ProductCategory; brand:string; model:string;
   partNumber:string; stock:string; leadTime:string;
-  keywords:string; featured:boolean; badge:string;
+  keywords:string[]; featured:boolean; badge:string;
+  specs:string;
 };
 const EMPTY: Form = {
   name:"",description:"",price:"",originalPrice:"",
   category:"Automation",brand:"Siemens",model:"",
   partNumber:"",stock:"",leadTime:"3–5 days",
-  keywords:"",featured:false,badge:"",
+  keywords:[],featured:false,badge:"",
+  specs:"",
 };
 function formToProduct(f: Form, existingId?: string): Product {
+  let parsedSpecs: Record<string, string> = {};
+  if (f.specs.trim()) {
+    try {
+      const parsed = JSON.parse(f.specs.trim());
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        parsedSpecs = parsed;
+      }
+    } catch {
+      throw new Error("Invalid JSON in Technical Specifications");
+    }
+  }
   return {
     id: existingId ?? genID(),
     name: f.name.trim(), description: f.description.trim(),
@@ -56,8 +69,8 @@ function formToProduct(f: Form, existingId?: string): Product {
     image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80",
     rating: 4.5, reviews: 0,
     stock: parseInt(f.stock)||0, leadTime: f.leadTime,
-    keywords: f.keywords.split(",").map(t=>t.trim()).filter(Boolean),
-    featured: f.featured, badge: f.badge.trim()||undefined, specs:{}, isActive: true,
+    keywords: f.keywords,
+    featured: f.featured, badge: f.badge.trim()||undefined, specs: parsedSpecs, isActive: true,
   };
 }
 function productToForm(p: Product): Form {
@@ -66,7 +79,8 @@ function productToForm(p: Product): Form {
     price:String(p.price), originalPrice:p.originalPrice?String(p.originalPrice):"",
     category:p.category, brand:p.brand, model:p.model, partNumber:p.partNumber,
     stock:String(p.stock), leadTime:p.leadTime??"3–5 days",
-    keywords:p.keywords.join(", "), featured:p.featured??false, badge:p.badge??"",
+    keywords: p.keywords || [], featured:p.featured??false, badge:p.badge??"",
+    specs: p.specs && Object.keys(p.specs).length > 0 ? JSON.stringify(p.specs, null, 2) : "",
   };
 }
 
@@ -81,21 +95,27 @@ function Toast({ msg, ok }: { msg:string; ok:boolean }) {
 }
 
 /* ── Add / Edit Modal ──────────────────────────────────────── */
-function ProductModal({ initial, onSave, onClose }: {
+function ProductModal({ initial, onSave, onClose, onProcessingChange }: {
   initial:Product|null; onSave:(p:Product)=>Promise<void>; onClose:()=>void;
+  onProcessingChange?: (state: { id: string; status: "uploading" | "saving" } | null) => void;
 }) {
   const [form, setForm] = useState<Form>(initial ? productToForm(initial) : EMPTY);
   const [saving, setSaving] = useState(false);
   const DEFAULT_PLACEHOLDER = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80";
-  const allInitialImages = [
-    ...(initial?.image && initial.image !== DEFAULT_PLACEHOLDER ? [initial.image] : []),
-    ...(initial?.images?.filter(Boolean) || []),
-  ];
+  const allInitialImages = useMemo(() => {
+    if (!initial) return [];
+    const imgs = new Set<string>();
+    if (initial.image && initial.image !== DEFAULT_PLACEHOLDER) imgs.add(initial.image);
+    if (initial.images) initial.images.forEach(img => imgs.add(img));
+    return Array.from(imgs);
+  }, [initial]);
   const [images, setImages] = useState<string[]>(allInitialImages);
+  const [deletingImages, setDeletingImages] = useState<Set<string>>(new Set());
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
-  const [uploadingImages, setUploadingImages] = useState(false);
-  const set = (k: keyof Form, v: string|boolean) => setForm(p=>({...p,[k]:v}));
+  const [showKeywordInput, setShowKeywordInput] = useState(false);
+  const [newKeyword, setNewKeyword] = useState("");
+  const set = (k: keyof Form, v: string|boolean|string[]) => setForm(p=>({...p,[k]:v}));
   const discPct = form.price && form.originalPrice &&
     parseFloat(form.originalPrice) > parseFloat(form.price)
     ? Math.round((1 - parseFloat(form.price)/parseFloat(form.originalPrice))*100) : null;
@@ -127,16 +147,40 @@ function ProductModal({ initial, onSave, onClose }: {
 
   const removeExistingImage = async (imageUrl: string) => {
     if (initial) {
+      setDeletingImages((prev) => new Set(prev).add(imageUrl));
       try {
         const encodedUrl = encodeURIComponent(imageUrl);
         await api.delete(`/api/products/${initial.id}/images/${encodedUrl}`);
         setImages((prev) => prev.filter((img) => img !== imageUrl));
       } catch (err: any) {
         alert(err?.message || "Failed to delete image");
+      } finally {
+        setDeletingImages((prev) => {
+          const next = new Set(prev);
+          next.delete(imageUrl);
+          return next;
+        });
       }
     } else {
       setImages((prev) => prev.filter((img) => img !== imageUrl));
     }
+  };
+
+  const addKeyword = () => {
+    const trimmed = newKeyword.trim();
+    if (!trimmed) return;
+    if (form.keywords.includes(trimmed)) {
+      setNewKeyword("");
+      setShowKeywordInput(false);
+      return;
+    }
+    setForm(p => ({ ...p, keywords: [...p.keywords, trimmed] }));
+    setNewKeyword("");
+    setShowKeywordInput(false);
+  };
+
+  const removeKeyword = (kw: string) => {
+    setForm(p => ({ ...p, keywords: p.keywords.filter(k => k !== kw) }));
   };
 
   const uploadNewImages = async (productId: string): Promise<string[]> => {
@@ -160,6 +204,7 @@ function ProductModal({ initial, onSave, onClose }: {
     if (!form.description.trim()) { alert("Description is required"); return; }
     if (!form.originalPrice)     { alert("Original Price is required"); return; }
     setSaving(true);
+    const closeTimer = setTimeout(() => onClose(), 2000);
     try {
       const product = formToProduct(form, initial?.id);
       product.images = [...images];
@@ -167,32 +212,44 @@ function ProductModal({ initial, onSave, onClose }: {
 
       if (initial) {
         if (newImageFiles.length > 0) {
-          setUploadingImages(true);
+          onProcessingChange?.({ id: initial.id, status: "uploading" });
           try {
             const uploadedUrls = await uploadNewImages(initial.id);
             product.images = [...product.images, ...uploadedUrls];
             product.image = product.images.length > 0 ? product.images[0] : DEFAULT_PLACEHOLDER;
           } finally {
-            setUploadingImages(false);
+            onProcessingChange?.(null);
           }
         }
-        await onSave(product);
+        onProcessingChange?.({ id: initial.id, status: "saving" });
+        try {
+          await onSave(product);
+        } finally {
+          onProcessingChange?.(null);
+        }
       } else {
-        await onSave(product);
+        onProcessingChange?.({ id: product.id, status: "saving" });
+        try {
+          await onSave(product);
+        } finally {
+          onProcessingChange?.(null);
+        }
         if (newImageFiles.length > 0 && product.id) {
-          setUploadingImages(true);
+          onProcessingChange?.({ id: product.id, status: "uploading" });
           try {
             const uploadedUrls = await uploadNewImages(product.id);
             product.images = [...product.images, ...uploadedUrls];
             product.image = product.images.length > 0 ? product.images[0] : DEFAULT_PLACEHOLDER;
+            onProcessingChange?.({ id: product.id, status: "saving" });
             await onSave(product);
           } finally {
-            setUploadingImages(false);
+            onProcessingChange?.(null);
           }
         }
       }
-      onClose();
     } catch (err: any) {
+      clearTimeout(closeTimer);
+      onProcessingChange?.(null);
       alert(err?.message || "Failed to save product");
     } finally {
       setSaving(false);
@@ -319,9 +376,43 @@ function ProductModal({ initial, onSave, onClose }: {
                   value={form.badge} onChange={e=>set("badge",e.target.value)}/>
               </div>
               <div>
-                <label className="label">Keywords (comma-separated)</label>
-                <input className="input mt-1" placeholder="plc, siemens, automation"
-                  value={form.keywords} onChange={e=>set("keywords",e.target.value)}/>
+                <label className="label">Keywords</label>
+                <div className="mt-1">
+                  {!showKeywordInput ? (
+                    <div className="flex flex-wrap gap-1.5 items-center min-h-[38px] p-1.5 bg-white border border-slate-200 rounded-xl">
+                      {form.keywords.map(kw => (
+                        <span key={kw} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 text-xs font-medium border border-primary-200">
+                          {kw}
+                          <button onClick={() => removeKeyword(kw)} className="hover:text-primary-900 transition-colors">
+                            <X className="w-3 h-3"/>
+                          </button>
+                        </span>
+                      ))}
+                      <button
+                        onClick={() => setShowKeywordInput(true)}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-dashed border-slate-300 text-slate-400 text-xs font-medium hover:border-primary-400 hover:text-primary-600 transition-colors"
+                      >
+                        <Plus className="w-3 h-3"/> Add
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        className="input flex-1"
+                        placeholder="Type keyword…"
+                        value={newKeyword}
+                        onChange={e => setNewKeyword(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") addKeyword();
+                          if (e.key === "Escape") { setNewKeyword(""); setShowKeywordInput(false); }
+                        }}
+                        autoFocus
+                      />
+                      <button onClick={addKeyword} className="btn-primary !px-3 !py-2">Add</button>
+                      <button onClick={() => { setNewKeyword(""); setShowKeywordInput(false); }} className="btn-outline !px-3 !py-2">Cancel</button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -336,26 +427,53 @@ function ProductModal({ initial, onSave, onClose }: {
             </div>
           </section>
 
+          {/* Technical Specifications */}
+          <section>
+            <p className="eyebrow mb-3">Technical Specifications</p>
+            <div>
+              <label className="label">JSON Specs</label>
+              <textarea className="input mt-1 resize-none font-mono text-sm" rows={8}
+                placeholder={`{\n  "CPU": "1214C",\n  "Supply": "24 VDC",\n  "Power": "11 kW"\n}`}
+                value={form.specs} onChange={e=>set("specs",e.target.value)}/>
+              <p className="text-xs text-slate-400 mt-1.5">Paste a flat JSON object. Nested objects and arrays are not supported.</p>
+            </div>
+          </section>
+
           {/* Images */}
           <section>
             <p className="eyebrow mb-3">Product Images ({images.length + newImageFiles.length}/10)</p>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {images.map((img, idx) => (
-                <div key={`existing-${idx}`} className="relative group aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+              {images.map((img, idx) => {
+                const isDeleting = deletingImages.has(img);
+                return (
+                <div key={`existing-${idx}`} className={`relative group aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200 ${isDeleting ? "pointer-events-none opacity-50" : ""}`}>
+                  {isDeleting && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/20">
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/90 text-white text-xs font-semibold">
+                        <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        Deleting...
+                      </div>
+                    </div>
+                  )}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt={`Product image ${idx + 1}`} className="w-full h-full object-cover"/>
+                  <img src={img} alt={`Product image ${idx + 1}`} className={`w-full h-full object-cover ${isDeleting ? "grayscale" : ""}`}/>
                   <button
                     onClick={() => removeExistingImage(img)}
-                    className="absolute top-1 right-1 p-1 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    disabled={isDeleting}
+                    className={`absolute top-1 right-1 p-1 rounded-full bg-red-500 text-white transition-opacity hover:bg-red-600 ${isDeleting ? "opacity-0 cursor-not-allowed" : "opacity-0 group-hover:opacity-100"}`}
                     title="Remove image"
                   >
                     <X className="w-3.5 h-3.5"/>
                   </button>
-                  {idx === 0 && (
+                  {idx === 0 && !isDeleting && (
                     <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[10px] font-bold bg-slate-900/70 text-white rounded">Primary</span>
                   )}
                 </div>
-              ))}
+                );
+              })}
               {newImagePreviews.map((preview, idx) => (
                 <div key={`new-${idx}`} className="relative group aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -390,10 +508,10 @@ function ProductModal({ initial, onSave, onClose }: {
 
         {/* Footer */}
         <div className="flex gap-3 px-6 py-5 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
-          <button onClick={onClose} className="btn-outline flex-1" disabled={saving || uploadingImages}>Cancel</button>
-          <button onClick={handleSave} disabled={saving || uploadingImages} className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button onClick={onClose} className="btn-outline flex-1" disabled={saving}>Cancel</button>
+          <button onClick={handleSave} disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
             <Save className="w-4 h-4"/>
-            {uploadingImages ? "Uploading Images..." : saving ? "Saving..." : initial ? "Save Changes" : "Add to Shop"}
+            {saving ? "Saving..." : initial ? "Save Changes" : "Add to Shop"}
           </button>
         </div>
       </div>
@@ -436,18 +554,54 @@ function DeleteDialog({ product, onConfirm, onCancel, deleting }: {
   );
 }
 
+/* ── Skeleton Row (animated placeholder) ─────────────────── */
+function SkeletonRow() {
+  return (
+    <tr className="border-b border-slate-50">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <td key={i} className="td">
+          <div className={`h-4 bg-slate-200 rounded animate-pulse ${i === 0 ? "w-48" : i === 1 ? "w-24" : i === 2 ? "w-28" : i === 3 ? "w-16" : "w-20"}`}/>
+        </td>
+      ))}
+    </tr>
+  );
+}
+
+/* ── Skeleton Stat Card (animated placeholder) ───────────── */
+function SkeletonStatCard() {
+  return (
+    <div className="stat-card text-center">
+      <div className="h-9 w-24 bg-slate-200 rounded animate-pulse mx-auto"/>
+      <div className="h-3 w-16 bg-slate-100 rounded animate-pulse mx-auto mt-2"/>
+    </div>
+  );
+}
+
 /* ── Product Row ───────────────────────────────────────────── */
-function ProductRow({ product, onEdit, onDelete, onToggleFeatured, onToggleStock }: {
+function ProductRow({ product, onEdit, onDelete, onToggleFeatured, onToggleStock, processingState }: {
   product:Product; onEdit:(p:Product)=>void; onDelete:(p:Product)=>void;
   onToggleFeatured:(id:string)=>void; onToggleStock:(id:string)=>void;
+  processingState?: { id: string; status: "uploading" | "saving" } | null;
 }) {
   const stockBadge = product.stock===0 ? "badge badge-red"
     : product.stock<10 ? "badge badge-amber" : "badge badge-green";
   const stockLabel = product.stock===0 ? "Out of Stock"
     : product.stock<10 ? `Low (${product.stock})` : `${product.stock} units`;
+  const isProcessing = processingState?.id === product.id;
+  const processingMessage = processingState?.status === "uploading" ? "Uploading images..." : "Saving data...";
 
   return (
-    <tr className="tr group border-b border-slate-50">
+    <tr className={`tr group border-b border-slate-50 transition-opacity ${isProcessing ? "opacity-40 pointer-events-none" : ""}`}>
+      {isProcessing && (
+        <td colSpan={8} className="td">
+          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+            <div className="w-3 h-3 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin"/>
+            {processingMessage}
+          </div>
+        </td>
+      )}
+      {!isProcessing && (
+        <>
       <td className="td">
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -492,6 +646,8 @@ function ProductRow({ product, onEdit, onDelete, onToggleFeatured, onToggleStock
           </button>
         </div>
       </td>
+        </>
+      )}
     </tr>
   );
 }
@@ -639,6 +795,8 @@ export default function AdminProductsPage() {
   const [sortBy, setSortBy]             = useState("name");
   const [stockFilter, setStockFilter]   = useState("all");
   const [saving, setSaving]             = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [processingProductId, setProcessingProductId] = useState<{ id: string; status: "uploading" | "saving" } | null>(null);
   const [page, setPage]                 = useState(1);
   const [brands, setBrands]             = useState<{id:string;name:string;logo:string|null;description:string|null;_count:{products:number}}[]>([]);
   const [brandsLoading, setBrandsLoading] = useState(true);
@@ -704,12 +862,14 @@ export default function AdminProductsPage() {
     setSaving(true);
     try {
       const isNew = !products.find(x=>x.id===p.id);
+      if (isNew) setTableLoading(true);
       if(isNew) await addProduct(p); else await updateProduct(p);
       showToast(isNew?"✓ Product added to shop!":"✓ Product updated!");
     } catch (err: any) {
       showToast(err?.message || "Failed to save product", false);
     } finally {
       setSaving(false);
+      setTableLoading(false);
     }
   };
 
@@ -763,7 +923,7 @@ export default function AdminProductsPage() {
     <div className="flex min-h-screen bg-slate-50">
       <AdminSidebar/>
       {toast && <Toast msg={toast.msg} ok={toast.ok}/>}
-      {showModal && <ProductModal initial={editTarget} onSave={handleSave} onClose={()=>{setShowModal(false);setEditTarget(null);}}/>}
+      {showModal && <ProductModal initial={editTarget} onSave={handleSave} onClose={()=>{setShowModal(false);setEditTarget(null);}} onProcessingChange={setProcessingProductId}/>}
       {showBulkUpload && <BulkUploadModal onImport={handleBulkImport} onClose={()=>setShowBulkUpload(false)}/>}
       {deleteTarget && <DeleteDialog product={deleteTarget} onConfirm={handleDelete} onCancel={()=>setDeleteTarget(null)} deleting={deleting}/>}
       {editBrandTarget && <BrandEditModal brand={editBrandTarget} onClose={()=>setEditBrandTarget(null)} onRefresh={fetchBrands}/>}
@@ -788,13 +948,32 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
-          {/* Loading state */}
+          {/* Loading state - skeleton placeholders */}
           {loading ? (
-            <div className="card py-24 text-center">
-              <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"/>
-              <p className="font-display font-bold text-xl text-slate-500 mb-2">Loading products...</p>
-              <p className="text-slate-400 text-sm">Fetching from backend server</p>
+            <>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            {Array.from({ length: 4 }).map((_, i) => <SkeletonStatCard key={i}/>)}
+          </div>
+          <div className="card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead><tr>
+                  <th className="th">Product</th>
+                  <th className="th">Part Number</th>
+                  <th className="th">Brand / Category</th>
+                  <th className="th">Price</th>
+                  <th className="th">Stock</th>
+                  <th className="th text-center">Featured ★</th>
+                  <th className="th text-center">Shop</th>
+                  <th className="th">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i}/>)}
+                </tbody>
+              </table>
             </div>
+          </div>
+            </>
           ) : (
             <>
           {/* Live sync banner */}
@@ -807,18 +986,24 @@ export default function AdminProductsPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            {[
-              {label:"Total Products",value:meta?.total ?? 0,color:"text-slate-900"},
-              {label:"In Stock",      value:products.filter(p=>p.stock>=10).length,color:"text-emerald-700",f:"in"},
-              {label:"Low Stock",     value:products.filter(p=>p.stock>0&&p.stock<10).length,color:"text-amber-700",f:"low"},
-              {label:"Out of Stock",  value:products.filter(p=>p.stock===0).length,color:"text-red-700",f:"out"},
-            ].map(s=>(
-              <button key={s.label} onClick={()=>setStockFilter(s.f??"all")}
-                className={`stat-card text-center border transition-all hover:shadow-card-lg cursor-pointer ${stockFilter===s.f?"ring-2 ring-primary-400":""}`}>
-                <p className={`font-display font-bold text-3xl ${s.color}`}>{s.value}</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{s.label}</p>
-              </button>
-            ))}
+            {tableLoading ? (
+              <>
+                {Array.from({ length: 4 }).map((_, i) => <SkeletonStatCard key={i}/>)}
+              </>
+            ) : (
+              [
+                {label:"Total Products",value:meta?.total ?? 0,color:"text-slate-900"},
+                {label:"In Stock",      value:products.filter(p=>p.stock>=10).length,color:"text-emerald-700",f:"in"},
+                {label:"Low Stock",     value:products.filter(p=>p.stock>0&&p.stock<10).length,color:"text-amber-700",f:"low"},
+                {label:"Out of Stock",  value:products.filter(p=>p.stock===0).length,color:"text-red-700",f:"out"},
+              ].map(s=>(
+                <button key={s.label} onClick={()=>setStockFilter(s.f??"all")}
+                  className={`stat-card text-center border transition-all hover:shadow-card-lg cursor-pointer ${stockFilter===s.f?"ring-2 ring-primary-400":""}`}>
+                  <p className={`font-display font-bold text-3xl ${s.color}`}>{s.value}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{s.label}</p>
+                </button>
+              ))
+            )}
           </div>
 
           {/* Filters */}
@@ -853,7 +1038,7 @@ export default function AdminProductsPage() {
           </div>
 
           {/* Table */}
-          {filtered.length===0 ? (
+          {(filtered.length===0 && !tableLoading) ? (
             <div className="card py-24 text-center">
               <Package className="w-14 h-14 mx-auto mb-4 text-slate-200"/>
               <p className="font-display font-bold text-2xl text-slate-500 mb-2">No products found</p>
@@ -878,17 +1063,23 @@ export default function AdminProductsPage() {
                     <th className="th">Actions</th>
                   </tr></thead>
                   <tbody>
-                    {filtered.map(p=>(
-                      <ProductRow key={p.id} product={p}
-                        onEdit={p=>{setEditTarget(p);setShowModal(true);}}
-                        onDelete={setDeleteTarget}
-                        onToggleFeatured={toggleFeatured}
-                        onToggleStock={handleToggleStock}
-                      />
-                    ))}
+                    {tableLoading ? (
+                      Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i}/>)
+                    ) : (
+                      filtered.map(p=>(
+                        <ProductRow key={p.id} product={p}
+                          onEdit={p=>{setEditTarget(p);setShowModal(true);}}
+                          onDelete={setDeleteTarget}
+                          onToggleFeatured={toggleFeatured}
+                          onToggleStock={handleToggleStock}
+                          processingState={processingProductId?.id === p.id ? processingProductId : null}
+                        />
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
+              {!tableLoading && (
               <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
                 <p className="text-xs text-slate-400">
                   {meta ? `Page ${meta.page} of ${meta.totalPages} · ${meta.total} total` : `${filtered.length} products`}
@@ -897,7 +1088,9 @@ export default function AdminProductsPage() {
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/>Live sync active
                 </p>
               </div>
+              )}
             </div>
+            {!tableLoading && (
             <Pagination
               currentPage={page}
               totalPages={totalPages}
@@ -905,6 +1098,7 @@ export default function AdminProductsPage() {
               limit={ADMIN_PAGE_SIZE}
               onPageChange={handlePageChange}
             />
+            )}
             </>
           )}
 
@@ -932,9 +1126,14 @@ export default function AdminProductsPage() {
               <span className="badge bg-slate-100 text-slate-600 text-xs">{brands.length} brands</span>
             </div>
             {brandsLoading ? (
-              <div className="card py-12 text-center">
-                <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-3"/>
-                <p className="text-sm text-slate-500">Loading brands...</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="card p-4 text-center">
+                    <div className="w-12 h-12 rounded-xl bg-slate-200 animate-pulse mx-auto mb-3"/>
+                    <div className="h-4 w-20 bg-slate-100 animate-pulse mx-auto rounded"/>
+                    <div className="h-3 w-14 bg-slate-50 animate-pulse mx-auto mt-2 rounded"/>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
