@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -44,7 +44,115 @@ interface BackendOrder {
   items: BackendOrderItem[];
 }
 
+interface TrackingEntry {
+  status: string;
+  details: {
+    id: string;
+    orderId: string;
+    status: string;
+    location: string[];
+    message: string;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+}
+
+interface BackendResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
 type Step = "mobile" | "otp" | "orders";
+
+function formatDateTime(dateStr: string) {
+  const d = new Date(dateStr);
+  const date = d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  const time = d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+  return `${date}, ${time}`;
+}
+
+function TrackingStepper({ tracking }: { tracking: TrackingEntry[] }) {
+  if (tracking.length === 0) return null;
+
+  const onTheWayEntry = tracking.find((t) => t.status === "on_the_way");
+  const locations = onTheWayEntry?.details?.location ?? [];
+
+  const steps: { label: string; icon: typeof Package; isDone: boolean; isCurrent: boolean; isPending: boolean; date?: string }[] = [];
+
+  const allSteps = [
+    { status: "purchased", label: "Purchased", icon: Package },
+    { status: "dispatched", label: "Dispatched", icon: Truck },
+    { status: "on_the_way", label: "On the way", icon: MapPin },
+    { status: "delivered", label: "Delivered", icon: CheckCircle },
+  ];
+
+      for (let i = 0; i < allSteps.length; i++) {
+        const s = allSteps[i];
+        const entry = tracking.find((t) => t.status === s.status);
+        const hasDetails = !!entry?.details;
+
+        if (s.status === "on_the_way" && locations.length > 0) {
+          for (let j = 0; j < locations.length; j++) {
+            const isLastLocation = j === locations.length - 1;
+            const isDeliveredPending = !tracking.find((t) => t.status === "delivered")?.details;
+
+            steps.push({
+              label: locations[j],
+              icon: MapPin,
+              isDone: true,
+              isCurrent: false,
+              isPending: false,
+              date: isLastLocation && entry?.details ? formatDateTime(entry.details.updatedAt) : undefined,
+            });
+          }
+        } else {
+          const isCurrent = hasDetails && i !== 0 && !tracking.find((t) => t.status === allSteps[i - 1]?.status)?.details;
+          const isDone = hasDetails && !isCurrent;
+      const isPending = !hasDetails;
+
+      steps.push({
+        label: s.label,
+        icon: s.icon,
+        isDone,
+        isCurrent,
+        isPending,
+        date: entry?.details ? formatDateTime(entry.details.updatedAt) : undefined,
+      });
+    }
+  }
+
+  return (
+    <div className="flex items-start px-2">
+      {steps.map((step, i) => {
+        const prevIsDoneOrCurrent = i > 0 && (steps[i - 1].isDone || steps[i - 1].isCurrent);
+        const isConnectorHalf = prevIsDoneOrCurrent && step.isPending;
+        const isConnectorFull = prevIsDoneOrCurrent && !isConnectorHalf;
+
+        return (
+          <div key={i} className="flex-1 flex flex-col items-center text-center relative">
+            <div className={`absolute top-[11px] left-[-50%] w-full h-[3px] z-0 ${i === 0 ? "hidden" : ""}`} style={isConnectorHalf ? { background: "linear-gradient(to right, #16a34a 50%, #e2e8f0 50%)" } : { background: isConnectorFull ? "#16a34a" : "#e2e8f0" }} />
+            <div className={`w-[26px] h-[26px] rounded-full border-[3px] flex items-center justify-center z-10 relative ${step.isDone ? "border-emerald-600 bg-emerald-600" : step.isCurrent ? "border-emerald-600 bg-white" : "border-slate-200 bg-white"}`}>
+              {step.isDone && (
+                <svg viewBox="0 0 24 24" fill="none" className="w-[14px] h-[14px]">
+                  <path d="M4 12l5 5L20 6" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+              {step.isCurrent && <div className="w-[10px] h-[10px] rounded-full bg-emerald-600" />}
+              {step.isPending && <step.icon className="w-[12px] h-[12px] text-slate-300" />}
+            </div>
+            <p className={`mt-2.5 text-[13px] font-semibold ${step.isPending ? "text-slate-400 font-medium" : "text-slate-800"}`}>{step.label}</p>
+            {step.date && (
+              <p className="mt-0.5 text-[11px] text-slate-400">
+                {step.label === "On the way" ? "Last updated " : ""}{step.date}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function OrdersPage() {
   const [step, setStep] = useState<Step>("mobile");
@@ -59,6 +167,7 @@ export default function OrdersPage() {
   const [search, setSearch] = useState("");
   const [statusF, setStatusF] = useState("all");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [trackingMap, setTrackingMap] = useState<Record<string, TrackingEntry[]>>({});
 
   const mobileRegex = /^[6-9]\d{9}$/;
 
@@ -107,7 +216,28 @@ export default function OrdersPage() {
     setError("");
     setOrders([]);
     setExpanded(null);
+    setTrackingMap({});
   };
+
+  const fetchTracking = useCallback(async (orderId: string) => {
+    try {
+      const res = await api.get<BackendResponse<TrackingEntry[]>>(`/api/order-tracking/order/${orderId}`);
+      setTrackingMap((prev) => ({ ...prev, [orderId]: res.data.data }));
+    } catch {
+      setTrackingMap((prev) => ({ ...prev, [orderId]: [] }));
+    }
+  }, []);
+
+  const toggleExpand = useCallback(async (orderId: string) => {
+    if (expanded === orderId) {
+      setExpanded(null);
+    } else {
+      setExpanded(orderId);
+      if (!trackingMap[orderId]) {
+        await fetchTracking(orderId);
+      }
+    }
+  }, [expanded, trackingMap, fetchTracking]);
 
   const filtered = orders.filter(o => {
     const q = search.toLowerCase();
@@ -254,7 +384,7 @@ export default function OrdersPage() {
                                 <p className="font-display font-bold text-xl text-slate-900">{formatINR(order.totalAmount)}</p>
                                 <p className="text-xs text-slate-400">{order.items.length} line item{order.items.length > 1 ? "s" : ""}</p>
                               </div>
-                              <button onClick={() => setExpanded(isOpen ? null : order.id)} className="p-2 rounded-xl hover:bg-slate-100 transition-colors">
+                              <button onClick={() => toggleExpand(order.id)} className="p-2 rounded-xl hover:bg-slate-100 transition-colors">
                                 {isOpen ? <ChevronUp className="w-5 h-5 text-slate-500" /> : <ChevronDown className="w-5 h-5 text-slate-500" />}
                               </button>
                             </div>
@@ -267,6 +397,16 @@ export default function OrdersPage() {
                         </div>
                         {isOpen && (
                           <div className="border-t border-slate-100 px-5 pb-5 animate-fade-in">
+                            <div className="mt-5 mb-6">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Order Tracking</p>
+                              {!trackingMap[order.id] ? (
+                                <div className="flex items-center justify-center py-8">
+                                  <div className="w-6 h-6 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                                </div>
+                              ) : (
+                                <TrackingStepper tracking={trackingMap[order.id]} />
+                              )}
+                            </div>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 text-sm mb-5">
                               <div><p className="text-xs text-slate-400 mb-1">Payment</p><p className="font-medium text-slate-800">{order.paymentMethod}</p></div>
                               <div><p className="text-xs text-slate-400 mb-1">Ship To</p><p className="font-medium text-slate-800">{order.shippingAddress.city}, {order.shippingAddress.state}</p></div>
