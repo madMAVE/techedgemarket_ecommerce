@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import { api } from "@/lib/interceptor";
-import { Mail, Send, CheckCircle, AlertCircle, X, Paperclip, File, PenSquare, Plus, Trash2, Edit2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Mail, Send, CheckCircle, AlertCircle, X, Paperclip, File, PenSquare, Plus, Trash2, Edit2, ToggleLeft, ToggleRight, ChevronDown, ChevronUp } from "lucide-react";
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
@@ -45,7 +45,13 @@ interface EmailSignature {
 }
 
 export default function AdminEmailsPage() {
-  const [to, setTo] = useState("");
+  const [toEmails, setToEmails] = useState<string[]>([]);
+  const [toInput, setToInput] = useState("");
+  const [ccEmails, setCcEmails] = useState<string[]>([]);
+  const [ccInput, setCcInput] = useState("");
+  const [bccEmails, setBccEmails] = useState<string[]>([]);
+  const [bccInput, setBccInput] = useState("");
+  const [showCcBcc, setShowCcBcc] = useState(false);
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
@@ -70,7 +76,7 @@ export default function AdminEmailsPage() {
     setLoadingSignatures(true);
     try {
       const res: any = await api.get("/api/admin/email-signatures");
-      const sigs = Array.isArray(res.data) ? res.data : [];
+      const sigs = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
       setSignatures(sigs);
       const active = sigs.find((s: EmailSignature) => s.isActive);
       if (active) setSelectedSignatureId(active.id);
@@ -85,6 +91,62 @@ export default function AdminEmailsPage() {
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 3000);
   };
+
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const addEmailTag = (type: "to" | "cc" | "bcc") => {
+    const input = type === "to" ? toInput : type === "cc" ? ccInput : bccInput;
+    const setter = type === "to" ? setToEmails : type === "cc" ? setCcEmails : setBccEmails;
+    const inputSetter = type === "to" ? setToInput : type === "cc" ? setCcInput : setBccInput;
+
+    const emails = input.split(/[,;\s]+/).filter((e) => e.trim());
+    const validNew: string[] = [];
+    const invalid: string[] = [];
+
+    for (const email of emails) {
+      const trimmed = email.trim();
+      if (!trimmed) continue;
+      if (!isValidEmail(trimmed)) {
+        invalid.push(trimmed);
+      } else if (type === "to" ? !toEmails.includes(trimmed) : type === "cc" ? !ccEmails.includes(trimmed) : !bccEmails.includes(trimmed)) {
+        validNew.push(trimmed);
+      }
+    }
+
+    if (invalid.length > 0) {
+      showToast(`Invalid email(s): ${invalid.join(", ")}`, false);
+    }
+
+    if (validNew.length > 0) {
+      setter((prev) => [...prev, ...validNew]);
+      inputSetter("");
+    }
+  };
+
+  const removeEmailTag = (type: "to" | "cc" | "bcc", index: number) => {
+    const setter = type === "to" ? setToEmails : type === "cc" ? setCcEmails : setBccEmails;
+    setter((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEmailKeyDown = (type: "to" | "cc" | "bcc", e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addEmailTag(type);
+    }
+  };
+
+  const EmailTags = ({ emails, type }: { emails: string[]; type: "to" | "cc" | "bcc" }) => (
+    <div className="flex flex-wrap gap-1.5 mt-2">
+      {emails.map((email, i) => (
+        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary-50 text-primary-700 rounded-lg text-xs font-medium border border-primary-200">
+          {email}
+          <button onClick={() => removeEmailTag(type, i)} className="ml-0.5 hover:text-red-500 transition-colors">
+            <X className="w-3 h-3" />
+          </button>
+        </span>
+      ))}
+    </div>
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -184,7 +246,7 @@ export default function AdminEmailsPage() {
   };
 
   const handleSend = async () => {
-    if (!to.trim()) { showToast("Recipient email is required", false); return; }
+    if (toEmails.length === 0) { showToast("At least one recipient is required", false); return; }
     if (!subject.trim()) { showToast("Subject is required", false); return; }
     if (!content.trim()) { showToast("Content is required", false); return; }
     if (!selectedSignatureId) { showToast("Please select an active signature", false); return; }
@@ -192,7 +254,9 @@ export default function AdminEmailsPage() {
     setSending(true);
     try {
       const formData = new FormData();
-      formData.append("to", to);
+      formData.append("to", toEmails[0]);
+      if (ccEmails.length > 0) formData.append("cc", JSON.stringify(ccEmails));
+      if (bccEmails.length > 0) formData.append("bcc", JSON.stringify(bccEmails));
       formData.append("subject", subject);
       formData.append("content", content);
 
@@ -202,7 +266,12 @@ export default function AdminEmailsPage() {
 
       await api.post("/api/email", formData);
       showToast("Email sent successfully!");
-      setTo("");
+      setToEmails([]);
+      setToInput("");
+      setCcEmails([]);
+      setCcInput("");
+      setBccEmails([]);
+      setBccInput("");
       setSubject("");
       setContent("");
       setAttachments([]);
@@ -229,14 +298,62 @@ export default function AdminEmailsPage() {
 
           <div className="card p-6 space-y-6">
             <div>
-              <label className="label">Recipient Email <span className="text-red-500 font-normal normal-case">*</span></label>
-              <input
-                className="input mt-1"
-                type="email"
-                placeholder="recipient@example.com"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-              />
+              <label className="label">Recipients (To) <span className="text-red-500 font-normal normal-case">*</span></label>
+              <div className="input mt-1 flex items-center flex-wrap gap-1 px-2 py-1.5 min-h-10 cursor-text" onClick={() => document.getElementById("to-input")?.focus()}>
+                <EmailTags emails={toEmails} type="to" />
+                <input
+                  id="to-input"
+                  className="flex-1 min-w-40 outline-none bg-transparent text-sm"
+                  type="email"
+                  placeholder={toEmails.length === 0 ? "Enter email and press Enter" : "Add more emails"}
+                  value={toInput}
+                  onChange={(e) => setToInput(e.target.value)}
+                  onKeyDown={(e) => handleEmailKeyDown("to", e)}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCcBcc(!showCcBcc)}
+                className="text-xs text-primary-600 hover:text-primary-700 mt-2 flex items-center gap-1 font-medium"
+              >
+                {showCcBcc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                {showCcBcc ? "Hide CC/BCC" : "Add CC/BCC"}
+              </button>
+
+              {showCcBcc && (
+                <div className="mt-3 space-y-3">
+                  <div>
+                    <label className="label text-xs text-slate-500">CC</label>
+                    <div className="input flex items-center flex-wrap gap-1 px-2 py-1.5 min-h-10 cursor-text" onClick={() => document.getElementById("cc-input")?.focus()}>
+                      <EmailTags emails={ccEmails} type="cc" />
+                      <input
+                        id="cc-input"
+                        className="flex-1 min-w-40 outline-none bg-transparent text-sm"
+                        type="email"
+                        placeholder={ccEmails.length === 0 ? "Enter CC emails" : "Add more"}
+                        value={ccInput}
+                        onChange={(e) => setCcInput(e.target.value)}
+                        onKeyDown={(e) => handleEmailKeyDown("cc", e)}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="label text-xs text-slate-500">BCC</label>
+                    <div className="input flex items-center flex-wrap gap-1 px-2 py-1.5 min-h-10 cursor-text" onClick={() => document.getElementById("bcc-input")?.focus()}>
+                      <EmailTags emails={bccEmails} type="bcc" />
+                      <input
+                        id="bcc-input"
+                        className="flex-1 min-w-40 outline-none bg-transparent text-sm"
+                        type="email"
+                        placeholder={bccEmails.length === 0 ? "Enter BCC emails" : "Add more"}
+                        value={bccInput}
+                        onChange={(e) => setBccInput(e.target.value)}
+                        onKeyDown={(e) => handleEmailKeyDown("bcc", e)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -331,7 +448,7 @@ export default function AdminEmailsPage() {
 
             <div className="flex gap-3 pt-2">
               <button
-                onClick={() => { setTo(""); setSubject(""); setContent(""); setAttachments([]); }}
+                onClick={() => { setToEmails([]); setToInput(""); setCcEmails([]); setCcInput(""); setBccEmails([]); setBccInput(""); setSubject(""); setContent(""); setAttachments([]); }}
                 className="btn-outline flex-1 flex items-center justify-center gap-2"
                 disabled={sending}
               >
