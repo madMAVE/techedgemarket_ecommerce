@@ -93,9 +93,7 @@ export default function AdminEmailsPage() {
         formData.append("attachments", att.file);
       });
 
-      await api.post("/api/email", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.post("/api/email", formData);
       showToast("Email sent successfully!");
       setTo("");
       setSubject("");
