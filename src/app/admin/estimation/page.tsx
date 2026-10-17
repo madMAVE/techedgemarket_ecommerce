@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import { getAllProducts } from "@/utils/data";
 import { formatINR } from "@/utils/helpers";
+import { COMPANY } from "@/utils/documents";
 import type { Product } from "@/types";
 import {
   Calculator, Plus, Trash2, Printer, CheckCircle,
@@ -336,13 +337,11 @@ export default function EstimationPage() {
               {/* Header */}
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", borderBottom:"3px solid #1340e1", paddingBottom:"20px", marginBottom:"20px" }}>
                 <div>
-                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:"24px", letterSpacing:"0.05em", marginBottom:"6px" }}>
-                    Tech<span style={{ color:"#f59e0b" }}>Edge</span> Market Pvt. Ltd.
-                  </div>
+                  <img src={`${typeof window !== "undefined" ? window.location.origin : ""}/techedgemarket_ecommerce/logo/TEM-dark.png`} alt="Tech Edge Market" style={{ height:"50px", width:"auto", objectFit:"contain", marginBottom:"6px" }} />
                   <div style={{ fontSize:"11px", color:"#475569", lineHeight:"1.7" }}>
-                    <div>Plot 12, Hi-Tech City, Madhapur, Hyderabad – 500 081</div>
-                    <div>Ph: +91-40-1234-5678 | sales@techedgemarket.in</div>
-                    <div style={{ fontWeight:700 }}>GSTIN: 36AABCT1234Z1Z5</div>
+                    <div>{COMPANY.address}</div>
+                    <div>Ph: {COMPANY.phone} | {COMPANY.email}</div>
+                    <div style={{ fontWeight:700 }}>GSTIN: {COMPANY.gstin}</div>
                   </div>
                 </div>
                 <div style={{ textAlign:"right" }}>

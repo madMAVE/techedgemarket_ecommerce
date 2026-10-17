@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import { api } from "@/lib/interceptor";
 import { Mail, Send, CheckCircle, AlertCircle, X, Paperclip, File, PenSquare, Plus, Trash2, Edit2, ToggleLeft, ToggleRight, ChevronDown, ChevronUp } from "lucide-react";
@@ -45,6 +46,7 @@ interface EmailSignature {
 }
 
 export default function AdminEmailsPage() {
+  const searchParams = useSearchParams();
   const [toEmails, setToEmails] = useState<string[]>([]);
   const [toInput, setToInput] = useState("");
   const [ccEmails, setCcEmails] = useState<string[]>([]);
@@ -70,6 +72,15 @@ export default function AdminEmailsPage() {
 
   useEffect(() => {
     fetchSignatures();
+    const to = searchParams.get("to");
+    const subj = searchParams.get("subject");
+    const body = searchParams.get("body");
+    if (to) {
+      setToEmails([to]);
+      setToInput("");
+    }
+    if (subj) setSubject(decodeURIComponent(subj));
+    if (body) setContent(decodeURIComponent(body).replace(/\\n/g, "\n"));
   }, []);
 
   const fetchSignatures = async () => {

@@ -250,3 +250,87 @@ export interface CategorySales {
   percentage: number;
   growth: number;
 }
+
+// ── Document Line Items ─────────────────────────────────────────────────────
+export interface DocLineItem {
+  id: string;
+  title: string;
+  subDetails?: string;
+  model?: string;
+  tag?: string;
+  hsn?: string;
+  per?: string;
+  qty: number;
+  unit?: string;
+  unitPrice: number;
+}
+
+export interface DocParty {
+  name: string;
+  attention?: string;
+  mobile?: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  gstin?: string;
+  state?: string;
+  stateCode?: string;
+}
+
+export interface DocTerm {
+  label: string;
+  value: string;
+}
+
+export interface DocSpec {
+  key: string;
+  value: string;
+}
+
+// ── Purchase Order ──────────────────────────────────────────────────────────
+export interface PurchaseOrder {
+  id: string;
+  refNo: string;
+  date: string;
+  supplierOfferRef: string;
+  supplierOfferDate: string;
+  supplier: DocParty;
+  subject: string;
+  openingText: string;
+  items: DocLineItem[];
+  terms: DocTerm[];
+  declaration: string;
+  createdAt: string;
+}
+
+// ── Quotation ───────────────────────────────────────────────────────────────
+export interface Quotation {
+  id: string;
+  refNo: string;
+  date: string;
+  validTill: string;
+  client: DocParty;
+  subjectTitle: string;
+  subjectBody: string;
+  items: DocLineItem[];
+  specs: DocSpec[];
+  terms: DocTerm[];
+  gstRate: number;
+  signoff: { name: string; role: string; lines: string[] };
+  createdAt: string;
+}
+
+// ── Invoice Document ────────────────────────────────────────────────────────
+export interface InvoiceDoc {
+  id: string;
+  invoiceNo: string;
+  date: string;
+  orderNo: string;
+  poReference?: string;
+  billTo: DocParty;
+  shipTo: DocParty;
+  items: DocLineItem[];
+  terms: DocTerm[];
+  freight?: number;
+  createdAt: string;
+}

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList, Mail } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList, Mail, FileSpreadsheet } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const LINKS = [
@@ -10,7 +10,8 @@ const LINKS = [
   { href:"/business",               label:"Analytics",      icon:BarChart3,       section:null },
   { href:"/admin/orders",           label:"Manage Orders",  icon:ShoppingBag,     section:"Orders & Finance" },
   { href:"/admin/invoice",          label:"Invoice",        icon:FileText,        section:null },
-  { href:"/admin/estimation",       label:"Estimation",     icon:Calculator,      section:null },
+  { href:"/admin/quotation",        label:"Quotation",      icon:FileSpreadsheet, section:null },
+  { href:"/admin/purchase-orders",  label:"Purchase Orders",icon:Truck,           section:null },
   { href:"/admin/products",          label:"Products & SKU", icon:Package,         section:"Operations" },
   { href:"/shop",                   label:"Storefront",     icon:Package,         section:null },
   { href:"/inventory",              label:"Inventory",      icon:Warehouse,       section:null },
