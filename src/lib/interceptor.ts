@@ -29,6 +29,7 @@ export interface ApiError {
   status?: number;
   code?: string;
   details?: unknown;
+  url?: string;
 }
 
 type RequestInterceptor  = (cfg: RequestConfig) => RequestConfig | Promise<RequestConfig>;
@@ -40,8 +41,12 @@ const store: { request: RequestInterceptor[]; response: ResponseInterceptor[]; e
 };
 
 // ── Token ──────────────────────────────────────────────────────────────────────
+// Admin (panel) and customer (storefront) sessions use separate storage keys so
+// a failed storefront probe can never wipe an admin session and vice versa.
 const TOKEN_KEY = "techedge_auth_token";
+const CUSTOMER_TOKEN_KEY = "techedge_customer_token";
 let _token: string | null = null;
+let _customerToken: string | null = null;
 
 export const setAuthToken = (t: string | null) => {
   _token = t;
@@ -65,10 +70,32 @@ export const clearAuthToken = () => {
   }
 };
 
+export const setCustomerToken = (t: string | null) => {
+  _customerToken = t;
+  if (typeof window !== "undefined") {
+    if (t) localStorage.setItem(CUSTOMER_TOKEN_KEY, t);
+    else localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+  }
+};
+
+export const getCustomerToken = () => {
+  if (!_customerToken && typeof window !== "undefined") {
+    _customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+  }
+  return _customerToken;
+};
+
+export const clearCustomerToken = () => {
+  _customerToken = null;
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+  }
+};
+
 // ── Built-in request interceptors ─────────────────────────────────────────────
 store.request.push(
-  (cfg) => { // auth
-    const t = getAuthToken();
+  (cfg) => { // auth: admin endpoints use the admin token, everything else the customer token
+    const t = cfg.url.startsWith("/api/admin") ? getAuthToken() : getCustomerToken() ?? getAuthToken();
     if (t) cfg.headers = { ...cfg.headers, Authorization: `Bearer ${t}` };
     return cfg;
   },
@@ -90,7 +117,13 @@ store.response.push((res) => {
 
 // ── Built-in error interceptors ───────────────────────────────────────────────
 store.error.push(
-  (err) => { if (err.status === 401) clearAuthToken(); return err; },
+  (err) => {
+    if (err.status === 401) {
+      if ((err.url ?? "").startsWith("/api/admin")) clearAuthToken();
+      else clearCustomerToken();
+    }
+    return err;
+  },
   (err) => { if (!err.message) err.message = "An unexpected error occurred."; return err; }
 );
 
@@ -100,7 +133,7 @@ export const addResponseInterceptor = (fn: ResponseInterceptor) => store.respons
 export const addErrorInterceptor    = (fn: ErrorInterceptor)    => store.error.push(fn);
 
 // ── Core client ───────────────────────────────────────────────────────────────
-const API_BASE_URL = "https://techedgemarket-ecommerce-backend.vercel.app";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://techedgemarket-ecommerce-backend.vercel.app";
 
 const DEFAULTS: Partial<RequestConfig> = {
   method: "GET",
@@ -148,7 +181,7 @@ export async function apiClient<T = unknown>(config: RequestConfig): Promise<Api
     let res: ApiResponse<T> = { data, status: raw.status, statusText: raw.statusText, headers, config: cfg };
 
     if (!raw.ok) {
-      let err: ApiError = { message: (data as {message?:string})?.message ?? `HTTP ${raw.status}`, status: raw.status, code: String(raw.status), details: data };
+      let err: ApiError = { message: (data as {message?:string})?.message ?? `HTTP ${raw.status}`, status: raw.status, code: String(raw.status), details: data, url: cfg.url };
       for (const fn of store.error) err = await fn(err) as ApiError;
       throw err;
     }

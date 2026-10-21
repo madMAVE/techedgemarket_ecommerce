@@ -1,224 +1,31 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import AdminSidebar from "@/components/layout/AdminSidebar";
+import { documentsApi } from "@/lib/documents";
 import { getAllProducts } from "@/utils/data";
-import { FileSpreadsheet, Printer, Plus, Trash2, Search, Share2, X, Eye, Edit3 } from "lucide-react";
-import { COMPANY, numberToWords, inr, formatDate, generateRefNo } from "@/utils/documents";
+import { FileSpreadsheet, Printer, Plus, Trash2, Search, Share2, X, Eye, Edit3, Save, Loader2, CheckCircle } from "lucide-react";
+import { COMPANY, inr, formatDate } from "@/utils/documents";
+import { QuotationPreview, publicDocumentUrl } from "@/components/documents/previews";
+import type { CustomerAccount } from "@/types";
 import type { DocLineItem, DocParty, DocSpec, DocTerm } from "@/types";
 import ExcelJS from "exceljs";
 
-const VIP_TIERS = [
-  { label: "Standard", discount: 0, minValue: 0, badge: "—" },
-  { label: "Silver Partner", discount: 5, minValue: 50000, badge: "SILVER" },
-  { label: "Gold Partner", discount: 8, minValue: 150000, badge: "GOLD" },
-  { label: "Platinum VIP", discount: 12, minValue: 500000, badge: "PLATINUM" },
-  { label: "Diamond VIP", discount: 15, minValue: 1000000, badge: "DIAMOND" },
-];
 
-const DEFAULT_CUSTOMERS = [
-  { id: "c001", name: "Raj Mehta", company: "Indopack Machines Pvt. Ltd.", tier: 2, totalSpent: 2840000, gstin: "27AABCI1234B1Z5", address: "Plot 45, MIDC Industrial Area, Pune – 411018", email: "raj@indopack.com" },
-  { id: "c002", name: "Priya Nair", company: "GreenPower Electrical", tier: 1, totalSpent: 680000, gstin: "33AABCG5678D1Z8", address: "12 Anna Salai, Chennai – 600002", email: "priya@greenpower.in" },
-  { id: "c003", name: "Sameer Kulkarni", company: "AutoTek Manufacturing", tier: 3, totalSpent: 8200000, gstin: "24AABCA9012F1Z2", address: "Sector 18, Gurgaon – 122015", email: "sameer@autotek.com" },
-  { id: "c004", name: "Meena Shah", company: "Flexitron Automation", tier: 1, totalSpent: 450000, gstin: "07AABCF3456H1Z6", address: "GIDC Estate, Ahmedabad – 380015", email: "meena@flexitron.in" },
-  { id: "c005", name: "Ravi Krishnamurthy", company: "Reliance Industries Ltd.", tier: 4, totalSpent: 54000000, gstin: "27AABCR7890J1Z3", address: "Navi Mumbai, Maharashtra – 400701", email: "ravi.k@ril.com" },
-];
-
-function QuotationPreview({ q }: { q: any }) {
-  const subtotal = q.items.reduce((s: any, i: any) => s + i.unitPrice * i.qty, 0);
-  const discAmount = subtotal * (q.totalDisc / 100);
-  const taxable = subtotal - discAmount;
-  const gstAmt = taxable * q.gstRate;
-  const grand = taxable + gstAmt;
-  const grandWords = numberToWords(Math.round(grand)) + " Rupees Only";
-  const gstPct = Math.round(q.gstRate * 100);
-  const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/techedgemarket_ecommerce/logo/TEM-dark.png` : "";
-  const bdr = "1px solid #000";
-  const bdrLight = "1px solid #ccc";
-
-  return (
-    <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: "9px", color: "#000", lineHeight: "1.4", padding: "10mm 12mm", maxWidth: "210mm", margin: "0 auto", background: "white" }}>
-      {/* Heading */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <img src={logoUrl} alt="TEM" style={{ height: "42px", width: "auto", objectFit: "contain" }} />
-          <div>
-            <div style={{ fontSize: "14px", fontWeight: 800, letterSpacing: "1px" }}>QUOTATION</div>
-            <div style={{ fontSize: "8px", fontStyle: "italic", color: "#333" }}>(Subject to realization)</div>
-          </div>
-        </div>
-        <div style={{ textAlign: "right", fontSize: "9px" }}>
-          <table style={{ borderCollapse: "collapse", marginLeft: "auto" }}>
-            <tbody>
-              {[["Ref No.", q.refNo], ["Date", q.date ? formatDate(q.date) : ""], ["Valid Till", q.validTill ? formatDate(q.validTill) : ""]].map(([k, v]) => (
-                <tr key={k}><td style={{ padding: "1px 8px 1px 0", fontSize: "8px", color: "#444", textAlign: "right" }}>{k}</td><td style={{ padding: "1px 0", fontWeight: 700, fontSize: "9px", textAlign: "right" }}>{v || "—"}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Main grid — two columns */}
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "0" }}>
-        <tbody>
-          <tr>
-            {/* LEFT: Seller + Offer To */}
-            <td style={{ width: "62%", verticalAlign: "top", border: bdr, padding: "6px 8px" }}>
-              {/* Seller */}
-              <div style={{ fontWeight: 800, fontSize: "10px", textTransform: "uppercase", marginBottom: "3px" }}>{COMPANY.name}</div>
-              <div style={{ fontSize: "8.5px", lineHeight: "1.55", color: "#222" }}>
-                <div>{COMPANY.address}</div>
-                <div>Ph: {COMPANY.phone} · {COMPANY.email}</div>
-                <div>GSTIN: <b>{COMPANY.gstin}</b> &nbsp; PAN: {COMPANY.pan}</div>
-              </div>
-
-              <div style={{ borderTop: bdrLight, marginTop: "6px", paddingTop: "5px" }}>
-                <div style={{ fontSize: "8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px", color: "#444" }}>Offer To</div>
-                <div style={{ fontWeight: 700, fontSize: "9.5px", textTransform: "uppercase" }}>{q.client?.name || "—"}</div>
-                {q.client?.attention && <div style={{ fontSize: "8.5px", color: "#444" }}>{q.client.attention}</div>}
-                {q.client?.address && <div style={{ fontSize: "8.5px", lineHeight: "1.5", color: "#222" }}>{q.client.address}</div>}
-                {q.client?.gstin && <div style={{ fontSize: "8.5px" }}>GSTIN: <b>{q.client.gstin}</b></div>}
-                {q.client?.email && <div style={{ fontSize: "8.5px" }}>Email: {q.client.email}</div>}
-              </div>
-            </td>
-
-            {/* RIGHT: Subject */}
-            <td style={{ width: "38%", verticalAlign: "top", border: bdr, borderLeft: "none", padding: "6px 8px" }}>
-              <div style={{ fontSize: "8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px", color: "#444" }}>Subject</div>
-              {q.subjectTitle && <div style={{ fontWeight: 700, fontSize: "9.5px", marginBottom: "4px" }}>{q.subjectTitle}</div>}
-              {q.subjectBody && <div style={{ fontSize: "8.5px", lineHeight: "1.55", color: "#222", whiteSpace: "pre-line" }}>{q.subjectBody}</div>}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Technical Specifications (if any) */}
-      {q.specs.length > 0 && (
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0", marginBottom: "0" }}>
-          <thead>
-            <tr>
-              <th colSpan={3} style={{ border: bdr, padding: "3px 6px", fontSize: "8px", fontWeight: 700, textAlign: "left" }}>Technical Specifications</th>
-            </tr>
-          </thead>
-          <tbody>
-            {q.specs.map((s: any, i: number) => (
-              <tr key={s.key}>
-                <td style={{ border: bdr, padding: "3px 6px", width: "20px", textAlign: "center", fontSize: "8px" }}>{i + 1}</td>
-                <td style={{ border: bdr, padding: "3px 6px", width: "180px", fontWeight: 600, fontSize: "8.5px" }}>{s.key}</td>
-                <td style={{ border: bdr, padding: "3px 6px", fontSize: "8.5px" }}>{s.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {/* Price Schedule table */}
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0", border: bdr }}>
-        <thead>
-          <tr>
-            {["Sl. No.", "Product Description", "Qty", "Unit", "Special Price (Rs.)"].map((h, i) => (
-              <th key={h} style={{ borderRight: i < 4 ? bdr : "none", borderBottom: bdr, padding: "4px 6px", fontSize: "8px", fontWeight: 700, textAlign: i === 0 || i === 2 || i === 3 ? "center" : "left" }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {q.items.map((item: any, i: number) => {
-            const showDivider = q.items.length > 1 && i < q.items.length - 1;
-            const cellBdr = { borderRight: bdr, borderBottom: showDivider ? bdr : "none" };
-            return (
-              <tr key={item.id}>
-                <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{i + 1}</td>
-                <td style={{ ...cellBdr, padding: "6px 8px", verticalAlign: "top" }}>
-                  <div style={{ fontWeight: 700, fontSize: "9.5px" }}>{item.title}</div>
-                  {item.subDetails && <div style={{ fontSize: "8px", color: "#444", marginTop: "1px" }}>{item.subDetails}</div>}
-                  {item.tag && <span style={{ display: "inline-block", marginTop: "3px", fontSize: "7.5px", color: "#16a34a", border: "1px solid #86efac", background: "#f0fdf4", borderRadius: "2px", padding: "0 4px" }}>{item.tag}</span>}
-                </td>
-                <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontWeight: 700, fontSize: "8.5px" }}>{item.qty}</td>
-                <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{item.unit}</td>
-                <td style={{ borderBottom: showDivider ? bdr : "none", padding: "6px 6px", textAlign: "right" }}>
-                  <span style={{ fontWeight: 700, fontSize: "8.5px" }}>{inr(item.unitPrice)}/-</span>
-                  {q.totalDisc > 0 && <span style={{ fontSize: "7.5px", color: "#666", display: "block" }}>+ GST @ {gstPct}%</span>}
-                </td>
-              </tr>
-            );
-          })}
-          {/* Blank rows to fill table height */}
-          {Array.from({ length: Math.max(0, 16 - q.items.length) }).map((_, i) => (
-            <tr key={`blank-${i}`} style={{ height: "24px" }}>
-              {["Sl. No.", "Product Description", "Qty", "Unit", "Special Price (Rs.)"].map((_, j) => (
-                <td key={j} style={{ borderRight: j < 4 ? bdr : "none" }}></td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Totals */}
-      {q.items.length > 0 && (
-        <>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "4px" }}>
-            <table style={{ borderCollapse: "collapse", minWidth: "260px" }}>
-              <tbody>
-                <tr><td style={{ padding: "3px 10px", fontSize: "8.5px", color: "#444" }}>Sub Total</td><td style={{ padding: "3px 10px", textAlign: "right", fontWeight: 600, fontSize: "8.5px" }}>{inr(subtotal)}/-</td></tr>
-                {q.totalDisc > 0 && <tr><td style={{ padding: "3px 10px", fontSize: "8.5px", color: "#444" }}>Discount ({q.totalDisc}%)</td><td style={{ padding: "3px 10px", textAlign: "right", fontWeight: 600, fontSize: "8.5px", color: "#16a34a" }}>− {inr(discAmount)}/-</td></tr>}
-                <tr><td style={{ padding: "3px 10px", fontSize: "8.5px", color: "#444" }}>Taxable Amount</td><td style={{ padding: "3px 10px", textAlign: "right", fontWeight: 600, fontSize: "8.5px" }}>{inr(taxable)}/-</td></tr>
-                <tr><td style={{ padding: "3px 10px", fontSize: "8.5px", color: "#444" }}>GST @ {gstPct}%</td><td style={{ padding: "3px 10px", textAlign: "right", fontWeight: 600, fontSize: "8.5px" }}>{inr(gstAmt)}/-</td></tr>
-                <tr><td style={{ padding: "6px 10px", background: "#222", color: "white", fontWeight: 700, fontSize: "10px" }}>Grand Total</td><td style={{ padding: "6px 10px", background: "#222", color: "white", textAlign: "right", fontWeight: 700, fontSize: "10px" }}>{inr(grand)}/-</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div style={{ fontSize: "8.5px", marginBottom: "4px" }}>
-            <span style={{ fontWeight: 700 }}>Amount in Words: </span><span style={{ fontWeight: 700, textTransform: "uppercase" }}>{grandWords}</span>
-          </div>
-        </>
-      )}
-
-      {/* Terms & Conditions */}
-      {q.terms.length > 0 && (
-        <table style={{ width: "100%", borderCollapse: "collapse", border: bdr, marginBottom: "6px", marginTop: "6px" }}>
-          <thead>
-            <tr><th colSpan={2} style={{ border: bdr, padding: "3px 6px", fontSize: "8px", fontWeight: 700, textAlign: "left" }}>Terms & Conditions</th></tr>
-          </thead>
-          <tbody>
-            {q.terms.map((t: any) => (
-              <tr key={t.label}>
-                <td style={{ border: bdr, width: "30%", fontWeight: 700, fontSize: "8px", padding: "4px 8px", verticalAlign: "top" }}>{t.label}</td>
-                <td style={{ border: bdr, fontSize: "8px", padding: "4px 8px", verticalAlign: "top", lineHeight: "1.5" }}>{t.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {/* Sign-off */}
-      {q.signoff?.name && (
-        <div style={{ marginTop: "12px", fontSize: "8.5px", color: "#222", lineHeight: "1.5" }}>
-          <div style={{ fontStyle: "italic", color: "#444", marginBottom: "2px" }}>Thanks & Regards,</div>
-          <div style={{ fontWeight: 700, fontSize: "10px" }}>{q.signoff.name}</div>
-          <div style={{ fontWeight: 600 }}>{q.signoff.role}</div>
-          {q.signoff.lines.map((l: string, i: number) => <div key={i}>{l}</div>)}
-        </div>
-      )}
-
-      {/* Footer */}
-      <div style={{ marginTop: "10px", borderTop: bdrLight, paddingTop: "4px", textAlign: "center", fontSize: "7.5px", color: "#666" }}>
-        <div><span style={{ fontWeight: 700, color: "#222" }}>{COMPANY.name}</span> · {COMPANY.address} · {COMPANY.phone} · {COMPANY.email} · GSTIN {COMPANY.gstin}</div>
-        <div>This is a computer-generated quotation.</div>
-      </div>
-    </div>
-  );
-}
-
-export default function QuotationPage() {
+function QuotationPageInner() {
+  const searchParams = useSearchParams();
   const allProducts = getAllProducts();
-  const [refNo, setRefNo] = useState(generateRefNo("QTN", Math.floor(Math.random() * 9000) + 1000));
+  const [refNo, setRefNo] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [validDays, setValidDays] = useState(30);
   const validTill = new Date(Date.now() + validDays * 86400000).toISOString().split("T")[0];
 
-  const [custId, setCustId] = useState(DEFAULT_CUSTOMERS[2].id);
-  const [client, setClient] = useState<DocParty>({ name: DEFAULT_CUSTOMERS[2].company, attention: `Attn: ${DEFAULT_CUSTOMERS[2].name}`, address: DEFAULT_CUSTOMERS[2].address, email: DEFAULT_CUSTOMERS[2].email, gstin: DEFAULT_CUSTOMERS[2].gstin });
-  const customer = DEFAULT_CUSTOMERS.find(c => c.id === custId);
-  const tier = VIP_TIERS[customer?.tier || 0];
+  const [docId, setDocId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [customers, setCustomers] = useState<CustomerAccount[]>([]);
+  const [custId, setCustId] = useState("");
+  const [client, setClient] = useState<DocParty>({ name: "", attention: "", address: "", email: "", gstin: "" });
 
   const [items, setItems] = useState<DocLineItem[]>([]);
   const [specs, setSpecs] = useState<DocSpec[]>([]);
@@ -236,22 +43,125 @@ export default function QuotationPage() {
   const [signoff, setSignoff] = useState({ name: "Pradipan Das", role: "Sales Manager", lines: ["Kolkata", COMPANY.email, COMPANY.phone] });
   const [subjectTitle, setSubjectTitle] = useState("");
   const [subjectBody, setSubjectBody] = useState("Dear Sir,\nWith reference to your requirement, we are pleased to offer as detailed below. We assure you of our best service at all times.");
-  const [tierDisc, setTierDisc] = useState(tier.discount);
-  const [extraDisc, setExtraDisc] = useState(0);
-  const totalDisc = Math.min(tierDisc + extraDisc, 30);
+  const [totalDisc, setTotalDisc] = useState(0);
+  const [showQr, setShowQr] = useState(true);
+  const [publicToken, setPublicToken] = useState<string | null>(null);
   const gstRate = 0.18;
 
   const [searchQ, setSearchQ] = useState("");
   const [showPicker, setShowPicker] = useState(false);
+  const [manualEntry, setManualEntry] = useState(false);
+  const [manualItem, setManualItem] = useState<DocLineItem>({ id: "", title: "", subDetails: "", model: "", tag: "", qty: 1, unit: "NOS.", unitPrice: 0 });
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
-  const [editSpecIdx, setEditSpecIdx] = useState<number | null>(null);
-  const [editSpec, setEditSpec] = useState<DocSpec>({ key: "", value: "" });
+  const [specsJson, setSpecsJson] = useState("");
+  const [specsError, setSpecsError] = useState("");
   const [editTermIdx, setEditTermIdx] = useState<number | null>(null);
   const [editTerm, setEditTerm] = useState<DocTerm>({ label: "", value: "" });
   const printRef = useRef<HTMLDivElement>(null);
 
-  const q = { refNo, date, validTill, client, subjectTitle, subjectBody, items, specs, terms, signoff, tierDisc, extraDisc, totalDisc, gstRate, tierLabel: tier.label };
+  const q = { refNo, date, validTill, client, subjectTitle, subjectBody, items, specs, terms, signoff, totalDisc, gstRate, showQr, publicUrl: publicToken ? publicDocumentUrl(publicToken) : undefined };
+
+  const showToast = (msg: string, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 4000); };
+
+  const specsToJson = (list: DocSpec[]) => JSON.stringify(Object.fromEntries(list.map(s => [s.key, s.value])), null, 2);
+
+  const applySpecsJson = (raw: string) => {
+    setSpecsJson(raw);
+    if (!raw.trim()) { setSpecs([]); setSpecsError(""); return; }
+    try {
+      const parsed = JSON.parse(raw.trim());
+      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) throw new Error();
+      setSpecs(Object.entries(parsed).map(([key, value]) => ({ key, value: String(value) })));
+      setSpecsError("");
+    } catch {
+      setSpecsError("Invalid JSON — paste a flat object, e.g. { \"CPU\": \"1214C\" }");
+    }
+  };
+
+  useEffect(() => {
+    documentsApi.listCustomers().then(setCustomers).catch(() => setCustomers([]));
+  }, []);
+
+  const selectCustomer = (id: string) => {
+    setCustId(id);
+    const c = customers.find(x => x.id === id);
+    if (!c) return;
+    const primary = (c.contacts ?? []).find(p => p.isPrimary) ?? (c.contacts ?? [])[0];
+    setClient({
+      name: c.company,
+      attention: primary ? `Attn: ${primary.name}${primary.role ? ` — ${primary.role}` : ""}` : "",
+      address: [c.address, c.city].filter(Boolean).join(", "),
+      email: c.email ?? "",
+      gstin: c.gstin ?? "",
+      state: c.state ?? "",
+      stateCode: c.stateCode ?? "",
+    });
+  };
+
+  const loadDraft = useCallback(async (id: string) => {
+    try {
+      const doc = await documentsApi.get(id);
+      const p = doc.payload as Record<string, unknown>;
+      setDocId(doc.id);
+      setPublicToken(doc.publicToken);
+      if (typeof p["showQr"] === "boolean") setShowQr(p["showQr"]);
+      setRefNo(doc.number);
+      setDate(doc.issueDate.slice(0, 10));
+      setClient((p["client"] ?? { name: doc.partyName }) as DocParty);
+      setSubjectTitle(String(p["subjectTitle"] ?? ""));
+      setSubjectBody(String(p["subjectBody"] ?? ""));
+      setItems(((p["items"] ?? []) as DocLineItem[]).map((it, i) => ({ ...it, id: it.id ?? `item-${i}` })));
+      if (Array.isArray(p["specs"])) { const loaded = p["specs"] as DocSpec[]; setSpecs(loaded); setSpecsJson(specsToJson(loaded)); }
+      if (Array.isArray(p["terms"])) setTerms(p["terms"] as DocTerm[]);
+      if (p["signoff"]) setSignoff(p["signoff"] as { name: string; role: string; lines: string[] });
+      const totals = (p["totals"] ?? {}) as { discountPct?: number };
+      if (typeof totals.discountPct === "number") setTotalDisc(totals.discountPct);
+      showToast(`Loaded draft ${doc.number}`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to load draft", false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const idParam = searchParams.get("id");
+    if (idParam) loadDraft(idParam);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, loadDraft]);
+
+  const handleSave = async () => {
+    if (!client.name.trim()) { showToast("Client company name is required", false); return; }
+    if (specsError) { showToast(specsError, false); return; }
+    if (items.length === 0) { showToast("Add at least one line item", false); return; }
+    setSaving(true);
+    try {
+      const subtotal = items.reduce((s, i) => s + i.unitPrice * i.qty, 0);
+      const discAmount = subtotal * (totalDisc / 100);
+      const taxable = subtotal - discAmount;
+      const gstAmt = taxable * gstRate;
+      const payload: Record<string, unknown> = {
+        refNo, date, validTill, client, subjectTitle, subjectBody, items, specs, terms, signoff, showQr,
+        totals: { subtotal, discountPct: totalDisc, discAmount, taxable, gstRate, gstAmt, grand: Math.round(taxable + gstAmt) },
+      };
+      const doc = docId
+        ? await documentsApi.updateDraft(docId, payload)
+        : await documentsApi.create({
+            type: "QUOTATION",
+            issueDate: date,
+            partyName: client.name,
+            party: { name: client.name, attention: client.attention, mobile: client.mobile, email: client.email, address: client.address, state: client.state, stateCode: client.stateCode, gstin: client.gstin },
+            payload,
+          });
+      setDocId(doc.id);
+      setPublicToken(doc.publicToken);
+      setRefNo(doc.number);
+      showToast(`Saved as ${doc.number} (${doc.status})`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to save quotation", false);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const addItem = (product: any) => {
     setItems(prev => [...prev, { id: `item-${Date.now()}-${Math.random()}`, title: product.name, subDetails: `${product.description || ""} · Model: ${product.model || product.partNumber}`, model: product.model || product.partNumber, tag: "CE Certified & CPRI Tested", qty: 1, unit: "NOS.", unitPrice: product.price }]);
@@ -260,6 +170,15 @@ export default function QuotationPage() {
 
   const removeItem = (id: string) => setItems(prev => prev.filter(i => i.id !== id));
   const updateItem = (id: string, field: string, value: any) => setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: value } : i));
+
+  const warranty = terms.find(t => t.label === "Warranty Period")?.value ?? "";
+  const leadTime = terms.find(t => t.label === "Delivery Lead Time")?.value ?? "";
+
+  const setTermValue = (label: string, value: string) => setTerms(prev => {
+    const idx = prev.findIndex(t => t.label === label);
+    if (idx === -1) return value.trim() ? [...prev, { label, value }] : prev;
+    return prev.map((t, i) => i === idx ? { ...t, value } : t);
+  });
 
   const filteredProds = allProducts.filter(p => {
     const query = searchQ.toLowerCase();
@@ -296,7 +215,7 @@ export default function QuotationPage() {
     ws.addRow({ sl: "", title: "Grand Total", qty: "", unit: "", unitPrice: grand });
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${refNo.replace(/\//g, "_")}.xlsx`; a.click(); URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${refNo.replace(/[^a-zA-Z0-9-]/g, "_")}.xlsx`; a.click(); URL.revokeObjectURL(url);
   };
 
   const handleShareEmail = () => {
@@ -310,12 +229,18 @@ export default function QuotationPage() {
     <div className="flex min-h-screen bg-slate-50">
       <AdminSidebar />
       <main className="flex-1 overflow-auto">
+        {toast && <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-sm font-semibold ${toast.ok ? "bg-emerald-600 text-white" : "bg-red-600 text-white"}`}>{toast.ok ? <CheckCircle className="w-4 h-4" /> : <X className="w-4 h-4" />}{toast.msg}</div>}
         <div className="border-b border-slate-200 px-8 py-5 flex items-center justify-between bg-white">
           <div>
             <h1 className="page-title flex items-center gap-3"><FileSpreadsheet className="w-7 h-7 text-primary-600" /> Quotation Generator</h1>
             <p className="page-sub">Create professional quotations with VIP discounts</p>
           </div>
-          <button onClick={() => setShowPicker(!showPicker)} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> Add Product</button>
+          <div className="flex gap-2">
+            <button onClick={handleSave} disabled={saving} className="btn-outline flex items-center gap-2 border-primary-300 text-primary-700 hover:bg-primary-50 disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} {docId ? "Update Draft" : "Save Document"}
+            </button>
+            <button onClick={() => { setManualEntry(false); setShowPicker(!showPicker); }} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> Add Product</button>
+          </div>
         </div>
 
         <div className="flex max-w-screen-2xl mx-auto">
@@ -324,7 +249,7 @@ export default function QuotationPage() {
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">Reference & Dates</h3>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Ref No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={refNo} onChange={e => setRefNo(e.target.value)} /></div>
+                <div><label className="label">Ref No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={refNo} readOnly placeholder="Assigned on save" /></div>
                 <div><label className="label">Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={date} onChange={e => setDate(e.target.value)} /></div>
                 <div><label className="label">Valid For (days)</label><input type="number" min={1} max={90} className="input w-full rounded-lg mt-1 text-sm" value={validDays} onChange={e => setValidDays(Number(e.target.value))} /></div>
               </div>
@@ -333,9 +258,11 @@ export default function QuotationPage() {
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">Client</h3>
               <div><label className="label">Select Customer</label>
-                <select className="input w-full rounded-lg mt-1 text-sm" value={custId} onChange={e => { setCustId(e.target.value); const c = DEFAULT_CUSTOMERS.find(x => x.id === e.target.value); if (c) { setClient({ name: c.company, attention: `Attn: ${c.name}`, address: c.address, email: c.email, gstin: c.gstin }); setTierDisc(VIP_TIERS[c.tier].discount); } }}>
-                  {DEFAULT_CUSTOMERS.map(c => <option key={c.id} value={c.id}>{c.company} — {c.name}</option>)}
+                <select className="input w-full rounded-lg mt-1 text-sm" value={custId} onChange={e => selectCustomer(e.target.value)}>
+                  <option value="">— Manual entry (new company) —</option>
+                  {customers.map(c => <option key={c.id} value={c.id}>{c.company}{c.gstin ? ` — ${c.gstin}` : ""}</option>)}
                 </select>
+                {customers.length === 0 && <p className="text-xs text-slate-400 mt-1">No customer accounts yet — fill the fields below and saving will create one.</p>}
               </div>
               <div className="space-y-2">
                 <input className="input w-full rounded-lg text-sm" value={client.name} onChange={e => setClient(prev => ({ ...prev, name: e.target.value }))} placeholder="Company name" />
@@ -346,7 +273,7 @@ export default function QuotationPage() {
                   <input className="input w-full rounded-lg text-sm" value={client.gstin || ""} onChange={e => setClient(prev => ({ ...prev, gstin: e.target.value }))} placeholder="GSTIN" />
                 </div>
               </div>
-              <div><label className="label">Discount %</label><input type="number" min={0} max={30} className="input w-full rounded-lg mt-1 text-sm" value={totalDisc} onChange={e => { const v = Number(e.target.value); setTierDisc(Math.min(v, 30)); setExtraDisc(0); }} /></div>
+              <div><label className="label">Discount %</label><input type="number" min={0} max={30} className="input w-full rounded-lg mt-1 text-sm" value={totalDisc} onChange={e => setTotalDisc(Math.min(Math.max(Number(e.target.value), 0), 30))} /></div>
             </div>
 
             <div className="card rounded-xl p-5 space-y-4">
@@ -356,8 +283,20 @@ export default function QuotationPage() {
             </div>
 
             <div className="card rounded-xl p-5 space-y-4">
-              <h3 className="section-title mb-3">Line Items ({items.length})</h3>
-              {showPicker && (
+              <div className="flex items-center justify-between">
+                <h3 className="section-title mb-0">Line Items ({items.length})</h3>
+                <div className="flex gap-2">
+                  <button onClick={() => { setManualEntry(false); setShowPicker(!showPicker); }} className={`text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${!manualEntry && showPicker ? "bg-primary-50 border-primary-300 text-primary-700" : "border-slate-300 text-slate-500"}`}>
+                    <Search className="w-3.5 h-3.5" /> Product List
+                  </button>
+                  <button onClick={() => { setManualEntry(true); setShowPicker(false); }} className={`text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${manualEntry ? "bg-primary-50 border-primary-300 text-primary-700" : "border-slate-300 text-slate-500"}`}>
+                    <Edit3 className="w-3.5 h-3.5" /> Manual Entry
+                  </button>
+                </div>
+              </div>
+
+              {/* Product List mode */}
+              {!manualEntry && showPicker && (
                 <div className="rounded-xl border border-slate-200 overflow-hidden">
                   <div className="p-3 bg-slate-50"><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input className="input w-full rounded-lg pl-9 text-sm" placeholder="Search products…" value={searchQ} onChange={e => setSearchQ(e.target.value)} autoFocus /></div></div>
                   <div className="max-h-52 overflow-y-auto">
@@ -370,18 +309,43 @@ export default function QuotationPage() {
                   </div>
                 </div>
               )}
+
+              {/* Manual Entry mode */}
+              {manualEntry && (
+                <div className="rounded-xl border border-slate-200 p-3 space-y-2 bg-slate-50">
+                  <div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-500">New Item</span><button onClick={() => { setItems(prev => [...prev, { id: `item-${Date.now()}-${Math.random()}`, title: "", subDetails: "", model: "", tag: "", qty: 1, unit: "NOS.", unitPrice: 0 }]); }} className="text-xs text-primary-600 font-bold flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add</button></div>
+                  <input className="input w-full rounded-lg text-sm font-semibold" value={manualItem.title} onChange={e => setManualItem(prev => ({ ...prev, title: e.target.value }))} placeholder="Product name" />
+                  <textarea className="input w-full rounded-lg text-sm resize-none" rows={2} value={manualItem.subDetails || ""} onChange={e => setManualItem(prev => ({ ...prev, subDetails: e.target.value }))} placeholder="Description" />
+                  <div className="grid grid-cols-3 gap-2">
+                    <input className="input w-full rounded-lg text-sm" type="number" value={manualItem.qty} onChange={e => setManualItem(prev => ({ ...prev, qty: Number(e.target.value) }))} placeholder="Qty" />
+                    <input className="input w-full rounded-lg text-sm" value={manualItem.unit || ""} onChange={e => setManualItem(prev => ({ ...prev, unit: e.target.value }))} placeholder="Unit (e.g. NOS.)" />
+                    <input className="input w-full rounded-lg text-sm" value={manualItem.tag || ""} onChange={e => setManualItem(prev => ({ ...prev, tag: e.target.value }))} placeholder="Badge" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input className="input w-full rounded-lg text-sm" type="number" value={manualItem.unitPrice} onChange={e => setManualItem(prev => ({ ...prev, unitPrice: Number(e.target.value) }))} placeholder="Rate" />
+                    <div className="flex items-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700">₹{inr(manualItem.unitPrice * manualItem.qty)}</div>
+                  </div>
+                  <button onClick={() => { if (manualItem.title) { setItems(prev => [...prev, { ...manualItem, id: `item-${Date.now()}-${Math.random()}` }]); setManualItem({ id: "", title: "", subDetails: "", model: "", tag: "", qty: 1, unit: "NOS.", unitPrice: 0 }); } }} className="w-full py-2 rounded-lg bg-primary-600 text-white font-bold text-sm hover:bg-primary-700">Add to Quotation</button>
+                </div>
+              )}
+
               {items.length === 0 ? (
-                <div className="text-center py-8 text-slate-400"><p className="text-sm">No products added.</p></div>
+                <div className="text-center py-8 text-slate-400"><p className="text-sm">No items. Use Product List or Manual Entry to add.</p></div>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {items.map((item, idx) => (
                     <div key={item.id} className="rounded-xl border border-slate-200 p-3 space-y-2 bg-slate-50">
                       <div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-500">#{idx + 1}</span><button onClick={() => removeItem(item.id)} className="text-slate-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button></div>
-                      <input className="input w-full rounded-lg text-sm" value={item.title} onChange={e => updateItem(item.id, "title", e.target.value)} placeholder="Product title" />
+                      <input className="input w-full rounded-lg text-sm font-semibold" value={item.title} onChange={e => updateItem(item.id, "title", e.target.value)} placeholder="Product name" />
+                      <textarea className="input w-full rounded-lg text-sm resize-none" rows={1} value={item.subDetails || ""} onChange={e => updateItem(item.id, "subDetails", e.target.value)} placeholder="Description" />
                       <div className="grid grid-cols-3 gap-2">
                         <input className="input w-full rounded-lg text-sm" type="number" value={item.qty} onChange={e => updateItem(item.id, "qty", Number(e.target.value))} placeholder="Qty" />
-                        <input className="input w-full rounded-lg text-sm" type="number" value={item.unitPrice} onChange={e => updateItem(item.id, "unitPrice", Number(e.target.value))} placeholder="Price" />
+                        <input className="input w-full rounded-lg text-sm" value={item.unit || ""} onChange={e => updateItem(item.id, "unit", e.target.value)} placeholder="Unit" />
                         <input className="input w-full rounded-lg text-sm" value={item.tag || ""} onChange={e => updateItem(item.id, "tag", e.target.value)} placeholder="Badge" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input className="input w-full rounded-lg text-sm" type="number" value={item.unitPrice} onChange={e => updateItem(item.id, "unitPrice", Number(e.target.value))} placeholder="Rate" />
+                        <div className="flex items-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700">₹{inr(item.unitPrice * item.qty)}</div>
                       </div>
                     </div>
                   ))}
@@ -390,26 +354,29 @@ export default function QuotationPage() {
             </div>
 
             <div className="card rounded-xl p-5 space-y-4">
-              <div className="flex items-center justify-between"><h3 className="section-title mb-0">Technical Specs</h3><button onClick={() => { setEditSpecIdx(-1); setEditSpec({ key: "", value: "" }); }} className="text-xs text-primary-600 font-bold flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add</button></div>
-              {editSpecIdx !== null && (
-                <div className="rounded-xl border border-primary-300 p-3 space-y-2 bg-primary-50">
-                  <input className="input w-full rounded-lg text-sm" value={editSpec.key} onChange={e => setEditSpec(prev => ({ ...prev, key: e.target.value }))} placeholder="Spec key" />
-                  <input className="input w-full rounded-lg text-sm" value={editSpec.value} onChange={e => setEditSpec(prev => ({ ...prev, value: e.target.value }))} placeholder="Spec value" />
-                  <div className="flex gap-2"><button onClick={() => { if (editSpecIdx === -1) setSpecs(prev => [...prev, editSpec]); else setSpecs(prev => prev.map((s, i) => i === editSpecIdx ? editSpec : s)); setEditSpecIdx(null); }} className="px-3 py-1.5 rounded-lg bg-primary-600 text-white font-bold text-xs">Save</button><button onClick={() => setEditSpecIdx(null)} className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-xs">Cancel</button></div>
-                </div>
-              )}
-              <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                {specs.map((s, i) => (
-                  <div key={s.key} className="flex items-center justify-between rounded-lg border border-slate-200 p-2 bg-white">
-                    <div><p className="text-xs font-bold text-primary-700">{s.key}</p><p className="text-xs text-slate-500 truncate">{s.value}</p></div>
-                    <div className="flex gap-1 ml-2"><button onClick={() => { setEditSpecIdx(i); setEditSpec(s); }} className="text-slate-400 hover:text-primary-600"><Edit3 className="w-3 h-3" /></button><button onClick={() => setSpecs(prev => prev.filter((_, j) => j !== i))} className="text-slate-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button></div>
-                  </div>
-                ))}
+              <h3 className="section-title mb-0">Technical Specs</h3>
+              <div>
+                <label className="label">JSON Specs</label>
+                <textarea className="input w-full rounded-lg mt-1 resize-none font-mono text-sm" rows={8}
+                  placeholder={`{\n  "CPU": "1214C",\n  "Supply": "24 VDC",\n  "Power": "11 kW"\n}`}
+                  value={specsJson} onChange={e => applySpecsJson(e.target.value)} />
+                <p className="text-xs text-slate-400 mt-1.5">Paste a flat JSON object. Nested objects and arrays are not supported.</p>
+                {specsError && <p className="text-xs text-red-600 mt-1 font-semibold">{specsError}</p>}
               </div>
             </div>
 
             <div className="card rounded-xl p-5 space-y-4">
               <div className="flex items-center justify-between"><h3 className="section-title mb-0">Terms</h3><button onClick={() => { setEditTermIdx(-1); setEditTerm({ label: "", value: "" }); }} className="text-xs text-primary-600 font-bold flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add</button></div>
+              <div className="space-y-3">
+                <div>
+                  <label className="label">Warranty Period</label>
+                  <input className="input w-full rounded-lg mt-1 text-sm" value={warranty} onChange={e => setTermValue("Warranty Period", e.target.value)} placeholder="e.g. 2 Years from the date of Invoice" />
+                </div>
+                <div>
+                  <label className="label">Delivery Lead Time</label>
+                  <input className="input w-full rounded-lg mt-1 text-sm" value={leadTime} onChange={e => setTermValue("Delivery Lead Time", e.target.value)} placeholder="e.g. 8 – 10 days from the date of payment / PO" />
+                </div>
+              </div>
               {editTermIdx !== null && (
                 <div className="rounded-xl border border-primary-300 p-3 space-y-2 bg-primary-50">
                   <input className="input w-full rounded-lg text-sm" value={editTerm.label} onChange={e => setEditTerm(prev => ({ ...prev, label: e.target.value }))} placeholder="Label" />
@@ -436,6 +403,10 @@ export default function QuotationPage() {
 
             <div className="card rounded-xl p-5 space-y-3">
               <h3 className="section-title mb-3">Actions</h3>
+              <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer select-none">
+                <input type="checkbox" checked={showQr} onChange={e => setShowQr(e.target.checked)} className="w-4 h-4 accent-primary-600" />
+                Include QR code (public view link) on the document
+              </label>
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={handlePrint} className="btn-primary flex items-center justify-center gap-2"><Printer className="w-4 h-4" /> Print / PDF</button>
                 <button onClick={handleExportXLSX} className="btn-outline flex items-center justify-center gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50"><FileSpreadsheet className="w-4 h-4" /> Export XLSX</button>
@@ -474,5 +445,13 @@ export default function QuotationPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function QuotationPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen bg-slate-50"><AdminSidebar /><main className="flex-1 p-8 text-slate-500">Loading quotation…</main></div>}>
+      <QuotationPageInner />
+    </Suspense>
   );
 }

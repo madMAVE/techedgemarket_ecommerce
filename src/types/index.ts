@@ -334,3 +334,58 @@ export interface InvoiceDoc {
   freight?: number;
   createdAt: string;
 }
+
+// ── Backend Documents API ───────────────────────────────────────────────────
+export type BackendDocumentType = "INVOICE" | "QUOTATION" | "PURCHASE_ORDER";
+export type BackendDocumentStatus = "DRAFT" | "ISSUED" | "CANCELLED";
+
+export interface ContactPerson {
+  id: string;
+  customerId: string;
+  name: string;
+  role?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  isPrimary: boolean;
+  isActive: boolean;
+}
+
+export interface CustomerAccount {
+  id: string;
+  company: string;
+  gstin?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  stateCode?: string | null;
+  source: "MANUAL" | "WEBSITE";
+  isActive: boolean;
+  contacts?: ContactPerson[];
+}
+
+export interface DocumentRecord {
+  id: string;
+  type: BackendDocumentType;
+  status: BackendDocumentStatus;
+  number: string;
+  issueDate: string;
+  partyName: string;
+  customerId?: string | null;
+  orderId?: string | null;
+  publicToken: string;
+  payload: Record<string, string | number | boolean | object | null>;
+  createdBy?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  customer?: CustomerAccount | null;
+  order?: { id: string; orderNumber: string; status: string } | null;
+}
+
+export interface DocumentsListResult {
+  items: DocumentRecord[];
+  total: number;
+  page: number;
+  limit: number;
+}

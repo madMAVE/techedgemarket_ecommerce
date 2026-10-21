@@ -2,13 +2,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList, Mail, FileSpreadsheet } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Truck, Warehouse, Users, BarChart3, Wrench, ChevronRight, Bell, Settings, LogOut, Globe, FileText, Calculator, ClipboardList, Mail, FileSpreadsheet, FileStack } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 const LINKS = [
   { href:"/admin",                  label:"Dashboard",      icon:LayoutDashboard, section:"Overview" },
   { href:"/business",               label:"Analytics",      icon:BarChart3,       section:null },
   { href:"/admin/orders",           label:"Manage Orders",  icon:ShoppingBag,     section:"Orders & Finance" },
+  { href:"/admin/documents",        label:"All Documents",  icon:FileStack,       section:null },
   { href:"/admin/invoice",          label:"Invoice",        icon:FileText,        section:null },
   { href:"/admin/quotation",        label:"Quotation",      icon:FileSpreadsheet, section:null },
   { href:"/admin/purchase-orders",  label:"Purchase Orders",icon:Truck,           section:null },

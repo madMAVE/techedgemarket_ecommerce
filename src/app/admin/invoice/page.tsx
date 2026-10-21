@@ -1,11 +1,59 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import AdminSidebar from "@/components/layout/AdminSidebar";
-import { getAllOrders, getAllProducts } from "@/utils/data";
-import { FileText, Printer, Plus, Trash2, Search, Share2, X, Eye, FileSpreadsheet, Edit3, Copy } from "lucide-react";
-import { COMPANY, numberToWords, inr, formatDate, generateRefNo } from "@/utils/documents";
-import type { DocLineItem, DocParty, DocTerm } from "@/types";
+import api from "@/lib/interceptor";
+import { documentsApi } from "@/lib/documents";
+import type { DocCreatePayload } from "@/lib/documents";
+import { getAllProducts } from "@/utils/data";
+import { FileText, Printer, Plus, Trash2, Search, Share2, X, Eye, FileSpreadsheet, Edit3, Copy, Save, Loader2, CheckCircle } from "lucide-react";
+import { COMPANY, numberToWords, inr, formatDate } from "@/utils/documents";
+import { InvoicePreview, publicDocumentUrl } from "@/components/documents/previews";
+import { proformaNumber } from "@/utils/proforma";
+import type { CustomerAccount, DocLineItem, DocParty, DocTerm, Order } from "@/types";
 import ExcelJS from "exceljs";
+
+interface BackendOrder {
+  id: string;
+  orderNumber: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  customerCompany: string;
+  mobile: string;
+  shippingAddress: { street: string; city: string; state: string; zip: string; country: string };
+  subtotal: number;
+  taxAmount: number;
+  shippingAmount: number;
+  totalAmount: number;
+  status: string;
+  paymentMethod: string;
+  poReference: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: { id: string; productId: string; productName: string; sku: string; quantity: number; unitPrice: number; totalPrice: number }[];
+}
+
+function mapOrder(b: BackendOrder): Order {
+  return {
+    id: b.id,
+    orderNumber: b.orderNumber,
+    date: b.createdAt,
+    status: b.status as Order["status"],
+    items: b.items.map((i) => ({ productId: i.productId, productName: i.productName, sku: i.sku, quantity: i.quantity, unitPrice: i.unitPrice, totalPrice: i.totalPrice })),
+    subtotal: b.subtotal,
+    tax: b.taxAmount,
+    shipping: b.shippingAmount,
+    total: b.totalAmount,
+    customer: { id: b.customerId, name: b.customerName, email: b.customerEmail, company: b.customerCompany },
+    shippingAddress: b.shippingAddress,
+    paymentMethod: b.paymentMethod,
+    poReference: b.poReference ?? undefined,
+    trackingEvents: [],
+    notes: b.notes ?? undefined,
+  };
+}
 
 const DEFAULT_TERMS: DocTerm[] = [
   { label: "Payment Terms", value: "Payment due within 30 days of invoice date." },
@@ -14,316 +62,6 @@ const DEFAULT_TERMS: DocTerm[] = [
   { label: "Note", value: "E. & O.E. — Errors and Omissions Excepted." },
 ];
 
-function InvoicePreview({ inv }: { inv: any }) {
-  const subtotal = inv.items.reduce((s: any, i: any) => s + i.unitPrice * i.qty, 0);
-  const isInterState = inv.billTo?.state && inv.billTo.state.toLowerCase() !== "west bengal";
-  const cgst = isInterState ? 0 : subtotal * 0.09;
-  const sgst = isInterState ? 0 : subtotal * 0.09;
-  const igst = isInterState ? subtotal * 0.18 : 0;
-  const freight = inv.freight || 0;
-  const total = subtotal + cgst + sgst + igst + freight;
-  const totalWords = numberToWords(Math.round(total));
-  const taxWords = numberToWords(Math.round(cgst + sgst + igst + freight));
-  const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/techedgemarket_ecommerce/logo/TEM-dark.png` : "";
-  const bdr = "1px solid #000";
-  const bdrLight = "1px solid #ccc";
-
-  return (
-    <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: "9px", color: "#000", lineHeight: "1.4", padding: "10mm 12mm", maxWidth: "210mm", margin: "0 auto", background: "white" }}>
-      {/* A. Heading / e-Invoice area */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <img src={logoUrl} alt="TEM" style={{ height: "42px", width: "auto", objectFit: "contain" }} />
-          <div>
-            <div style={{ fontSize: "14px", fontWeight: 800, letterSpacing: "1px" }}>Tax Invoice</div>
-            <div style={{ fontSize: "8px", fontStyle: "italic", color: "#333" }}>(ORIGINAL FOR RECIPIENT)</div>
-          </div>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "9px", fontWeight: 700, marginBottom: "4px" }}>e-Invoice</div>
-          <div style={{ width: "70px", height: "70px", border: bdrLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", color: "#999", background: "#fafafa" }}>QR Code</div>
-        </div>
-      </div>
-
-      {/* IRN block */}
-      {inv.irn && (
-        <div style={{ marginBottom: "10px", fontSize: "8px", color: "#333" }}>
-          <div><span style={{ fontWeight: 600 }}>IRN: </span>{inv.irn}</div>
-          {inv.ackNo && <div><span style={{ fontWeight: 600 }}>Acknowledgement No: </span>{inv.ackNo}</div>}
-          {inv.ackDate && <div><span style={{ fontWeight: 600 }}>Acknowledgement Date: </span>{formatDate(inv.ackDate)}</div>}
-        </div>
-      )}
-
-      {/* B. Main grid — two columns */}
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "0" }}>
-        <tbody>
-          <tr>
-            {/* LEFT: Seller + Consignee + Buyer */}
-            <td style={{ width: "62%", verticalAlign: "top", border: bdr, padding: "6px 8px" }}>
-              {/* Seller */}
-              <div style={{ fontWeight: 800, fontSize: "10px", textTransform: "uppercase", marginBottom: "3px" }}>{COMPANY.name}</div>
-              <div style={{ fontSize: "8.5px", lineHeight: "1.55", color: "#222" }}>
-                <div>{COMPANY.address}</div>
-                <div>GSTIN: <b>{COMPANY.gstin}</b></div>
-                <div>PAN: {COMPANY.pan}</div>
-                <div>State: West Bengal &nbsp; Code: 19</div>
-              </div>
-
-              <div style={{ borderTop: bdrLight, marginTop: "6px", paddingTop: "5px" }}>
-                <div style={{ fontSize: "8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px", color: "#444" }}>Consignee (Ship to)</div>
-                <div style={{ fontWeight: 700, fontSize: "9.5px", textTransform: "uppercase" }}>{inv.shipTo?.name || inv.billTo?.name || "—"}</div>
-                {inv.shipTo?.address && <div style={{ fontSize: "8.5px", lineHeight: "1.5", color: "#222" }}>{inv.shipTo.address}</div>}
-                {inv.shipTo?.gstin && <div style={{ fontSize: "8.5px" }}>GSTIN: <b>{inv.shipTo.gstin}</b></div>}
-                {inv.shipTo?.state && <div style={{ fontSize: "8.5px" }}>State: {inv.shipTo.state} &nbsp; Code: {inv.shipTo.stateCode || "—"}</div>}
-              </div>
-
-              <div style={{ borderTop: bdrLight, marginTop: "6px", paddingTop: "5px" }}>
-                <div style={{ fontSize: "8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px", color: "#444" }}>Buyer (Bill to)</div>
-                <div style={{ fontWeight: 700, fontSize: "9.5px", textTransform: "uppercase" }}>{inv.billTo?.name || "—"}</div>
-                {inv.billTo?.address && <div style={{ fontSize: "8.5px", lineHeight: "1.5", color: "#222" }}>{inv.billTo.address}</div>}
-                {inv.billTo?.gstin && <div style={{ fontSize: "8.5px" }}>GSTIN: <b>{inv.billTo.gstin}</b></div>}
-                {inv.billTo?.state && <div style={{ fontSize: "8.5px" }}>State: {inv.billTo.state} &nbsp; Code: {inv.billTo.stateCode || "—"}</div>}
-              </div>
-            </td>
-
-            {/* RIGHT: Invoice metadata */}
-            <td style={{ width: "38%", verticalAlign: "top", border: bdr, borderLeft: "none", padding: "0" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <tbody>
-                  {[
-                    ["Invoice No.", inv.invoiceNo, "e-Way Bill No.", inv.ewayBillNo || ""],
-                    ["Invoice Date", inv.date ? formatDate(inv.date) : "", "e-Way Bill Date", inv.ewayBillDate ? formatDate(inv.ewayBillDate) : ""],
-                    ["Delivery Note", "", "Mode/Terms of Payment", inv.paymentMethod || ""],
-                    ["Reference No.", inv.poReference || "", "Reference Date", ""],
-                    ["Buyer's Order No.", inv.orderNo || "", "Buyer's Order Date", ""],
-                    ["Dispatch Doc. No.", "", "Delivery Note Date", ""],
-                    ["Dispatched through", "", "Destination", ""],
-                    ["Terms of Delivery", "", "", ""],
-                  ].map(([k1, v1, k2, v2], i) => (
-                    <tr key={i}>
-                      <td style={{ border: bdrLight, padding: "3px 5px", width: "35%", fontSize: "7.5px", color: "#444" }}>{k1}</td>
-                      <td style={{ border: bdrLight, padding: "3px 5px", fontWeight: 700, fontSize: "8.5px" }}>{v1 || "—"}</td>
-                      <td style={{ border: bdrLight, padding: "3px 5px", width: "35%", fontSize: "7.5px", color: "#444" }}>{k2}</td>
-                      <td style={{ border: bdrLight, padding: "3px 5px", fontWeight: 700, fontSize: "8.5px" }}>{v2 || "—"}</td>
-                    </tr>
-                  ))}
-                  {/* Vehicle & Transporter extra row */}
-                  {(inv.vehicleNo || inv.transporterName || inv.distance) && (
-                    <tr>
-                      <td style={{ border: bdrLight, padding: "3px 5px", fontSize: "7.5px", color: "#444" }}>Vehicle No.</td>
-                      <td style={{ border: bdrLight, padding: "3px 5px", fontWeight: 700, fontSize: "8.5px" }}>{inv.vehicleNo || "—"}</td>
-                      <td style={{ border: bdrLight, padding: "3px 5px", fontSize: "7.5px", color: "#444" }}>Transporter</td>
-                      <td style={{ border: bdrLight, padding: "3px 5px", fontWeight: 700, fontSize: "8.5px" }}>{inv.transporterName || "—"}{inv.distance ? ` (${inv.distance} km)` : ""}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* C. Goods / line-item table */}
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0", border: bdr }}>
-        <thead>
-          <tr>
-            {["Sl. No.", "Description of Goods", "HSN/SAC", "Qty", "Rate", "Per", "Amount"].map((h, i) => (
-              <th key={h} style={{ borderRight: i < 6 ? bdr : "none", borderBottom: bdr, padding: "4px 6px", fontSize: "8px", fontWeight: 700, textAlign: i === 0 || i === 3 ? "center" : i >= 4 ? "right" : "left" }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {(() => {
-            const isInterState = inv.billTo?.state && inv.billTo.state.toLowerCase() !== "west bengal";
-            const totalTaxable = subtotal;
-            const totalIGST = isInterState ? totalTaxable * 0.18 : 0;
-            const totalCGST = isInterState ? 0 : totalTaxable * 0.09;
-            const totalSGST = isInterState ? 0 : totalTaxable * 0.09;
-            const taxRows = isInterState ? 1 : 2;
-            const totalRows = inv.items.length + taxRows;
-            const blankCount = Math.max(0, 14 - totalRows);
-
-            return (
-              <>
-                {inv.items.map((item: any, i: number) => {
-                  const taxable = item.unitPrice * item.qty;
-                  const showDivider = i < inv.items.length - 1 || blankCount > 0 || taxRows > 0;
-                  const cellBdr = { borderRight: bdr, borderBottom: showDivider ? bdr : "none" };
-                  return (
-                    <tr key={item.id}>
-                      <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{i + 1}</td>
-                      <td style={{ ...cellBdr, padding: "6px 8px", verticalAlign: "top" }}>
-                        <div style={{ fontWeight: 700, fontSize: "10.5px" }}>{item.title}</div>
-                        {item.subDetails && <div style={{ fontSize: "8.5px", color: "#333", marginTop: "2px", lineHeight: "1.4" }}>{item.subDetails}</div>}
-                        {item.model && <div style={{ fontSize: "8px", color: "#444", marginTop: "1px" }}>Model: {item.model}</div>}
-                      </td>
-                      <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{item.hsn || "8537"}</td>
-                      <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{item.qty}</td>
-                      <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "right", fontSize: "8.5px" }}>{inr(item.unitPrice)}</td>
-                      <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{item.per || "NOS"}</td>
-                      <td style={{ borderBottom: showDivider ? bdr : "none", padding: "6px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(taxable)}</td>
-                    </tr>
-                  );
-                })}
-                {/* Blank rows */}
-                {Array.from({ length: blankCount }).map((_, i) => (
-                  <tr key={`blank-${i}`} style={{ height: "28px" }}>
-                    {["Sl. No.", "Description of Goods", "HSN/SAC", "Qty", "Rate", "Per", "Amount"].map((_, j) => (
-                      <td key={j} style={{ borderRight: j < 6 ? bdr : "none" }}></td>
-                    ))}
-                  </tr>
-                ))}
-                {/* Tax row(s) */}
-                {isInterState ? (
-                  <tr>
-                    <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                    <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 8px", fontSize: "9px", fontStyle: "italic", fontWeight: 600 }}>Integrated GST (IGST) @ 18%</td>
-                    <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                    <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                    <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 6px", textAlign: "right", fontSize: "8.5px" }}>18</td>
-                    <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>%</td>
-                      <td style={{ borderBottom: bdr, padding: "6px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(totalIGST)}</td>
-                    </tr>
-                  ) : (
-                  <>
-                    <tr>
-                      <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 8px", fontSize: "9px", fontStyle: "italic", fontWeight: 600 }}>Central GST (CGST) @ 9%</td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 6px", textAlign: "right", fontSize: "8.5px" }}>9</td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>%</td>
-                      <td style={{ borderBottom: bdr, padding: "6px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(totalCGST)}</td>
-                    </tr>
-                    <tr>
-                      <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 8px", fontSize: "9px", fontStyle: "italic", fontWeight: 600 }}>State GST (SGST) @ 9%</td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr }}></td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 6px", textAlign: "right", fontSize: "8.5px" }}>9</td>
-                      <td style={{ borderRight: bdr, borderBottom: bdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>%</td>
-                      <td style={{ borderBottom: bdr, padding: "6px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(totalSGST)}</td>
-                    </tr>
-                  </>
-                )}
-                {/* Total row */}
-                <tr>
-                  <td colSpan={3} style={{ borderTop: bdr, borderRight: bdr, padding: "5px 8px", fontWeight: 700, fontSize: "9px" }}>Total</td>
-                  <td style={{ borderTop: bdr, borderRight: bdr, padding: "5px 6px", textAlign: "center", fontWeight: 700, fontSize: "8.5px" }}>{inv.items.reduce((s: number, item: any) => s + item.qty, 0)}</td>
-                  <td style={{ borderTop: bdr, borderRight: bdr }}></td>
-                  <td style={{ borderTop: bdr, borderRight: bdr }}></td>
-                  <td style={{ borderTop: bdr, padding: "5px 6px", textAlign: "right", fontWeight: 800, fontSize: "10px" }}>₹{inr(Math.round(total))}</td>
-                </tr>
-              </>
-            );
-          })()}
-        </tbody>
-      </table>
-
-      {/* D. Amount in words */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: "4px", marginBottom: "4px" }}>
-        <div style={{ fontSize: "8.5px" }}><span style={{ fontWeight: 700 }}>Amount Chargeable (in words): </span><span style={{ fontWeight: 700, textTransform: "uppercase" }}>Rupees {totalWords} Only</span></div>
-        <div style={{ fontSize: "8px", fontStyle: "italic" }}>E. & O.E</div>
-      </div>
-
-      {/* E. HSN/SAC tax summary */}
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "4px" }}>
-        <thead>
-          <tr>
-            {isInterState
-              ? ["HSN/SAC", "Taxable Value", "IGST Rate", "IGST Amount", "Total Tax Amount"].map(h => (
-                  <th key={h} style={{ border: bdr, padding: "3px 6px", fontSize: "7.5px", fontWeight: 700, textAlign: "left" }}>{h}</th>
-                ))
-              : ["HSN/SAC", "Taxable Value", "CGST Rate", "CGST Amount", "SGST Rate", "SGST Amount", "Total Tax Amount"].map(h => (
-                  <th key={h} style={{ border: bdr, padding: "3px 6px", fontSize: "7.5px", fontWeight: 700, textAlign: "left" }}>{h}</th>
-                ))
-            }
-          </tr>
-        </thead>
-        <tbody>
-          {isInterState ? (
-            <>
-              <tr>
-                <td style={{ border: bdr, padding: "3px 6px", fontSize: "8.5px" }}>8537</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>{inr(subtotal)}</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>18%</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>{inr(igst)}</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(igst)}</td>
-              </tr>
-              <tr>
-                <td style={{ border: bdr, padding: "3px 6px", fontWeight: 700, fontSize: "8.5px" }}>Total</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(subtotal)}</td>
-                <td style={{ border: bdr }}></td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(igst)}</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(igst)}</td>
-              </tr>
-            </>
-          ) : (
-            <>
-              <tr>
-                <td style={{ border: bdr, padding: "3px 6px", fontSize: "8.5px" }}>8537</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>{inr(subtotal)}</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>9%</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>{inr(cgst)}</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>9%</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontSize: "8.5px" }}>{inr(sgst)}</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(cgst + sgst)}</td>
-              </tr>
-              <tr>
-                <td style={{ border: bdr, padding: "3px 6px", fontWeight: 700, fontSize: "8.5px" }}>Total</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(subtotal)}</td>
-                <td style={{ border: bdr }}></td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(cgst)}</td>
-                <td style={{ border: bdr }}></td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(sgst)}</td>
-                <td style={{ border: bdr, padding: "3px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(cgst + sgst)}</td>
-              </tr>
-            </>
-          )}
-        </tbody>
-      </table>
-
-      {/* F. Tax amount in words + payment notice */}
-      <div style={{ fontSize: "8.5px", marginBottom: "4px" }}>
-        <span style={{ fontWeight: 700 }}>Tax Amount (in words): </span><span style={{ fontWeight: 700, textTransform: "uppercase" }}>Rupees {taxWords} Only</span>
-      </div>
-
-      <div style={{ border: bdr, padding: "5px 8px", marginBottom: "4px", fontSize: "7.5px", lineHeight: "1.5", color: "#222" }}>
-        <i>Our company accepts electronic payment only. Please make payment through NEFT/RTGS/IMPS to the bank account details mentioned below. Cash payments are not accepted.</i>
-      </div>
-      <div style={{ border: bdr, padding: "5px 8px", marginBottom: "6px", fontSize: "7.5px", lineHeight: "1.5", color: "#222" }}>
-        <i>Our employees are not authorized to receive cash or cheques on behalf of the company. Please ensure all payments are made directly to our bank account.</i>
-      </div>
-
-      {/* G. Declaration + Bank + Signature */}
-      <div style={{ display: "flex", gap: "14px", marginTop: "6px" }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "8.5px", fontWeight: 700, marginBottom: "2px" }}>Declaration</div>
-          <div style={{ fontSize: "8px", lineHeight: "1.5", color: "#222" }}>
-            We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.
-          </div>
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "8.5px", fontWeight: 700, marginBottom: "3px" }}>Company's Bank Details</div>
-          <div style={{ fontSize: "8.5px", lineHeight: "1.6" }}>
-            <div><span style={{ color: "#444" }}>Bank:</span> HDFC Bank Ltd.</div>
-            <div><span style={{ color: "#444" }}>A/C No:</span> 50200012345678</div>
-            <div><span style={{ color: "#444" }}>Branch:</span> Kolkata &nbsp; <span style={{ color: "#444" }}>IFSC:</span> HDFC0001234</div>
-          </div>
-            <div style={{ marginTop: "10px", textAlign: "right" }}>
-              <div style={{ fontSize: "8.5px", fontWeight: 700 }}>{COMPANY.name}</div>
-              <div style={{ fontSize: "8.5px", fontWeight: 600, marginTop: "2px" }}>Authorised Signatory</div>
-            </div>
-        </div>
-      </div>
-
-      {/* H. Footer */}
-      <div style={{ marginTop: "10px", borderTop: bdrLight, paddingTop: "4px", textAlign: "center", fontSize: "7.5px", color: "#666" }}>
-        This is a Computer Generated Invoice
-      </div>
-    </div>
-  );
-}
 
 function ProformaInvoicePreview({ inv }: { inv: any }) {
   const subtotal = inv.items.reduce((s: any, i: any) => s + i.unitPrice * i.qty, 0);
@@ -362,7 +100,7 @@ function ProformaInvoicePreview({ inv }: { inv: any }) {
         <tbody>
           <tr>
             {/* LEFT: Seller + Buyer */}
-            <td style={{ width: "62%", verticalAlign: "top", border: bdr, padding: "6px 8px" }}>
+            <td style={{ width: "50%", verticalAlign: "top", border: bdr, padding: "6px 8px" }}>
               <div style={{ fontWeight: 800, fontSize: "10px", textTransform: "uppercase", marginBottom: "3px" }}>{COMPANY.name}</div>
               <div style={{ fontSize: "8.5px", lineHeight: "1.55", color: "#222" }}>
                 <div>{COMPANY.address}</div>
@@ -381,7 +119,7 @@ function ProformaInvoicePreview({ inv }: { inv: any }) {
             </td>
 
             {/* RIGHT: Payment & Reference */}
-            <td style={{ width: "38%", verticalAlign: "top", border: bdr, borderLeft: "none", padding: "0" }}>
+            <td style={{ width: "50%", verticalAlign: "top", border: bdr, borderLeft: "none", padding: "0" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <tbody>
                   {[
@@ -390,8 +128,8 @@ function ProformaInvoicePreview({ inv }: { inv: any }) {
                     ["Freight", freight > 0 ? inr(freight) : "—"],
                   ].map(([k, v], i) => (
                     <tr key={i}>
-                      <td style={{ border: bdrLight, padding: "4px 5px", width: "40%", fontSize: "8px", color: "#444" }}>{k}</td>
-                      <td style={{ border: bdrLight, padding: "4px 5px", fontWeight: 700, fontSize: "9px" }}>{v || "—"}</td>
+                      <td style={{ border: bdrLight, padding: "4px 5px", width: "50%", fontSize: "8px", color: "#444" }}>{k}</td>
+                      <td style={{ border: bdrLight, padding: "4px 5px", width: "50%", fontWeight: 700, fontSize: "9px" }}>{v || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -519,17 +257,28 @@ function ProformaInvoicePreview({ inv }: { inv: any }) {
   );
 }
 
-export default function InvoicePage() {
-  const allOrders = getAllOrders();
+function InvoicePageInner() {
+  const searchParams = useSearchParams();
   const allProducts = getAllProducts();
-  const [selectedOrderId, setSelectedOrderId] = useState<string>(allOrders[0]?.id || "");
-  const [invoiceNo, setInvoiceNo] = useState(generateRefNo("INV", allOrders.length + 1));
-  const [pinvNo, setPinvNo] = useState(generateRefNo("PINV", allOrders.length + 1));
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [docId, setDocId] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string>("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+  const [pinvSeq, setPinvSeq] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [orderNo, setOrderNo] = useState(allOrders[0]?.orderNumber || "");
+  const [orderNo, setOrderNo] = useState("");
   const [poReference, setPoReference] = useState("");
+  const [referenceDate, setReferenceDate] = useState("");
+  const [buyersOrderDate, setBuyersOrderDate] = useState("");
+  const [dispatchedThrough, setDispatchedThrough] = useState("");
+  const [destination, setDestination] = useState("");
   const [freight, setFreight] = useState(0);
   const [billTo, setBillTo] = useState<DocParty>({ name: "", address: "", email: "", gstin: "", state: "", stateCode: "" });
+  const [customers, setCustomers] = useState<CustomerAccount[]>([]);
+  const [custId, setCustId] = useState("");
   const [shipTo, setShipTo] = useState<DocParty>({ name: "", address: "", state: "", stateCode: "" });
   const [paymentMethod, setPaymentMethod] = useState("Online");
   const [items, setItems] = useState<DocLineItem[]>([]);
@@ -547,23 +296,113 @@ export default function InvoicePage() {
   const [transporterName, setTransporterName] = useState("");
   const [distance, setDistance] = useState("");
   const [irn, setIrn] = useState("");
+  const [showQr, setShowQr] = useState(true);
+  const [publicToken, setPublicToken] = useState<string | null>(null);
   const [ackNo, setAckNo] = useState("");
   const [ackDate, setAckDate] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
   const proformaPrintRef = useRef<HTMLDivElement>(null);
 
-  const selectedOrder = allOrders.find(o => o.id === selectedOrderId);
+  const selectedOrder = orders.find(o => o.id === selectedOrderId);
 
-  const loadOrder = (order: any) => {
-    if (!order) return;
-    setOrderNo(order.orderNumber);
-    setPoReference(order.poReference || "");
-    setBillTo({ name: order.customer?.company || order.customer?.name || "", address: `${order.shippingAddress?.street || ""}, ${order.shippingAddress?.city || ""}, ${order.shippingAddress?.state || ""} – ${order.shippingAddress?.zip || ""}`, gstin: order.customer?.gstin || "", state: order.shippingAddress?.state || "", stateCode: "" });
-    setShipTo({ name: order.customer?.company || "", address: `${order.shippingAddress?.street || ""}, ${order.shippingAddress?.city || ""}, ${order.shippingAddress?.state || ""} – ${order.shippingAddress?.zip || ""}`, state: order.shippingAddress?.state || "", stateCode: "" });
-    setSameAsBillTo(true);
-    setPaymentMethod(order.paymentMethod || "Online");
-    setItems(order.items?.map((item: any, i: number) => ({ id: `item-${i}`, title: item.productName, subDetails: "", model: item.sku, hsn: "", per: "NOS", qty: item.quantity, unitPrice: item.unitPrice })) || []);
+  const showToast = (msg: string, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 4000); };
+
+  useEffect(() => {
+    api.get<{ success: boolean; data: { items: BackendOrder[] } }>("/api/orders")
+      .then(res => setOrders(res.data.data.items.map(mapOrder)))
+      .catch(() => showToast("Failed to load orders", false))
+      .finally(() => setOrdersLoading(false));
+  }, []);
+
+  useEffect(() => {
+    documentsApi.listCustomers().then(setCustomers).catch(() => setCustomers([]));
+  }, []);
+
+  const selectCustomer = (id: string) => {
+    setCustId(id);
+    const c = customers.find(x => x.id === id);
+    if (!c) return;
+    const primary = (c.contacts ?? []).find(p => p.isPrimary) ?? (c.contacts ?? [])[0];
+    const addr = [c.address, c.city].filter(Boolean).join(", ");
+    const state = c.state ?? "";
+    const stateCode = c.stateCode ?? "";
+    const party: DocParty = {
+      name: c.company,
+      attention: primary ? `Attn: ${primary.name}${primary.role ? ` — ${primary.role}` : ""}` : "",
+      mobile: c.mobile ?? undefined,
+      email: c.email ?? "",
+      address: addr,
+      city: c.city ?? undefined,
+      gstin: c.gstin ?? "",
+      state,
+      stateCode,
+    };
+    setBillTo(party);
+    if (sameAsBillTo) setShipTo({ name: c.company, address: addr, state, stateCode });
   };
+
+  const applyParty = (p: Record<string, string | undefined>) => {
+    const addr = [p.address, p.city, p.state, p.stateCode].filter(Boolean).join(", ");
+    setBillTo({ name: p.name ?? "", attention: p.attention, mobile: p.mobile, email: p.email, address: addr, gstin: p.gstin ?? "", state: p.state ?? "", stateCode: p.stateCode ?? "" });
+    setShipTo({ name: p.name ?? "", address: addr, state: p.state ?? "", stateCode: p.stateCode ?? "" });
+  };
+
+  const loadFromOrder = useCallback(async (orderId: string) => {
+    try {
+      const prefill = await documentsApi.fromOrder(orderId);
+      if (prefill.alreadyDocumented) {
+        showToast(`Order already has ${prefill.alreadyDocumented.number} (${prefill.alreadyDocumented.status}) — edit it from All Documents`, false);
+        setDocId(prefill.alreadyDocumented.id);
+        setInvoiceNo(prefill.alreadyDocumented.number);
+      }
+      setOrderNo(prefill.orderNumber);
+      setPoReference(prefill.poReference ?? "");
+      setPaymentMethod(prefill.paymentMethod || "Online");
+      applyParty(prefill.party);
+      setItems(prefill.lineItems.map((li, i) => ({ id: `item-${i}-${li.productId}`, title: li.title, subDetails: "", model: li.model, hsn: li.hsn, per: "NOS", qty: li.qty, unitPrice: li.unitPrice })));
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to load order", false);
+    }
+  }, []);
+
+  const loadDraft = useCallback(async (id: string) => {
+    try {
+      const doc = await documentsApi.get(id);
+      const p = doc.payload as Record<string, unknown>;
+      const party = (p["party"] ?? {}) as Record<string, string | undefined>;
+      setDocId(doc.id);
+      setInvoiceNo(doc.number);
+      setDate(doc.issueDate.slice(0, 10));
+      setOrderNo(String(p["orderNo"] ?? ""));
+      setPoReference(String(p["poReference"] ?? ""));
+      const extra = (p["extra"] ?? {}) as Record<string, string>;
+      setPublicToken(doc.publicToken);
+      setReferenceDate(extra["referenceDate"] ?? ""); setBuyersOrderDate(extra["buyersOrderDate"] ?? "");
+      setDispatchedThrough(extra["dispatchedThrough"] ?? ""); setDestination(extra["destination"] ?? "");
+      setShowQr(extra["showQr"] !== "false");
+      setFreight(Number(p["freight"] ?? 0));
+      setPaymentMethod(String(p["paymentMethod"] ?? "Online"));
+      applyParty(party);
+      const shipTo = (p["shipTo"] ?? null) as Record<string, string | undefined> | null;
+      if (shipTo?.name) setShipTo({ name: shipTo.name ?? "", address: shipTo.address ?? "", state: shipTo.state ?? "", stateCode: shipTo.stateCode ?? "" });
+      setItems(((p["items"] ?? []) as DocLineItem[]).map((it, i) => ({ ...it, id: it.id ?? `item-${i}` })));
+      if (Array.isArray(p["terms"])) setTerms(p["terms"] as DocTerm[]);
+      setEwayBillNo(extra["ewayBillNo"] ?? ""); setEwayBillDate(extra["ewayBillDate"] ?? "");
+      setVehicleNo(extra["vehicleNo"] ?? ""); setTransporterName(extra["transporterName"] ?? ""); setDistance(extra["distance"] ?? "");
+      setIrn(extra["irn"] ?? ""); setAckNo(extra["ackNo"] ?? ""); setAckDate(extra["ackDate"] ?? "");
+      showToast(`Loaded draft ${doc.number}`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to load draft", false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const orderParam = searchParams.get("order");
+    const idParam = searchParams.get("id");
+    if (orderParam) { setSelectedOrderId(orderParam); loadFromOrder(orderParam); }
+    else if (idParam) loadDraft(idParam);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, loadFromOrder, loadDraft]);
 
   const addItem = (product: any) => {
     setItems(prev => [...prev, { id: `item-${Date.now()}-${Math.random()}`, title: product.name, subDetails: product.description || "", model: product.sku || product.partNumber, hsn: "", per: "NOS", qty: 1, unitPrice: product.price }]);
@@ -578,7 +417,48 @@ export default function InvoicePage() {
     return !q || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.partNumber.toLowerCase().includes(q);
   });
 
-  const inv = { invoiceNo, pinvNo, date, orderNo, poReference, billTo, shipTo, items, terms, freight, paymentMethod, ewayBillNo, ewayBillDate, vehicleNo, transporterName, distance, irn, ackNo, ackDate };
+  const buildCreatePayload = (): DocCreatePayload => {
+    const sub = items.reduce((s, i) => s + i.unitPrice * i.qty, 0);
+    const isInterState = !!billTo.state && billTo.state.toLowerCase() !== "west bengal";
+    const cgst = isInterState ? 0 : sub * 0.09;
+    const sgst = isInterState ? 0 : sub * 0.09;
+    const igst = isInterState ? sub * 0.18 : 0;
+    const total = Math.round(sub + cgst + sgst + igst + freight);
+    return {
+      type: "INVOICE",
+      issueDate: date,
+      partyName: billTo.name,
+      orderId: selectedOrderId || undefined,
+      party: { name: billTo.name, attention: billTo.attention, mobile: billTo.mobile, email: billTo.email, address: billTo.address, city: billTo.city, state: billTo.state, stateCode: billTo.stateCode, gstin: billTo.gstin },
+      payload: {
+        billTo, shipTo, items, terms, party: { name: billTo.name, attention: billTo.attention, mobile: billTo.mobile, email: billTo.email, address: billTo.address, city: billTo.city, state: billTo.state, stateCode: billTo.stateCode, gstin: billTo.gstin },
+        totals: { subtotal: sub, cgst, sgst, igst, freight, total },
+        invoiceNo, orderNo, poReference, freight, paymentMethod, pinvNo,
+        extra: { ewayBillNo, ewayBillDate, vehicleNo, transporterName, distance, irn, ackNo, ackDate, referenceDate, buyersOrderDate, dispatchedThrough, destination, showQr: showQr ? "true" : "false" },
+      },
+    };
+  };
+
+  const handleSave = async () => {
+    if (!billTo.name.trim()) { showToast("Bill To company name is required", false); return; }
+    if (items.length === 0) { showToast("Add at least one line item", false); return; }
+    setSaving(true);
+    try {
+      const payload = buildCreatePayload();
+      const doc = docId ? await documentsApi.updateDraft(docId, payload.payload) : await documentsApi.create(payload);
+      setDocId(doc.id);
+      setPublicToken(doc.publicToken);
+      setInvoiceNo(doc.number);
+      showToast(`Saved as ${doc.number} (${doc.status})`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to save invoice", false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const pinvNo = proformaNumber(billTo.name, pinvSeq);
+  const inv = { invoiceNo, pinvNo, date, orderNo, poReference, referenceDate, buyersOrderDate, dispatchedThrough, destination, billTo, shipTo, items, terms, freight, paymentMethod, ewayBillNo, ewayBillDate, vehicleNo, transporterName, distance, irn, ackNo, ackDate, showQr, publicUrl: publicToken ? publicDocumentUrl(publicToken) : undefined };
 
   const handlePrint = () => {
     const el = printRef.current; if (!el) return;
@@ -616,7 +496,7 @@ export default function InvoicePage() {
     ws.addRow({ sl: "", title: "Grand Total", hsn: "", qty: "", unitPrice: "", taxable: "", cgst: "", sgst: "", total: Math.round(total) });
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${invoiceNo.replace(/\//g, "_")}.xlsx`; a.click(); URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${invoiceNo.replace(/[^a-zA-Z0-9-]/g, "_")}.xlsx`; a.click(); URL.revokeObjectURL(url);
   };
 
   const handleShareEmail = () => {
@@ -630,12 +510,18 @@ export default function InvoicePage() {
     <div className="flex min-h-screen bg-slate-50">
       <AdminSidebar />
       <main className="flex-1 overflow-auto">
+        {toast && <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-sm font-semibold ${toast.ok ? "bg-emerald-600 text-white" : "bg-red-600 text-white"}`}>{toast.ok ? <CheckCircle className="w-4 h-4" /> : <X className="w-4 h-4" />}{toast.msg}</div>}
         <div className="border-b border-slate-200 px-8 py-5 flex items-center justify-between bg-white">
           <div>
             <h1 className="page-title flex items-center gap-3"><FileText className="w-7 h-7 text-primary-600" /> Invoice Generator</h1>
             <p className="page-sub">Generate GST-compliant tax invoices</p>
           </div>
-          <button onClick={() => setShowPicker(!showPicker)} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> Add Item</button>
+          <div className="flex gap-2">
+            <button onClick={handleSave} disabled={saving} className="btn-outline flex items-center gap-2 border-primary-300 text-primary-700 hover:bg-primary-50 disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} {docId ? "Update Draft" : "Save Document"}
+            </button>
+            <button onClick={() => setShowPicker(!showPicker)} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> Add Item</button>
+          </div>
         </div>
 
         <div className="flex max-w-screen-2xl mx-auto">
@@ -644,19 +530,26 @@ export default function InvoicePage() {
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">Load from Order</h3>
               <div><label className="label">Select Order</label>
-                <select className="input w-full rounded-lg mt-1 text-sm" value={selectedOrderId} onChange={e => { setSelectedOrderId(e.target.value); const order = allOrders.find(o => o.id === e.target.value); if (order) loadOrder(order); }}>
-                  {allOrders.map(o => <option key={o.id} value={o.id}>{o.orderNumber} — {o.customer?.company || o.customer?.name}</option>)}
+                <select className="input w-full rounded-lg mt-1 text-sm" value={selectedOrderId} onChange={e => { setSelectedOrderId(e.target.value); if (e.target.value) loadFromOrder(e.target.value); }}>
+                  <option value="">— Choose an order —</option>
+                  {ordersLoading && <option disabled>Loading orders…</option>}
+                  {orders.map(o => <option key={o.id} value={o.id}>{o.orderNumber} — {o.customer?.company || o.customer?.name}</option>)}
                 </select>
+                {selectedOrder && <p className="text-xs text-slate-500 mt-2">Items and buyer details prefilled from the website order. Save will link the invoice to this order.</p>}
               </div>
             </div>
 
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">Invoice Details</h3>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Invoice No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={invoiceNo} onChange={e => setInvoiceNo(e.target.value)} /></div>
+                <div><label className="label">Invoice No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={invoiceNo} readOnly placeholder="Assigned on save" title="The backend assigns the number when the document is saved" /></div>
                 <div><label className="label">Invoice Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={date} onChange={e => setDate(e.target.value)} /></div>
                 <div><label className="label">Order No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={orderNo} onChange={e => setOrderNo(e.target.value)} /></div>
                 <div><label className="label">PO Reference</label><input className="input w-full rounded-lg mt-1 text-sm" value={poReference} onChange={e => setPoReference(e.target.value)} placeholder="Optional" /></div>
+                <div><label className="label">Reference Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={referenceDate} onChange={e => setReferenceDate(e.target.value)} /></div>
+                <div><label className="label">Buyer's Order Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={buyersOrderDate} onChange={e => setBuyersOrderDate(e.target.value)} /></div>
+                <div><label className="label">Dispatched Through</label><input className="input w-full rounded-lg mt-1 text-sm" value={dispatchedThrough} onChange={e => setDispatchedThrough(e.target.value)} placeholder="e.g. By Road" /></div>
+                <div><label className="label">Destination</label><input className="input w-full rounded-lg mt-1 text-sm" value={destination} onChange={e => setDestination(e.target.value)} placeholder="City / Place" /></div>
                 <div><label className="label">Freight</label><input type="number" className="input w-full rounded-lg mt-1 text-sm" value={freight} onChange={e => setFreight(Number(e.target.value))} /></div>
                 <div><label className="label">Payment Method</label><input className="input w-full rounded-lg mt-1 text-sm" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} /></div>
               </div>
@@ -681,11 +574,22 @@ export default function InvoicePage() {
                   <div><label className="label">Ack No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={ackNo} onChange={e => setAckNo(e.target.value)} placeholder="Optional" /></div>
                   <div><label className="label">Ack Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={ackDate} onChange={e => setAckDate(e.target.value)} /></div>
                 </div>
+                <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer select-none pt-1">
+                  <input type="checkbox" checked={showQr} onChange={e => setShowQr(e.target.checked)} className="w-4 h-4 accent-primary-600" />
+                  Include QR code (public view link) on the invoice
+                </label>
               </div>
             </div>
 
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">Bill To</h3>
+              <div><label className="label">Select Customer</label>
+                <select className="input w-full rounded-lg mt-1 text-sm" value={custId} onChange={e => selectCustomer(e.target.value)}>
+                  <option value="">— Manual entry (new company) —</option>
+                  {customers.map(c => <option key={c.id} value={c.id}>{c.company}{c.gstin ? ` — ${c.gstin}` : ""}</option>)}
+                </select>
+                {customers.length === 0 && <p className="text-xs text-slate-400 mt-1">No customer accounts yet — fill the fields below and saving will create one.</p>}
+              </div>
               <div className="space-y-2">
                 <input className="input w-full rounded-lg text-sm" value={billTo.name} onChange={e => setBillTo(prev => ({ ...prev, name: e.target.value }))} placeholder="Company / Name" />
                 <textarea className="input w-full rounded-lg text-sm resize-none" rows={2} value={billTo.address || ""} onChange={e => setBillTo(prev => ({ ...prev, address: e.target.value }))} placeholder="Address" />
@@ -820,7 +724,8 @@ export default function InvoicePage() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <label className="label mb-0">Proforma No.</label>
-                    <input className="input w-40 rounded-lg text-sm" value={pinvNo} onChange={e => setPinvNo(e.target.value)} />
+                    <input className="input w-40 rounded-lg text-sm" value={pinvNo} readOnly placeholder="Fill Bill To name" />
+                    <button onClick={() => setPinvSeq((s) => s + 1)} className="text-xs font-bold text-primary-600 border border-primary-200 rounded-lg px-2 py-1">Next</button>
                   </div>
                 </div>
                 <button onClick={handlePrintProforma} className="w-full btn-outline flex items-center justify-center gap-2 border-primary-300 text-primary-700 hover:bg-primary-50"><Printer className="w-4 h-4" /> Print Proforma</button>
@@ -861,5 +766,13 @@ export default function InvoicePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function InvoicePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen bg-slate-50"><AdminSidebar /><main className="flex-1 p-8 text-slate-500">Loading invoice…</main></div>}>
+      <InvoicePageInner />
+    </Suspense>
   );
 }

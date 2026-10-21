@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { api, setAuthToken, getAuthToken, clearAuthToken } from "@/lib/interceptor";
+import { api, setCustomerToken as setAuthToken, getCustomerToken as getAuthToken, clearCustomerToken as clearAuthToken } from "@/lib/interceptor";
 
 interface User {
   id: string;

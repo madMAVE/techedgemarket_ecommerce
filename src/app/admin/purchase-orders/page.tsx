@@ -1,9 +1,12 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import AdminSidebar from "@/components/layout/AdminSidebar";
-import { getAllProducts, getAllProcurement } from "@/utils/data";
-import { FileText, Printer, Plus, Trash2, Search, Share2, X, Eye, Edit3, FileSpreadsheet } from "lucide-react";
-import { COMPANY, numberToWords, inr, formatDate, generateRefNo } from "@/utils/documents";
+import { documentsApi } from "@/lib/documents";
+import { getAllProducts } from "@/utils/data";
+import { FileText, Printer, Plus, Trash2, Search, Share2, X, Eye, Edit3, FileSpreadsheet, Save, Loader2, CheckCircle } from "lucide-react";
+import { COMPANY, inr, formatDate } from "@/utils/documents";
+import { PoPreview, publicDocumentUrl } from "@/components/documents/previews";
 import type { DocLineItem, DocParty, DocTerm } from "@/types";
 import ExcelJS from "exceljs";
 
@@ -21,116 +24,14 @@ const DEFAULT_TERMS: DocTerm[] = [
 
 const DEFAULT_DECLARATION = "We hereby place this Purchase Order against your offer Ref. No. {{ offer ref }} dated {{ offer date }}. Kindly arrange supply as per the terms stated herein and confirm the delivery schedule upon receipt of this order.";
 
-function PoPreview({ po }: { po: any }) {
-  const totalAmount = po.items.reduce((s: any, i: any) => s + i.unitPrice * i.qty, 0);
-  const amountWords = numberToWords(totalAmount);
-  const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/techedgemarket_ecommerce/logo/TEM-dark.png` : "";
 
-  return (
-    <div style={{ fontFamily: "Arial, sans-serif", fontSize: "10.5px", color: "#1F2937", lineHeight: "1.5", padding: "14mm 13mm", maxWidth: "210mm", margin: "0 auto", background: "white" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2.25pt solid #2B3A52", paddingBottom: "12px", marginBottom: "16px" }}>
-        <div style={{ maxWidth: "58%" }}>
-          <img src={logoUrl} alt="Tech Edge Market" style={{ height: "50px", width: "auto", objectFit: "contain", marginBottom: "4px" }} />
-          <div style={{ fontSize: "8pt", color: "#64748B", lineHeight: "1.6" }}>
-            <div>{COMPANY.address}</div>
-            <div>Ph: {COMPANY.phone} · {COMPANY.email}</div>
-            <div style={{ fontWeight: 700 }}>GSTIN: {COMPANY.gstin} · PAN: {COMPANY.pan}</div>
-          </div>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "13pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "2px", marginBottom: "10px" }}>PURCHASE ORDER</div>
-          <table style={{ borderCollapse: "collapse", marginLeft: "auto", fontSize: "10px" }}>
-            <tbody>
-              {[["Ref No.", po.refNo], ["Date", po.date ? formatDate(po.date) : ""], ["Supplier Offer Ref.", po.supplierOfferRef], ["Supplier Offer Date", po.supplierOfferDate ? formatDate(po.supplierOfferDate) : ""]].map(([k, v]) => (
-                <tr key={k}><td style={{ padding: "1.5px 10px 1.5px 0", color: "#64748B", textAlign: "right" }}>{k}</td><td style={{ padding: "1.5px 0", fontWeight: 700, color: "#2B3A52", textAlign: "right" }}>{v}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", gap: "14px", marginBottom: "20px" }}>
-        <div style={{ flex: 1, border: "1px solid #DADDE1", borderRadius: "6px", overflow: "hidden" }}>
-          <div style={{ background: "#2B3A52", color: "white", fontSize: "8pt", fontWeight: 600, letterSpacing: "1.5px", padding: "6px 13px", textTransform: "uppercase" }}>ORDER TO</div>
-          <div style={{ padding: "11px 13px" }}>
-            <div style={{ fontSize: "14px", fontWeight: 700, color: "#2B3A52" }}>{po.supplier?.name || "—"}</div>
-            {po.supplier?.attention && <div style={{ fontSize: "11px", color: "#64748B", marginBottom: "4px" }}>{po.supplier.attention}</div>}
-            {po.supplier?.mobile && <div style={{ fontSize: "9pt", color: "#475569" }}>Mobile: {po.supplier.mobile}</div>}
-            {po.supplier?.email && <div style={{ fontSize: "9pt", color: "#475569" }}>Email: {po.supplier.email}</div>}
-          </div>
-        </div>
-        <div style={{ flex: 1, border: "1px solid #DADDE1", borderRadius: "6px", overflow: "hidden" }}>
-          <div style={{ background: "#2B3A52", color: "white", fontSize: "8pt", fontWeight: 600, letterSpacing: "1.5px", padding: "6px 13px", textTransform: "uppercase" }}>SUBJECT</div>
-          <div style={{ padding: "11px 13px" }}>
-            <div style={{ fontSize: "10.5pt", fontWeight: 700, color: "#2B3A52" }}>{po.subject || "—"}</div>
-            <div style={{ marginTop: "6px", fontSize: "9pt", color: "#475569", lineHeight: "1.6" }}>{po.openingText}</div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ fontSize: "10pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "1.5px", textTransform: "uppercase", borderLeft: "4px solid #2B3A52", paddingLeft: "9px", marginBottom: "10px" }}>ORDER DETAILS / SCOPE OF SUPPLY</div>
-
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "12px" }}>
-        <thead><tr>{["SL", "Product Description", "Model", "Qty", "Unit", "Unit Price (Rs.)", "Amount (Rs.)"].map((h, i) => (<th key={h} style={{ background: "#2B3A52", color: "white", fontSize: "8pt", fontWeight: 600, padding: "8px 10px", textAlign: i === 0 || i >= 3 ? "center" : "left" }}>{h}</th>))}</tr></thead>
-        <tbody>
-          {po.items.map((item: any, i: number) => {
-            const amt = item.unitPrice * item.qty;
-            return (
-              <tr key={item.id} style={{ borderBottom: "1px solid #DADDE1" }}>
-                <td style={{ padding: "10px", textAlign: "center", color: "#64748B" }}>{i + 1}</td>
-                <td style={{ padding: "10px", verticalAlign: "top" }}>
-                  <div style={{ fontWeight: 700, color: "#2B3A52", fontSize: "11px" }}>{item.title}</div>
-                  {item.subDetails && <div style={{ color: "#64748B", fontSize: "8pt", marginTop: "2px" }}>{item.subDetails}</div>}
-                  {item.tag && <span style={{ display: "inline-block", marginTop: "4px", fontSize: "8.5pt", color: "#2E7D32", border: "1px solid #A5D6A7", background: "#E8F5E9", borderRadius: "3px", padding: "1px 6px" }}>{item.tag}</span>}
-                </td>
-                <td style={{ padding: "10px", fontSize: "9pt", color: "#475569" }}>{item.model || "—"}</td>
-                <td style={{ padding: "10px", textAlign: "center", fontWeight: 700 }}>{item.qty}</td>
-                <td style={{ padding: "10px", textAlign: "center", fontSize: "9pt" }}>{item.unit}</td>
-                <td style={{ padding: "10px", textAlign: "right", fontWeight: 700 }}>{inr(item.unitPrice)}/-</td>
-                <td style={{ padding: "10px", textAlign: "right" }}><div style={{ fontWeight: 700 }}>{inr(amt)}</div><div style={{ fontSize: "8pt", color: "#64748B" }}>+ 18% GST</div></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-
-      {po.items.length > 0 && (
-        <div style={{ textAlign: "right", marginBottom: "16px", fontSize: "10pt" }}>
-          <span style={{ color: "#64748B", fontStyle: "italic" }}>Amount in Words: </span>
-          <span style={{ fontWeight: 700, color: "#2B3A52" }}>Rupees {amountWords} Only + 18% GST</span>
-        </div>
-      )}
-
-      <div style={{ pageBreakBefore: "always" }} />
-
-      <div style={{ fontSize: "10pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "1.5px", textTransform: "uppercase", borderLeft: "4px solid #2B3A52", paddingLeft: "9px", marginBottom: "10px" }}>TERMS & CONDITIONS</div>
-
-      <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #DADDE1", marginBottom: "20px" }}>
-        <tbody>
-          {po.terms.map((t: any) => (
-            <tr key={t.label} style={{ borderBottom: "1px solid #DADDE1" }}>
-              <td style={{ width: "30%", fontWeight: 700, color: "#2B3A52", fontSize: "8.5pt", background: "#EEF1F6", padding: "6px 10px", verticalAlign: "top" }}>{t.label}</td>
-              <td style={{ fontSize: "8.5pt", padding: "6px 10px", verticalAlign: "top" }}>{t.value}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div style={{ fontSize: "10pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "1.5px", textTransform: "uppercase", borderLeft: "4px solid #2B3A52", paddingLeft: "9px", marginBottom: "8px" }}>DECLARATION</div>
-      <p style={{ fontSize: "9pt", color: "#475569", lineHeight: "1.7" }}>{po.declaration}</p>
-
-      <div style={{ marginTop: "22px", borderTop: "1px solid #DADDE1", paddingTop: "8px", textAlign: "center", fontSize: "6.5pt", color: "#64748B", lineHeight: "1.5" }}>
-        <div><span style={{ color: "#2B3A52", fontWeight: 700 }}>{COMPANY.name}</span> · {COMPANY.address} · {COMPANY.phone} · {COMPANY.email} · GSTIN {COMPANY.gstin}</div>
-        <div>This is a computer-generated purchase order.</div>
-      </div>
-    </div>
-  );
-}
-
-export default function PurchaseOrderPage() {
+function PurchaseOrderPageInner() {
+  const searchParams = useSearchParams();
   const allProducts = getAllProducts();
-  const allPOs = getAllProcurement();
-  const [refNo, setRefNo] = useState(generateRefNo("PO", allPOs.length + 1));
+  const [docId, setDocId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [refNo, setRefNo] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [supplierOfferRef, setSupplierOfferRef] = useState("");
   const [supplierOfferDate, setSupplierOfferDate] = useState("");
@@ -139,16 +40,86 @@ export default function PurchaseOrderPage() {
   const [openingText, setOpeningText] = useState("");
   const [items, setItems] = useState<DocLineItem[]>([]);
   const [terms, setTerms] = useState<DocTerm[]>(DEFAULT_TERMS);
+  const [showQr, setShowQr] = useState(true);
+  const [publicToken, setPublicToken] = useState<string | null>(null);
   const [declaration, setDeclaration] = useState(DEFAULT_DECLARATION);
   const [searchQ, setSearchQ] = useState("");
   const [showPicker, setShowPicker] = useState(false);
+  const [manualEntry, setManualEntry] = useState(false);
+  const [manualItem, setManualItem] = useState<DocLineItem>({ id: "", title: "", subDetails: "", model: "", tag: "", qty: 1, unit: "NOS.", unitPrice: 0 });
   const [editTermIdx, setEditTermIdx] = useState<number | null>(null);
   const [editTerm, setEditTerm] = useState<DocTerm>({ label: "", value: "" });
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
-  const po = { refNo, date, supplierOfferRef, supplierOfferDate, supplier, subject, openingText, items, terms, declaration };
+  const showToast = (msg: string, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 4000); };
+
+  const applySupplier = (p: Record<string, string | undefined>) => {
+    const addr = [p.address, p.city, p.state].filter(Boolean).join(", ");
+    setSupplier({ name: p.name ?? "", attention: p.attention, mobile: p.mobile, email: p.email, address: addr });
+  };
+
+  const loadDraft = useCallback(async (id: string) => {
+    try {
+      const doc = await documentsApi.get(id);
+      const p = doc.payload as Record<string, unknown>;
+      setDocId(doc.id);
+      setPublicToken(doc.publicToken);
+      if (typeof p["showQr"] === "boolean") setShowQr(p["showQr"]);
+      setRefNo(doc.number);
+      setDate(doc.issueDate.slice(0, 10));
+      applySupplier((p["supplier"] ?? {}) as Record<string, string | undefined>);
+      setSupplierOfferRef(String(p["supplierOfferRef"] ?? ""));
+      setSupplierOfferDate(String(p["supplierOfferDate"] ?? ""));
+      setSubject(String(p["subject"] ?? ""));
+      setOpeningText(String(p["openingText"] ?? ""));
+      setDeclaration(String(p["declaration"] ?? ""));
+      setItems(((p["items"] ?? []) as DocLineItem[]).map((it, i) => ({ ...it, id: it.id ?? `item-${i}` })));
+      if (Array.isArray(p["terms"])) setTerms(p["terms"] as DocTerm[]);
+      showToast(`Loaded draft ${doc.number}`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to load draft", false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const idParam = searchParams.get("id");
+    if (idParam) loadDraft(idParam);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, loadDraft]);
+
+  const handleSave = async () => {
+    if (!supplier.name.trim()) { showToast("Supplier company name is required", false); return; }
+    if (items.length === 0) { showToast("Add at least one line item", false); return; }
+    setSaving(true);
+    try {
+      const totalAmount = items.reduce((s, i) => s + i.unitPrice * i.qty, 0);
+      const payload: Record<string, unknown> = {
+        refNo, date, supplierOfferRef, supplierOfferDate, supplier, subject, openingText, items, terms, declaration, showQr,
+        totals: { totalAmount },
+      };
+      const doc = docId
+        ? await documentsApi.updateDraft(docId, payload)
+        : await documentsApi.create({
+            type: "PURCHASE_ORDER",
+            issueDate: date,
+            partyName: supplier.name,
+            party: { name: supplier.name, attention: supplier.attention, mobile: supplier.mobile, email: supplier.email, address: supplier.address },
+            payload,
+          });
+      setDocId(doc.id);
+      setPublicToken(doc.publicToken);
+      setRefNo(doc.number);
+      showToast(`Saved as ${doc.number} (${doc.status})`);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to save purchase order", false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const po = { refNo, date, supplierOfferRef, supplierOfferDate, supplier, subject, openingText, items, terms, declaration, showQr, publicUrl: publicToken ? publicDocumentUrl(publicToken) : undefined };
 
   const addItem = (product: any) => {
     setItems(prev => [...prev, { id: `item-${Date.now()}-${Math.random()}`, title: product.name, subDetails: product.description || "", model: product.model || product.partNumber || "", tag: "CE Certified & CPRI Tested", qty: 1, unit: "NOS.", unitPrice: product.price }]);
@@ -186,7 +157,7 @@ export default function PurchaseOrderPage() {
     items.forEach((item, i) => { ws.addRow({ sl: i + 1, title: item.title, model: item.model || "", qty: item.qty, unit: item.unit, unitPrice: item.unitPrice, amount: item.unitPrice * item.qty }); });
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${refNo.replace(/\//g, "_")}.xlsx`; a.click(); URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `${refNo.replace(/[^a-zA-Z0-9-]/g, "_")}.xlsx`; a.click(); URL.revokeObjectURL(url);
   };
 
   const handleShareEmail = () => {
@@ -200,12 +171,18 @@ export default function PurchaseOrderPage() {
     <div className="flex min-h-screen bg-slate-50">
       <AdminSidebar />
       <main className="flex-1 overflow-auto">
+        {toast && <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-sm font-semibold ${toast.ok ? "bg-emerald-600 text-white" : "bg-red-600 text-white"}`}>{toast.ok ? <CheckCircle className="w-4 h-4" /> : <X className="w-4 h-4" />}{toast.msg}</div>}
         <div className="border-b border-slate-200 px-8 py-5 flex items-center justify-between bg-white">
           <div>
             <h1 className="page-title flex items-center gap-3"><FileText className="w-7 h-7 text-primary-600" /> Purchase Order Generator</h1>
             <p className="page-sub">Create professionally formatted purchase orders</p>
           </div>
-          <button onClick={() => setShowPicker(!showPicker)} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> Add Product</button>
+          <div className="flex gap-2">
+            <button onClick={handleSave} disabled={saving} className="btn-outline flex items-center gap-2 border-primary-300 text-primary-700 hover:bg-primary-50 disabled:opacity-50">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} {docId ? "Update Draft" : "Save Document"}
+            </button>
+            <button onClick={() => { setManualEntry(false); setShowPicker(!showPicker); }} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> Add Product</button>
+          </div>
         </div>
 
         <div className="flex max-w-screen-2xl mx-auto">
@@ -214,7 +191,7 @@ export default function PurchaseOrderPage() {
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">PO Details</h3>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Ref No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={refNo} onChange={e => setRefNo(e.target.value)} /></div>
+                <div><label className="label">Ref No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={refNo} readOnly placeholder="Assigned on save" /></div>
                 <div><label className="label">PO Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={date} onChange={e => setDate(e.target.value)} /></div>
                 <div><label className="label">Supplier Offer Ref.</label><input className="input w-full rounded-lg mt-1 text-sm" value={supplierOfferRef} onChange={e => setSupplierOfferRef(e.target.value)} placeholder="e.g. AEPL/TEM/PCE/26-27/01R" /></div>
                 <div><label className="label">Supplier Offer Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={supplierOfferDate} onChange={e => setSupplierOfferDate(e.target.value)} /></div>
@@ -240,8 +217,20 @@ export default function PurchaseOrderPage() {
             </div>
 
             <div className="card rounded-xl p-5 space-y-4">
-              <h3 className="section-title mb-3">Line Items ({items.length})</h3>
-              {showPicker && (
+              <div className="flex items-center justify-between">
+                <h3 className="section-title mb-0">Line Items ({items.length})</h3>
+                <div className="flex gap-2">
+                  <button onClick={() => { setManualEntry(false); setShowPicker(!showPicker); }} className={`text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${!manualEntry && showPicker ? "bg-primary-50 border-primary-300 text-primary-700" : "border-slate-300 text-slate-500"}`}>
+                    <Search className="w-3.5 h-3.5" /> Product List
+                  </button>
+                  <button onClick={() => { setManualEntry(true); setShowPicker(false); }} className={`text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${manualEntry ? "bg-primary-50 border-primary-300 text-primary-700" : "border-slate-300 text-slate-500"}`}>
+                    <Edit3 className="w-3.5 h-3.5" /> Manual Entry
+                  </button>
+                </div>
+              </div>
+
+              {/* Product List mode */}
+              {!manualEntry && showPicker && (
                 <div className="rounded-xl border border-slate-200 overflow-hidden">
                   <div className="p-3 bg-slate-50">
                     <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input className="input w-full rounded-lg pl-9 text-sm" placeholder="Search products…" value={searchQ} onChange={e => setSearchQ(e.target.value)} autoFocus /></div>
@@ -256,18 +245,44 @@ export default function PurchaseOrderPage() {
                   </div>
                 </div>
               )}
+
+              {/* Manual Entry mode */}
+              {manualEntry && (
+                <div className="rounded-xl border border-slate-200 p-3 space-y-2 bg-slate-50">
+                  <div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-500">New Item</span><button onClick={() => { setItems(prev => [...prev, { id: `item-${Date.now()}-${Math.random()}`, title: "", subDetails: "", model: "", tag: "", qty: 1, unit: "NOS.", unitPrice: 0 }]); }} className="text-xs text-primary-600 font-bold flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add</button></div>
+                  <input className="input w-full rounded-lg text-sm font-semibold" value={manualItem.title} onChange={e => setManualItem(prev => ({ ...prev, title: e.target.value }))} placeholder="Product name" />
+                  <textarea className="input w-full rounded-lg text-sm resize-none" rows={2} value={manualItem.subDetails || ""} onChange={e => setManualItem(prev => ({ ...prev, subDetails: e.target.value }))} placeholder="Description" />
+                  <div className="grid grid-cols-3 gap-2">
+                    <input className="input w-full rounded-lg text-sm" value={manualItem.model || ""} onChange={e => setManualItem(prev => ({ ...prev, model: e.target.value }))} placeholder="Model" />
+                    <input className="input w-full rounded-lg text-sm" type="number" value={manualItem.qty} onChange={e => setManualItem(prev => ({ ...prev, qty: Number(e.target.value) }))} placeholder="Qty" />
+                    <input className="input w-full rounded-lg text-sm" value={manualItem.unit || ""} onChange={e => setManualItem(prev => ({ ...prev, unit: e.target.value }))} placeholder="Unit (e.g. NOS.)" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input className="input w-full rounded-lg text-sm" type="number" value={manualItem.unitPrice} onChange={e => setManualItem(prev => ({ ...prev, unitPrice: Number(e.target.value) }))} placeholder="Rate" />
+                    <div className="flex items-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700">₹{inr(manualItem.unitPrice * manualItem.qty)}</div>
+                  </div>
+                  <input className="input w-full rounded-lg text-sm" value={manualItem.tag || ""} onChange={e => setManualItem(prev => ({ ...prev, tag: e.target.value }))} placeholder="Badge text (optional)" />
+                  <button onClick={() => { if (manualItem.title) { setItems(prev => [...prev, { ...manualItem, id: `item-${Date.now()}-${Math.random()}` }]); setManualItem({ id: "", title: "", subDetails: "", model: "", tag: "", qty: 1, unit: "NOS.", unitPrice: 0 }); } }} className="w-full py-2 rounded-lg bg-primary-600 text-white font-bold text-sm hover:bg-primary-700">Add to Purchase Order</button>
+                </div>
+              )}
+
               {items.length === 0 ? (
-                <div className="text-center py-8 text-slate-400"><p className="text-sm">No products added. Click "Add Product" to begin.</p></div>
+                <div className="text-center py-8 text-slate-400"><p className="text-sm">No items. Use Product List or Manual Entry to add.</p></div>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {items.map((item, idx) => (
                     <div key={item.id} className="rounded-xl border border-slate-200 p-3 space-y-2 bg-slate-50">
                       <div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-500">#{idx + 1}</span><button onClick={() => removeItem(item.id)} className="text-slate-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button></div>
-                      <input className="input w-full rounded-lg text-sm" value={item.title} onChange={e => updateItem(item.id, "title", e.target.value)} placeholder="Product title" />
+                      <input className="input w-full rounded-lg text-sm font-semibold" value={item.title} onChange={e => updateItem(item.id, "title", e.target.value)} placeholder="Product name" />
+                      <textarea className="input w-full rounded-lg text-sm resize-none" rows={1} value={item.subDetails || ""} onChange={e => updateItem(item.id, "subDetails", e.target.value)} placeholder="Description" />
                       <div className="grid grid-cols-3 gap-2">
                         <input className="input w-full rounded-lg text-sm" value={item.model || ""} onChange={e => updateItem(item.id, "model", e.target.value)} placeholder="Model" />
                         <input className="input w-full rounded-lg text-sm" type="number" value={item.qty} onChange={e => updateItem(item.id, "qty", Number(e.target.value))} placeholder="Qty" />
-                        <input className="input w-full rounded-lg text-sm" type="number" value={item.unitPrice} onChange={e => updateItem(item.id, "unitPrice", Number(e.target.value))} placeholder="Price" />
+                        <input className="input w-full rounded-lg text-sm" value={item.unit || ""} onChange={e => updateItem(item.id, "unit", e.target.value)} placeholder="Unit" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input className="input w-full rounded-lg text-sm" type="number" value={item.unitPrice} onChange={e => updateItem(item.id, "unitPrice", Number(e.target.value))} placeholder="Rate" />
+                        <div className="flex items-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700">₹{inr(item.unitPrice * item.qty)}</div>
                       </div>
                       <input className="input w-full rounded-lg text-sm" value={item.tag || ""} onChange={e => updateItem(item.id, "tag", e.target.value)} placeholder="Badge text (optional)" />
                     </div>
@@ -302,6 +317,10 @@ export default function PurchaseOrderPage() {
 
             <div className="card rounded-xl p-5 space-y-3">
               <h3 className="section-title mb-3">Actions</h3>
+              <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer select-none">
+                <input type="checkbox" checked={showQr} onChange={e => setShowQr(e.target.checked)} className="w-4 h-4 accent-primary-600" />
+                Include QR code (public view link) on the document
+              </label>
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={handlePrint} className="btn-primary flex items-center justify-center gap-2"><Printer className="w-4 h-4" /> Print / PDF</button>
                 <button onClick={handleExportXLSX} className="btn-outline flex items-center justify-center gap-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50"><FileSpreadsheet className="w-4 h-4" /> Export XLSX</button>
@@ -340,5 +359,13 @@ export default function PurchaseOrderPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PurchaseOrderPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen bg-slate-50"><AdminSidebar /><main className="flex-1 p-8 text-slate-500">Loading purchase order…</main></div>}>
+      <PurchaseOrderPageInner />
+    </Suspense>
   );
 }
