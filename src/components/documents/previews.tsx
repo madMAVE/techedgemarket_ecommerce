@@ -575,28 +575,33 @@ export function QuotationPreview({ q }: { q: any }) {
 }
 
 export function PoPreview({ po }: { po: any }) {
-  const totalAmount = po.items.reduce((s: any, i: any) => s + i.unitPrice * i.qty, 0);
-  const amountWords = numberToWords(totalAmount);
+  const subtotal = po.items.reduce((s: any, i: any) => s + i.unitPrice * i.qty, 0);
+  const gst = subtotal * 0.18;
+  const grand = subtotal + gst;
+  const totalQty = po.items.reduce((s: any, i: any) => s + i.qty, 0);
+  const amountWords = numberToWords(Math.round(grand));
   const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/techedgemarket_ecommerce/logo/TEM-dark.png` : "";
+  const bdr = "1px solid #000";
+  const bdrLight = "1px solid #ccc";
+  const headers = ["Sl. No.", "Description of Goods", "Model", "Qty", "Unit", "Rate (Rs.)", "Amount (Rs.)"];
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", fontSize: "10.5px", color: "#1F2937", lineHeight: "1.5", padding: "14mm 13mm", maxWidth: "210mm", margin: "0 auto", background: "white" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2.25pt solid #2B3A52", paddingBottom: "12px", marginBottom: "16px" }}>
-        <div style={{ maxWidth: "58%" }}>
-          <img src={logoUrl} alt="Tech Edge Market" style={{ height: "50px", width: "auto", objectFit: "contain", marginBottom: "4px" }} />
-          <div style={{ fontSize: "8pt", color: "#64748B", lineHeight: "1.6" }}>
-            <div>{COMPANY.address}</div>
-            <div>Ph: {COMPANY.phone} · {COMPANY.email}</div>
-            <div style={{ fontWeight: 700 }}>GSTIN: {COMPANY.gstin} · PAN: {COMPANY.pan}</div>
+    <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: "9px", color: "#000", lineHeight: "1.4", padding: "10mm 12mm", maxWidth: "210mm", margin: "0 auto", background: "white" }}>
+      {/* Heading */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <img src={logoUrl} alt="TEM" style={{ height: "42px", width: "auto", objectFit: "contain" }} />
+          <div>
+            <div style={{ fontSize: "14px", fontWeight: 800, letterSpacing: "1px" }}>PURCHASE ORDER</div>
+            <div style={{ fontSize: "8px", fontStyle: "italic", color: "#333" }}>(ORIGINAL FOR SUPPLIER)</div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: "13pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "2px", marginBottom: "10px" }}>PURCHASE ORDER</div>
-            <table style={{ borderCollapse: "collapse", marginLeft: "auto", fontSize: "10px" }}>
+          <div style={{ textAlign: "right", fontSize: "9px" }}>
+            <table style={{ borderCollapse: "collapse", marginLeft: "auto" }}>
               <tbody>
-                {[["Ref No.", po.refNo], ["Date", po.date ? formatDate(po.date) : ""], ["Supplier Offer Ref.", po.supplierOfferRef], ["Supplier Offer Date", po.supplierOfferDate ? formatDate(po.supplierOfferDate) : ""]].map(([k, v]) => (
-                  <tr key={k}><td style={{ padding: "1.5px 10px 1.5px 0", color: "#64748B", textAlign: "right" }}>{k}</td><td style={{ padding: "1.5px 0", fontWeight: 700, color: "#2B3A52", textAlign: "right" }}>{v}</td></tr>
+                {[["Ref No.", po.refNo], ["Date", po.date ? formatDate(po.date) : ""], ["Offer Ref.", po.supplierOfferRef], ["Offer Date", po.supplierOfferDate ? formatDate(po.supplierOfferDate) : ""]].map(([k, v]) => (
+                  <tr key={k}><td style={{ padding: "1px 8px 1px 0", fontSize: "8px", color: "#444", textAlign: "right" }}>{k}</td><td style={{ padding: "1px 0", fontWeight: 700, fontSize: "9px", textAlign: "right" }}>{v || "—"}</td></tr>
                 ))}
               </tbody>
             </table>
@@ -605,78 +610,129 @@ export function PoPreview({ po }: { po: any }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "14px", marginBottom: "20px" }}>
-        <div style={{ flex: 1, border: "1px solid #DADDE1", borderRadius: "6px", overflow: "hidden" }}>
-          <div style={{ background: "#2B3A52", color: "white", fontSize: "8pt", fontWeight: 600, letterSpacing: "1.5px", padding: "6px 13px", textTransform: "uppercase" }}>ORDER TO</div>
-          <div style={{ padding: "11px 13px" }}>
-            <div style={{ fontSize: "14px", fontWeight: 700, color: "#2B3A52" }}>{po.supplier?.name || "—"}</div>
-            {po.supplier?.attention && <div style={{ fontSize: "11px", color: "#64748B", marginBottom: "4px" }}>{po.supplier.attention}</div>}
-            {po.supplier?.mobile && <div style={{ fontSize: "9pt", color: "#475569" }}>Mobile: {po.supplier.mobile}</div>}
-            {po.supplier?.email && <div style={{ fontSize: "9pt", color: "#475569" }}>Email: {po.supplier.email}</div>}
-          </div>
-        </div>
-        <div style={{ flex: 1, border: "1px solid #DADDE1", borderRadius: "6px", overflow: "hidden" }}>
-          <div style={{ background: "#2B3A52", color: "white", fontSize: "8pt", fontWeight: 600, letterSpacing: "1.5px", padding: "6px 13px", textTransform: "uppercase" }}>SUBJECT</div>
-          <div style={{ padding: "11px 13px" }}>
-            <div style={{ fontSize: "10.5pt", fontWeight: 700, color: "#2B3A52" }}>{po.subject || "—"}</div>
-            <div style={{ marginTop: "6px", fontSize: "9pt", color: "#475569", lineHeight: "1.6" }}>{po.openingText}</div>
-          </div>
-        </div>
-      </div>
+      {/* Main grid — two columns */}
+      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "0" }}>
+        <tbody>
+          <tr>
+            {/* LEFT: Seller + Order To */}
+            <td style={{ width: "50%", verticalAlign: "top", border: bdr, padding: "6px 8px" }}>
+              <div style={{ fontWeight: 800, fontSize: "10px", textTransform: "uppercase", marginBottom: "3px" }}>{COMPANY.name}</div>
+              <div style={{ fontSize: "8.5px", lineHeight: "1.55", color: "#222" }}>
+                <div>{COMPANY.address}</div>
+                <div>Ph: {COMPANY.phone} · {COMPANY.email}</div>
+                <div>GSTIN: <b>{COMPANY.gstin}</b> &nbsp; PAN: {COMPANY.pan}</div>
+              </div>
 
-      <div style={{ fontSize: "10pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "1.5px", textTransform: "uppercase", borderLeft: "4px solid #2B3A52", paddingLeft: "9px", marginBottom: "10px" }}>ORDER DETAILS / SCOPE OF SUPPLY</div>
+              <div style={{ borderTop: bdrLight, marginTop: "6px", paddingTop: "5px" }}>
+                <div style={{ fontSize: "8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px", color: "#444" }}>Order To</div>
+                <div style={{ fontWeight: 700, fontSize: "9.5px", textTransform: "uppercase" }}>{po.supplier?.name || "—"}</div>
+                {po.supplier?.attention && <div style={{ fontSize: "8.5px", color: "#444" }}>{po.supplier.attention}</div>}
+                {po.supplier?.address && <div style={{ fontSize: "8.5px", lineHeight: "1.5", color: "#222" }}>{po.supplier.address}</div>}
+                {po.supplier?.mobile && <div style={{ fontSize: "8.5px" }}>Mobile: {po.supplier.mobile}</div>}
+                {po.supplier?.email && <div style={{ fontSize: "8.5px" }}>Email: {po.supplier.email}</div>}
+              </div>
+            </td>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "12px" }}>
-        <thead><tr>{["SL", "Product Description", "Model", "Qty", "Unit", "Unit Price (Rs.)", "Amount (Rs.)"].map((h, i) => (<th key={h} style={{ background: "#2B3A52", color: "white", fontSize: "8pt", fontWeight: 600, padding: "8px 10px", textAlign: i === 0 || i >= 3 ? "center" : "left" }}>{h}</th>))}</tr></thead>
+            {/* RIGHT: Subject */}
+            <td style={{ width: "50%", verticalAlign: "top", border: bdr, borderLeft: "none", padding: "6px 8px" }}>
+              <div style={{ fontSize: "8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px", color: "#444" }}>Subject</div>
+              <div style={{ fontWeight: 700, fontSize: "9.5px", marginBottom: "4px" }}>{po.subject || "—"}</div>
+              {po.openingText && <div style={{ fontSize: "8.5px", lineHeight: "1.55", color: "#222", whiteSpace: "pre-line" }}>{po.openingText}</div>}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Line item table */}
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0", border: bdr }}>
+        <thead>
+          <tr>
+            {headers.map((h, i) => (
+              <th key={h} style={{ borderRight: i < 6 ? bdr : "none", borderBottom: bdr, padding: "4px 6px", fontSize: "8px", fontWeight: 700, textAlign: i === 0 || i === 3 || i === 4 ? "center" : i >= 5 ? "right" : "left" }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
         <tbody>
           {po.items.map((item: any, i: number) => {
             const amt = item.unitPrice * item.qty;
+            const isLast = i === po.items.length - 1;
+            const cellBdr = { borderRight: bdr, borderBottom: isLast ? "none" : bdr };
             return (
-              <tr key={item.id} style={{ borderBottom: "1px solid #DADDE1" }}>
-                <td style={{ padding: "10px", textAlign: "center", color: "#64748B" }}>{i + 1}</td>
-                <td style={{ padding: "10px", verticalAlign: "top" }}>
-                  <div style={{ fontWeight: 700, color: "#2B3A52", fontSize: "11px" }}>{item.title}</div>
-                  {item.subDetails && <div style={{ color: "#64748B", fontSize: "8pt", marginTop: "2px" }}>{item.subDetails}</div>}
-                  {item.tag && <span style={{ display: "inline-block", marginTop: "4px", fontSize: "8.5pt", color: "#2E7D32", border: "1px solid #A5D6A7", background: "#E8F5E9", borderRadius: "3px", padding: "1px 6px" }}>{item.tag}</span>}
+              <tr key={item.id}>
+                <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{i + 1}</td>
+                <td style={{ ...cellBdr, padding: "6px 8px", verticalAlign: "top" }}>
+                  <div style={{ fontWeight: 700, fontSize: "10.5px" }}>{item.title}</div>
+                  {item.subDetails && <div style={{ fontSize: "8.5px", color: "#333", marginTop: "2px", lineHeight: "1.4" }}>{item.subDetails}</div>}
+                  {item.tag && <div style={{ display: "inline-block", marginTop: "2px", fontSize: "7.5px", color: "#16a34a", border: "1px solid #86efac", background: "#f0fdf4", borderRadius: "2px", padding: "0 4px" }}>{item.tag}</div>}
                 </td>
-                <td style={{ padding: "10px", fontSize: "9pt", color: "#475569" }}>{item.model || "—"}</td>
-                <td style={{ padding: "10px", textAlign: "center", fontWeight: 700 }}>{item.qty}</td>
-                <td style={{ padding: "10px", textAlign: "center", fontSize: "9pt" }}>{item.unit}</td>
-                <td style={{ padding: "10px", textAlign: "right", fontWeight: 700 }}>{inr(item.unitPrice)}/-</td>
-                <td style={{ padding: "10px", textAlign: "right" }}><div style={{ fontWeight: 700 }}>{inr(amt)}</div><div style={{ fontSize: "8pt", color: "#64748B" }}>+ 18% GST</div></td>
+                <td style={{ ...cellBdr, padding: "6px 6px", fontSize: "8.5px" }}>{item.model || "—"}</td>
+                <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{item.qty}</td>
+                <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "center", fontSize: "8.5px" }}>{item.unit}</td>
+                <td style={{ ...cellBdr, padding: "6px 6px", textAlign: "right", fontSize: "8.5px" }}>{inr(item.unitPrice)}</td>
+                <td style={{ borderBottom: isLast ? "none" : bdr, padding: "6px 6px", textAlign: "right", fontWeight: 700, fontSize: "8.5px" }}>{inr(amt)}</td>
               </tr>
             );
           })}
+          {po.items.length > 0 && (
+            <>
+              <tr>
+                <td colSpan={3} style={{ borderTop: bdr, borderRight: bdr, padding: "5px 8px", fontWeight: 700, fontSize: "9px" }}>Total</td>
+                <td style={{ borderTop: bdr, borderRight: bdr, padding: "5px 6px", textAlign: "center", fontWeight: 700, fontSize: "8.5px" }}>{totalQty}</td>
+                <td style={{ borderTop: bdr, borderRight: bdr }}></td>
+                <td style={{ borderTop: bdr, borderRight: bdr }}></td>
+                <td style={{ borderTop: bdr, padding: "5px 6px", textAlign: "right", fontWeight: 700, fontSize: "9px" }}>{inr(subtotal)}</td>
+              </tr>
+              <tr>
+                <td colSpan={6} style={{ borderRight: bdr, borderTop: bdr, padding: "4px 8px", fontSize: "8.5px" }}>GST @ 18%</td>
+                <td style={{ borderTop: bdr, padding: "4px 6px", textAlign: "right", fontWeight: 600, fontSize: "8.5px" }}>{inr(gst)}</td>
+              </tr>
+              <tr>
+                <td colSpan={6} style={{ borderRight: bdr, borderTop: bdr, padding: "5px 8px", fontWeight: 800, fontSize: "9.5px" }}>Grand Total</td>
+                <td style={{ borderTop: bdr, padding: "5px 6px", textAlign: "right", fontWeight: 800, fontSize: "10px" }}>{inr(grand)}</td>
+              </tr>
+            </>
+          )}
         </tbody>
       </table>
 
-      {po.items.length > 0 && (
-        <div style={{ textAlign: "right", marginBottom: "16px", fontSize: "10pt" }}>
-          <span style={{ color: "#64748B", fontStyle: "italic" }}>Amount in Words: </span>
-          <span style={{ fontWeight: 700, color: "#2B3A52" }}>Rupees {amountWords} Only + 18% GST</span>
-        </div>
+      {/* Amount in words */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: "4px", marginBottom: "6px" }}>
+        <div style={{ fontSize: "8.5px" }}><span style={{ fontWeight: 700 }}>Amount Chargeable (in words): </span><span style={{ fontWeight: 700, textTransform: "uppercase" }}>Rupees {amountWords} Only</span> <span style={{ fontSize: "7.5px", color: "#444" }}>(inclusive of 18% GST)</span></div>
+        <div style={{ fontSize: "8px", fontStyle: "italic" }}>E. & O.E</div>
+      </div>
+
+      {/* Terms & Conditions */}
+      {po.terms.length > 0 && (
+        <table style={{ width: "100%", borderCollapse: "collapse", border: bdr, marginBottom: "6px", marginTop: "6px" }}>
+          <thead>
+            <tr><th colSpan={2} style={{ border: bdr, padding: "3px 6px", fontSize: "8px", fontWeight: 700, textAlign: "left" }}>Terms &amp; Conditions</th></tr>
+          </thead>
+          <tbody>
+            {po.terms.map((t: any) => (
+              <tr key={t.label}>
+                <td style={{ border: bdr, width: "30%", fontWeight: 700, fontSize: "8px", padding: "4px 8px", verticalAlign: "top" }}>{t.label}</td>
+                <td style={{ border: bdr, fontSize: "8px", padding: "4px 8px", verticalAlign: "top", lineHeight: "1.5" }}>{t.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
 
-      <div style={{ pageBreakBefore: "always" }} />
+      {/* Declaration + Signature */}
+      <div style={{ display: "flex", gap: "14px", marginTop: "6px" }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: "8.5px", fontWeight: 700, marginBottom: "2px" }}>Declaration</div>
+          <div style={{ fontSize: "8px", lineHeight: "1.5", color: "#222", whiteSpace: "pre-line" }}>{po.declaration}</div>
+        </div>
+        <div style={{ flex: 1, textAlign: "right" }}>
+          <div style={{ fontSize: "8.5px", fontWeight: 700, marginTop: "22px" }}>{COMPANY.name}</div>
+          <div style={{ fontSize: "8.5px", fontWeight: 600, marginTop: "2px" }}>Authorised Signatory</div>
+        </div>
+      </div>
 
-      <div style={{ fontSize: "10pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "1.5px", textTransform: "uppercase", borderLeft: "4px solid #2B3A52", paddingLeft: "9px", marginBottom: "10px" }}>TERMS & CONDITIONS</div>
-
-      <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #DADDE1", marginBottom: "20px" }}>
-        <tbody>
-          {po.terms.map((t: any) => (
-            <tr key={t.label} style={{ borderBottom: "1px solid #DADDE1" }}>
-              <td style={{ width: "30%", fontWeight: 700, color: "#2B3A52", fontSize: "8.5pt", background: "#EEF1F6", padding: "6px 10px", verticalAlign: "top" }}>{t.label}</td>
-              <td style={{ fontSize: "8.5pt", padding: "6px 10px", verticalAlign: "top" }}>{t.value}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div style={{ fontSize: "10pt", fontWeight: 700, color: "#2B3A52", letterSpacing: "1.5px", textTransform: "uppercase", borderLeft: "4px solid #2B3A52", paddingLeft: "9px", marginBottom: "8px" }}>DECLARATION</div>
-      <p style={{ fontSize: "9pt", color: "#475569", lineHeight: "1.7" }}>{po.declaration}</p>
-
-      <div style={{ marginTop: "22px", borderTop: "1px solid #DADDE1", paddingTop: "8px", textAlign: "center", fontSize: "6.5pt", color: "#64748B", lineHeight: "1.5" }}>
-        <div><span style={{ color: "#2B3A52", fontWeight: 700 }}>{COMPANY.name}</span> · {COMPANY.address} · {COMPANY.phone} · {COMPANY.email} · GSTIN {COMPANY.gstin}</div>
+      {/* Footer */}
+      <div style={{ marginTop: "10px", borderTop: bdrLight, paddingTop: "4px", textAlign: "center", fontSize: "7.5px", color: "#666" }}>
+        <div><span style={{ fontWeight: 700, color: "#222" }}>{COMPANY.name}</span> · {COMPANY.address} · {COMPANY.phone} · {COMPANY.email} · GSTIN {COMPANY.gstin}</div>
         <div>This is a computer-generated purchase order.</div>
       </div>
     </div>

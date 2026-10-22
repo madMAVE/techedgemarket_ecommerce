@@ -5,21 +5,25 @@ import AdminSidebar from "@/components/layout/AdminSidebar";
 import { documentsApi } from "@/lib/documents";
 import { getAllProducts } from "@/utils/data";
 import { FileText, Printer, Plus, Trash2, Search, Share2, X, Eye, Edit3, FileSpreadsheet, Save, Loader2, CheckCircle } from "lucide-react";
-import { COMPANY, inr, formatDate } from "@/utils/documents";
+import { COMPANY, inr, formatDate, applyTermsJson, termsToJson } from "@/utils/documents";
 import { PoPreview, publicDocumentUrl } from "@/components/documents/previews";
 import type { DocLineItem, DocParty, DocTerm } from "@/types";
 import ExcelJS from "exceljs";
+
+const PAYMENT_TERMS_OPTIONS = [
+  "100% Advance along with Purchase Order",
+  "50% Advance against PO + 50% Advance against PI or Dispatch",
+];
 
 const DEFAULT_TERMS: DocTerm[] = [
   { label: "GST", value: "18% extra on actuals" },
   { label: "Warranty Period", value: "2 Years from the date of Invoice" },
   { label: "Freight", value: "Included" },
   { label: "Unloading Scope", value: "Buyer's Scope" },
-  { label: "Payment Terms", value: "100% Advance along with Purchase Order" },
+  { label: "Payment Terms", value: PAYMENT_TERMS_OPTIONS[0] },
   { label: "Delivery Lead Time", value: "8 – 10 days from the date of payment / PO. Door Delivery" },
   { label: "Order to be placed on", value: COMPANY.name },
   { label: "Consignee / Delivery Address", value: COMPANY.consignee },
-  { label: "Installation Requirements", value: "Cabling, glands, lugs & accessories – Buyer's Scope. Unloading equipment & labour – Buyer's Scope." },
 ];
 
 const DEFAULT_DECLARATION = "We hereby place this Purchase Order against your offer Ref. No. {{ offer ref }} dated {{ offer date }}. Kindly arrange supply as per the terms stated herein and confirm the delivery schedule upon receipt of this order.";
@@ -49,6 +53,9 @@ function PurchaseOrderPageInner() {
   const [manualItem, setManualItem] = useState<DocLineItem>({ id: "", title: "", subDetails: "", model: "", tag: "", qty: 1, unit: "NOS.", unitPrice: 0 });
   const [editTermIdx, setEditTermIdx] = useState<number | null>(null);
   const [editTerm, setEditTerm] = useState<DocTerm>({ label: "", value: "" });
+  const [termsJson, setTermsJson] = useState("");
+  const [termsPosition, setTermsPosition] = useState(1);
+  const [termsError, setTermsError] = useState("");
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
@@ -67,7 +74,7 @@ function PurchaseOrderPageInner() {
       setDocId(doc.id);
       setPublicToken(doc.publicToken);
       if (typeof p["showQr"] === "boolean") setShowQr(p["showQr"]);
-      setRefNo(doc.number);
+      setRefNo(String(p["refNo"] ?? "") || doc.number);
       setDate(doc.issueDate.slice(0, 10));
       applySupplier((p["supplier"] ?? {}) as Record<string, string | undefined>);
       setSupplierOfferRef(String(p["supplierOfferRef"] ?? ""));
@@ -110,8 +117,9 @@ function PurchaseOrderPageInner() {
           });
       setDocId(doc.id);
       setPublicToken(doc.publicToken);
-      setRefNo(doc.number);
-      showToast(`Saved as ${doc.number} (${doc.status})`);
+      // A typed Ref No. wins over the auto-assigned document number.
+      if (!refNo.trim()) setRefNo(doc.number);
+      showToast(`Saved as ${refNo.trim() || doc.number} (${doc.status})`);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to save purchase order", false);
     } finally {
@@ -128,6 +136,30 @@ function PurchaseOrderPageInner() {
 
   const removeItem = (id: string) => setItems(prev => prev.filter(i => i.id !== id));
   const updateItem = (id: string, field: string, value: any) => setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: value } : i));
+
+  const warranty = terms.find(t => t.label === "Warranty Period")?.value ?? "";
+  const leadTime = terms.find(t => t.label === "Delivery Lead Time")?.value ?? "";
+  const paymentTerms = terms.find(t => t.label === "Payment Terms")?.value ?? "";
+
+  const setTermValue = (label: string, value: string) => setTerms(prev => {
+    const idx = prev.findIndex(t => t.label === label);
+    if (idx === -1) return value.trim() ? [...prev, { label, value }] : prev;
+    return prev.map((t, i) => i === idx ? { ...t, value } : t);
+  });
+
+  const handleApplyTermsJson = () => {
+    if (!termsJson.trim()) { setTermsError("Paste some JSON first"); return; }
+    try {
+      const pos = Math.min(Math.max(Math.floor(termsPosition) || 1, 1), terms.length + 1);
+      const res = applyTermsJson(terms, termsJson, pos);
+      if (res.added === 0 && res.updated === 0) { setTermsError("No usable key/value pairs found"); return; }
+      setTerms(res.terms as DocTerm[]);
+      setTermsError("");
+      showToast(`${res.added} term${res.added === 1 ? "" : "s"} inserted at #${pos}${res.updated ? `, ${res.updated} updated` : ""}`);
+    } catch (err) {
+      setTermsError(err instanceof Error ? err.message : "Invalid JSON");
+    }
+  };
 
   const filteredProds = allProducts.filter(p => {
     const q = searchQ.toLowerCase();
@@ -191,7 +223,7 @@ function PurchaseOrderPageInner() {
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">PO Details</h3>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">Ref No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={refNo} readOnly placeholder="Assigned on save" /></div>
+                <div><label className="label">Ref No.</label><input className="input w-full rounded-lg mt-1 text-sm" value={refNo} onChange={e => setRefNo(e.target.value)} placeholder="Leave blank to use the auto-assigned number" title="Type your own reference to override the number shown on the document" /></div>
                 <div><label className="label">PO Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={date} onChange={e => setDate(e.target.value)} /></div>
                 <div><label className="label">Supplier Offer Ref.</label><input className="input w-full rounded-lg mt-1 text-sm" value={supplierOfferRef} onChange={e => setSupplierOfferRef(e.target.value)} placeholder="e.g. AEPL/TEM/PCE/26-27/01R" /></div>
                 <div><label className="label">Supplier Offer Date</label><input type="date" className="input w-full rounded-lg mt-1 text-sm" value={supplierOfferDate} onChange={e => setSupplierOfferDate(e.target.value)} /></div>
@@ -293,6 +325,28 @@ function PurchaseOrderPageInner() {
 
             <div className="card rounded-xl p-5 space-y-4">
               <div className="flex items-center justify-between"><h3 className="section-title mb-0">Terms & Conditions</h3><button onClick={() => { setEditTermIdx(-1); setEditTerm({ label: "", value: "" }); }} className="text-xs text-primary-600 hover:text-primary-700 font-bold flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Add</button></div>
+              <div className="space-y-3">
+                <div>
+                  <label className="label">Warranty Period</label>
+                  <input className="input w-full rounded-lg mt-1 text-sm" value={warranty} onChange={e => setTermValue("Warranty Period", e.target.value)} placeholder="e.g. 2 Years from the date of Invoice" />
+                </div>
+                <div>
+                  <label className="label">Payment Terms</label>
+                  <div className="mt-1 space-y-1.5">
+                    {PAYMENT_TERMS_OPTIONS.map(opt => (
+                      <label key={opt} className="flex items-start gap-2 text-sm text-slate-700 cursor-pointer">
+                        <input type="radio" name="paymentTerms" className="mt-0.5 w-4 h-4 shrink-0 accent-primary-600" checked={paymentTerms === opt} onChange={() => setTermValue("Payment Terms", opt)} />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <input className="input w-full rounded-lg mt-2 text-sm" value={paymentTerms} onChange={e => setTermValue("Payment Terms", e.target.value)} placeholder="Or type custom payment terms" />
+                </div>
+                <div>
+                  <label className="label">Delivery Lead Time</label>
+                  <input className="input w-full rounded-lg mt-1 text-sm" value={leadTime} onChange={e => setTermValue("Delivery Lead Time", e.target.value)} placeholder="e.g. 8 – 10 days from the date of payment / PO" />
+                </div>
+              </div>
               {editTermIdx !== null && (
                 <div className="rounded-xl border border-primary-300 p-3 space-y-2 bg-primary-50">
                   <input className="input w-full rounded-lg text-sm" value={editTerm.label} onChange={e => setEditTerm(prev => ({ ...prev, label: e.target.value }))} placeholder="Term label" />
@@ -303,10 +357,24 @@ function PurchaseOrderPageInner() {
               <div className="space-y-2 max-h-52 overflow-y-auto">
                 {terms.map((t, i) => (
                   <div key={t.label} className="flex items-start justify-between rounded-lg border border-slate-200 p-2.5 bg-white">
-                    <div className="flex-1 min-w-0"><p className="text-xs font-bold text-primary-700">{t.label}</p><p className="text-xs text-slate-500 truncate">{t.value}</p></div>
+                    <div className="flex-1 min-w-0"><p className="text-xs font-bold text-primary-700"><span className="text-slate-400 mr-1.5">{i + 1}.</span>{t.label}</p><p className="text-xs text-slate-500 truncate">{t.value}</p></div>
                     <div className="flex gap-1 ml-2"><button onClick={() => { setEditTermIdx(i); setEditTerm(t); }} className="text-slate-400 hover:text-primary-600"><Edit3 className="w-3 h-3" /></button><button onClick={() => setTerms(prev => prev.filter((_, j) => j !== i))} className="text-slate-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button></div>
                   </div>
                 ))}
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                <label className="label">Bulk edit terms via JSON</label>
+                <textarea className="input w-full rounded-lg resize-none font-mono text-sm" rows={5}
+                  placeholder={`{\n  "Freight": "Included",\n  "Standards": "IEC 61131-2"\n}`}
+                  value={termsJson} onChange={e => setTermsJson(e.target.value)} />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold text-slate-500">Insert at row</span>
+                  <input className="input w-16 rounded-lg text-sm text-center" type="number" min={1} value={termsPosition} onChange={e => setTermsPosition(Number(e.target.value))} />
+                  <button onClick={handleApplyTermsJson} className="px-3 py-1.5 rounded-lg bg-primary-600 text-white font-bold text-xs hover:bg-primary-700">Apply</button>
+                  <button onClick={() => { setTermsJson(termsToJson(terms)); setTermsPosition(terms.length + 1); }} className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold text-xs hover:bg-slate-100">Load current</button>
+                </div>
+                {termsError && <p className="text-xs text-red-600 font-semibold">{termsError}</p>}
+                <p className="text-xs text-slate-400">New keys are inserted at the chosen row (1 = first, matching the numbering above). Keys that already exist are updated in place and keep their position.</p>
               </div>
             </div>
 

@@ -54,3 +54,33 @@ export function formatDate(d: string): string {
 export function generateRefNo(prefix: string, seq: number): string {
   return `TEM/${prefix}/26-27/${String(seq).padStart(2, "0")}`;
 }
+
+export function termsToJson(terms: { label: string; value: string }[]): string {
+  return JSON.stringify(Object.fromEntries(terms.map(t => [t.label, t.value])), null, 2);
+}
+
+export function applyTermsJson(
+  prev: { label: string; value: string }[],
+  raw: string,
+  position: number,
+): { terms: { label: string; value: string }[]; added: number; updated: number } {
+  const parsed = JSON.parse(raw.trim());
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error('Paste a flat JSON object, e.g. { "Freight": "Included" }');
+  }
+  const nested = Object.entries(parsed).filter(([, v]) => v === null || typeof v === "object").map(([k]) => k);
+  if (nested.length) throw new Error(`Nested values are not supported: ${nested.join(", ")}`);
+
+  const next = prev.map(t => ({ ...t }));
+  const inserts: { label: string; value: string }[] = [];
+  let updated = 0;
+  for (const [label, value] of Object.entries(parsed)) {
+    if (!label.trim() || !String(value).trim()) continue;
+    const idx = next.findIndex(t => t.label === label);
+    if (idx >= 0) { next[idx].value = String(value); updated += 1; }
+    else inserts.push({ label, value: String(value) });
+  }
+  const at = Math.min(Math.max(Math.floor(position) || 1, 1), next.length + 1) - 1;
+  next.splice(at, 0, ...inserts);
+  return { terms: next, added: inserts.length, updated };
+}

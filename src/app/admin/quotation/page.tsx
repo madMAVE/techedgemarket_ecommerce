@@ -5,11 +5,16 @@ import AdminSidebar from "@/components/layout/AdminSidebar";
 import { documentsApi } from "@/lib/documents";
 import { getAllProducts } from "@/utils/data";
 import { FileSpreadsheet, Printer, Plus, Trash2, Search, Share2, X, Eye, Edit3, Save, Loader2, CheckCircle } from "lucide-react";
-import { COMPANY, inr, formatDate } from "@/utils/documents";
+import { COMPANY, inr, formatDate, applyTermsJson, termsToJson } from "@/utils/documents";
 import { QuotationPreview, publicDocumentUrl } from "@/components/documents/previews";
 import type { CustomerAccount } from "@/types";
 import type { DocLineItem, DocParty, DocSpec, DocTerm } from "@/types";
 import ExcelJS from "exceljs";
+
+const PAYMENT_TERMS_OPTIONS = [
+  "50% Advance against PO + 50% Advance on material ready",
+  "50% Advance against PO + 50% Advance against PI or Dispatch",
+];
 
 
 function QuotationPageInner() {
@@ -35,10 +40,9 @@ function QuotationPageInner() {
     { label: "Freight", value: "Included" },
     { label: "Unloading Scope", value: "Your Scope" },
     { label: "Offer Validity", value: `Till ${formatDate(validTill)}` },
-    { label: "Payment Terms", value: "50% Advance against PO + 50% Advance on material ready" },
+    { label: "Payment Terms", value: PAYMENT_TERMS_OPTIONS[0] },
     { label: "Delivery Lead Time", value: "8 – 10 days from the date of payment / PO. Door Delivery" },
     { label: "Order to be placed on", value: `${COMPANY.name}, Kolkata` },
-    { label: "Installation Requirements", value: "Provision & laying of input and output cable along with suitable glands, lugs & accessories that may be required as per site conditions is in your scope. Handling equipment & labour required for unloading of the material during delivery to be arranged by you at your cost." },
   ]);
   const [signoff, setSignoff] = useState({ name: "Pradipan Das", role: "Sales Manager", lines: ["Kolkata", COMPANY.email, COMPANY.phone] });
   const [subjectTitle, setSubjectTitle] = useState("");
@@ -56,6 +60,9 @@ function QuotationPageInner() {
   const [shareEmail, setShareEmail] = useState("");
   const [specsJson, setSpecsJson] = useState("");
   const [specsError, setSpecsError] = useState("");
+  const [termsJson, setTermsJson] = useState("");
+  const [termsPosition, setTermsPosition] = useState(1);
+  const [termsError, setTermsError] = useState("");
   const [editTermIdx, setEditTermIdx] = useState<number | null>(null);
   const [editTerm, setEditTerm] = useState<DocTerm>({ label: "", value: "" });
   const printRef = useRef<HTMLDivElement>(null);
@@ -173,12 +180,27 @@ function QuotationPageInner() {
 
   const warranty = terms.find(t => t.label === "Warranty Period")?.value ?? "";
   const leadTime = terms.find(t => t.label === "Delivery Lead Time")?.value ?? "";
+  const paymentTerms = terms.find(t => t.label === "Payment Terms")?.value ?? "";
 
   const setTermValue = (label: string, value: string) => setTerms(prev => {
     const idx = prev.findIndex(t => t.label === label);
     if (idx === -1) return value.trim() ? [...prev, { label, value }] : prev;
     return prev.map((t, i) => i === idx ? { ...t, value } : t);
   });
+
+  const handleApplyTermsJson = () => {
+    if (!termsJson.trim()) { setTermsError("Paste some JSON first"); return; }
+    try {
+      const pos = Math.min(Math.max(Math.floor(termsPosition) || 1, 1), terms.length + 1);
+      const res = applyTermsJson(terms, termsJson, pos);
+      if (res.added === 0 && res.updated === 0) { setTermsError("No usable key/value pairs found"); return; }
+      setTerms(res.terms as DocTerm[]);
+      setTermsError("");
+      showToast(`${res.added} term${res.added === 1 ? "" : "s"} inserted at #${pos}${res.updated ? `, ${res.updated} updated` : ""}`);
+    } catch (err) {
+      setTermsError(err instanceof Error ? err.message : "Invalid JSON");
+    }
+  };
 
   const filteredProds = allProducts.filter(p => {
     const query = searchQ.toLowerCase();
@@ -373,6 +395,18 @@ function QuotationPageInner() {
                   <input className="input w-full rounded-lg mt-1 text-sm" value={warranty} onChange={e => setTermValue("Warranty Period", e.target.value)} placeholder="e.g. 2 Years from the date of Invoice" />
                 </div>
                 <div>
+                  <label className="label">Payment Terms</label>
+                  <div className="mt-1 space-y-1.5">
+                    {PAYMENT_TERMS_OPTIONS.map(opt => (
+                      <label key={opt} className="flex items-start gap-2 text-sm text-slate-700 cursor-pointer">
+                        <input type="radio" name="paymentTerms" className="mt-0.5 w-4 h-4 shrink-0 accent-primary-600" checked={paymentTerms === opt} onChange={() => setTermValue("Payment Terms", opt)} />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <input className="input w-full rounded-lg mt-2 text-sm" value={paymentTerms} onChange={e => setTermValue("Payment Terms", e.target.value)} placeholder="Or type custom payment terms" />
+                </div>
+                <div>
                   <label className="label">Delivery Lead Time</label>
                   <input className="input w-full rounded-lg mt-1 text-sm" value={leadTime} onChange={e => setTermValue("Delivery Lead Time", e.target.value)} placeholder="e.g. 8 – 10 days from the date of payment / PO" />
                 </div>
@@ -387,10 +421,24 @@ function QuotationPageInner() {
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {terms.map((t, i) => (
                   <div key={t.label} className="flex items-center justify-between rounded-lg border border-slate-200 p-2 bg-white">
-                    <div><p className="text-xs font-bold text-primary-700">{t.label}</p><p className="text-xs text-slate-500 truncate">{t.value}</p></div>
+                    <div><p className="text-xs font-bold text-primary-700"><span className="text-slate-400 mr-1.5">{i + 1}.</span>{t.label}</p><p className="text-xs text-slate-500 truncate">{t.value}</p></div>
                     <div className="flex gap-1 ml-2"><button onClick={() => { setEditTermIdx(i); setEditTerm(t); }} className="text-slate-400 hover:text-primary-600"><Edit3 className="w-3 h-3" /></button><button onClick={() => setTerms(prev => prev.filter((_, j) => j !== i))} className="text-slate-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button></div>
                   </div>
                 ))}
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                <label className="label">Bulk edit terms via JSON</label>
+                <textarea className="input w-full rounded-lg resize-none font-mono text-sm" rows={5}
+                  placeholder={`{\n  "Freight": "Included",\n  "Standards": "IEC 61131-2"\n}`}
+                  value={termsJson} onChange={e => setTermsJson(e.target.value)} />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold text-slate-500">Insert at row</span>
+                  <input className="input w-16 rounded-lg text-sm text-center" type="number" min={1} value={termsPosition} onChange={e => setTermsPosition(Number(e.target.value))} />
+                  <button onClick={handleApplyTermsJson} className="px-3 py-1.5 rounded-lg bg-primary-600 text-white font-bold text-xs hover:bg-primary-700">Apply</button>
+                  <button onClick={() => { setTermsJson(termsToJson(terms)); setTermsPosition(terms.length + 1); }} className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold text-xs hover:bg-slate-100">Load current</button>
+                </div>
+                {termsError && <p className="text-xs text-red-600 font-semibold">{termsError}</p>}
+                <p className="text-xs text-slate-400">New keys are inserted at the chosen row (1 = first, matching the numbering above). Keys that already exist are updated in place and keep their position.</p>
               </div>
             </div>
 
