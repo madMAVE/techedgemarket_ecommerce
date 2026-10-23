@@ -8,7 +8,7 @@ import type { DocCreatePayload } from "@/lib/documents";
 import { getAllProducts } from "@/utils/data";
 import { FileText, Printer, Plus, Trash2, Search, Share2, X, Eye, FileSpreadsheet, Edit3, Copy, Save, Loader2, CheckCircle } from "lucide-react";
 import { COMPANY, numberToWords, inr, formatDate } from "@/utils/documents";
-import { InvoicePreview, publicDocumentUrl } from "@/components/documents/previews";
+import { InvoicePreview, SignatoryBox, SignatoryImageField, publicDocumentUrl } from "@/components/documents/previews";
 import { proformaNumber } from "@/utils/proforma";
 import type { CustomerAccount, DocLineItem, DocParty, DocTerm, Order } from "@/types";
 import ExcelJS from "exceljs";
@@ -249,6 +249,13 @@ function ProformaInvoicePreview({ inv }: { inv: any }) {
         </div>
       </div>
 
+      {/* Signatory */}
+      <SignatoryBox url={inv.signatoryImage} />
+      <div style={{ marginTop: "10px", textAlign: "right" }}>
+        <div style={{ fontSize: "8.5px", fontWeight: 700 }}>{COMPANY.name}</div>
+        <div style={{ fontSize: "8.5px", fontWeight: 600, marginTop: "2px" }}>Authorised Signatory</div>
+      </div>
+
       {/* Footer */}
       <div style={{ marginTop: "10px", borderTop: bdrLight, paddingTop: "4px", textAlign: "center", fontSize: "7.5px", color: "#666" }}>
         This is a Computer Generated Proforma Invoice
@@ -300,6 +307,7 @@ function InvoicePageInner() {
   const [publicToken, setPublicToken] = useState<string | null>(null);
   const [ackNo, setAckNo] = useState("");
   const [ackDate, setAckDate] = useState("");
+  const [signatoryImage, setSignatoryImage] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const proformaPrintRef = useRef<HTMLDivElement>(null);
 
@@ -390,6 +398,7 @@ function InvoicePageInner() {
       setEwayBillNo(extra["ewayBillNo"] ?? ""); setEwayBillDate(extra["ewayBillDate"] ?? "");
       setVehicleNo(extra["vehicleNo"] ?? ""); setTransporterName(extra["transporterName"] ?? ""); setDistance(extra["distance"] ?? "");
       setIrn(extra["irn"] ?? ""); setAckNo(extra["ackNo"] ?? ""); setAckDate(extra["ackDate"] ?? "");
+      setSignatoryImage(extra["signatoryImage"] || null);
       showToast(`Loaded draft ${doc.number}`);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to load draft", false);
@@ -434,7 +443,7 @@ function InvoicePageInner() {
         billTo, shipTo, items, terms, party: { name: billTo.name, attention: billTo.attention, mobile: billTo.mobile, email: billTo.email, address: billTo.address, city: billTo.city, state: billTo.state, stateCode: billTo.stateCode, gstin: billTo.gstin },
         totals: { subtotal: sub, cgst, sgst, igst, freight, total },
         invoiceNo, orderNo, poReference, freight, paymentMethod, pinvNo,
-        extra: { ewayBillNo, ewayBillDate, vehicleNo, transporterName, distance, irn, ackNo, ackDate, referenceDate, buyersOrderDate, dispatchedThrough, destination, showQr: showQr ? "true" : "false" },
+        extra: { ewayBillNo, ewayBillDate, vehicleNo, transporterName, distance, irn, ackNo, ackDate, referenceDate, buyersOrderDate, dispatchedThrough, destination, showQr: showQr ? "true" : "false", signatoryImage: signatoryImage ?? "" },
       },
     };
   };
@@ -458,7 +467,7 @@ function InvoicePageInner() {
   };
 
   const pinvNo = proformaNumber(billTo.name, pinvSeq);
-  const inv = { invoiceNo, pinvNo, date, orderNo, poReference, referenceDate, buyersOrderDate, dispatchedThrough, destination, billTo, shipTo, items, terms, freight, paymentMethod, ewayBillNo, ewayBillDate, vehicleNo, transporterName, distance, irn, ackNo, ackDate, showQr, publicUrl: publicToken ? publicDocumentUrl(publicToken) : undefined };
+  const inv = { invoiceNo, pinvNo, date, orderNo, poReference, referenceDate, buyersOrderDate, dispatchedThrough, destination, billTo, shipTo, items, terms, freight, paymentMethod, ewayBillNo, ewayBillDate, vehicleNo, transporterName, distance, irn, ackNo, ackDate, signatoryImage, showQr, publicUrl: publicToken ? publicDocumentUrl(publicToken) : undefined };
 
   const handlePrint = () => {
     const el = printRef.current; if (!el) return;
@@ -711,6 +720,11 @@ function InvoicePageInner() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="card rounded-xl p-5 space-y-3">
+              <h3 className="section-title mb-3">Authorised Signatory</h3>
+              <SignatoryImageField value={signatoryImage} onChange={setSignatoryImage} />
             </div>
 
             <div className="card rounded-xl p-5 space-y-3">

@@ -26,6 +26,59 @@ function QrBlock({ url, size, caption }: { url?: string; size: number; caption: 
   );
 }
 
+const SIGNATORY_W = 250;
+const SIGNATORY_H = 100;
+const MAX_SIGNATORY_BYTES = 1.5 * 1024 * 1024;
+
+// Rendered even when empty: the fixed border marks the spot where the signatory
+// image will land, both on screen and in the printed PDF.
+export function SignatoryBox({ url }: { url?: string | null }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "6px" }}>
+      <div style={{ width: `${SIGNATORY_W}px`, height: `${SIGNATORY_H}px`, boxSizing: "border-box", border: "1px solid #000", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+        {url && <img src={url} alt="Authorised Signatory" style={{ width: "100%", height: "100%", objectFit: "contain" }} />}
+      </div>
+    </div>
+  );
+}
+
+export function SignatoryImageField({ value, onChange }: { value?: string | null; onChange: (dataUrl: string | null) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+
+  const readFile = (file: File | undefined) => {
+    setError("");
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { setError("Select an image file"); return; }
+    if (file.size > MAX_SIGNATORY_BYTES) { setError(`Image must be under ${(MAX_SIGNATORY_BYTES / (1024 * 1024)).toFixed(1)} MB`); return; }
+    const reader = new FileReader();
+    reader.onload = () => onChange(String(reader.result ?? ""));
+    reader.onerror = () => setError("Could not read that file");
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="space-y-2">
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={e => readFile(e.target.files?.[0])} />
+      {value ? (
+        <div className="space-y-2">
+          <div className="rounded-lg border border-slate-200 bg-white p-2 flex items-center justify-center" style={{ height: "100px" }}>
+            <img src={value} alt="Signatory" className="max-w-full max-h-full object-contain" />
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => inputRef.current?.click()} className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold text-xs hover:bg-slate-100">Replace</button>
+            <button onClick={() => { onChange(null); setError(""); }} className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold text-xs hover:bg-slate-100">Remove</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => inputRef.current?.click()} className="w-full py-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 text-slate-600 font-bold text-xs hover:bg-slate-100">Upload signatory image</button>
+      )}
+      <p className="text-xs text-slate-400">Renders at {SIGNATORY_W}×{SIGNATORY_H}px above the signatory block.</p>
+      {error && <p className="text-xs text-red-600 font-semibold">{error}</p>}
+    </div>
+  );
+}
+
 export function InvoicePreview({ inv }: { inv: any }) {
   const subtotal = inv.items.reduce((s: any, i: any) => s + i.unitPrice * i.qty, 0);
   const isInterState = inv.billTo?.state && inv.billTo.state.toLowerCase() !== "west bengal";
@@ -324,6 +377,7 @@ export function InvoicePreview({ inv }: { inv: any }) {
             <div><span style={{ color: "#444" }}>A/C No:</span> 50200012345678</div>
             <div><span style={{ color: "#444" }}>Branch:</span> Kolkata &nbsp; <span style={{ color: "#444" }}>IFSC:</span> HDFC0001234</div>
           </div>
+          <SignatoryBox url={inv.signatoryImage} />
             <div style={{ marginTop: "10px", textAlign: "right" }}>
               <div style={{ fontSize: "8.5px", fontWeight: 700 }}>{COMPANY.name}</div>
               <div style={{ fontSize: "8.5px", fontWeight: 600, marginTop: "2px" }}>Authorised Signatory</div>
@@ -725,6 +779,7 @@ export function PoPreview({ po }: { po: any }) {
           <div style={{ fontSize: "8px", lineHeight: "1.5", color: "#222", whiteSpace: "pre-line" }}>{po.declaration}</div>
         </div>
         <div style={{ flex: 1, textAlign: "right" }}>
+          <SignatoryBox url={po.signatoryImage} />
           <div style={{ fontSize: "8.5px", fontWeight: 700, marginTop: "22px" }}>{COMPANY.name}</div>
           <div style={{ fontSize: "8.5px", fontWeight: 600, marginTop: "2px" }}>Authorised Signatory</div>
         </div>

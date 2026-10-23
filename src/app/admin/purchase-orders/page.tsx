@@ -6,7 +6,7 @@ import { documentsApi } from "@/lib/documents";
 import { getAllProducts } from "@/utils/data";
 import { FileText, Printer, Plus, Trash2, Search, Share2, X, Eye, Edit3, FileSpreadsheet, Save, Loader2, CheckCircle } from "lucide-react";
 import { COMPANY, inr, formatDate, applyTermsJson, termsToJson } from "@/utils/documents";
-import { PoPreview, publicDocumentUrl } from "@/components/documents/previews";
+import { PoPreview, SignatoryImageField, publicDocumentUrl } from "@/components/documents/previews";
 import type { DocLineItem, DocParty, DocTerm } from "@/types";
 import ExcelJS from "exceljs";
 
@@ -47,6 +47,7 @@ function PurchaseOrderPageInner() {
   const [showQr, setShowQr] = useState(true);
   const [publicToken, setPublicToken] = useState<string | null>(null);
   const [declaration, setDeclaration] = useState(DEFAULT_DECLARATION);
+  const [signatoryImage, setSignatoryImage] = useState<string | null>(null);
   const [searchQ, setSearchQ] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const [manualEntry, setManualEntry] = useState(false);
@@ -82,6 +83,7 @@ function PurchaseOrderPageInner() {
       setSubject(String(p["subject"] ?? ""));
       setOpeningText(String(p["openingText"] ?? ""));
       setDeclaration(String(p["declaration"] ?? ""));
+      setSignatoryImage(typeof p["signatoryImage"] === "string" && p["signatoryImage"] ? (p["signatoryImage"] as string) : null);
       setItems(((p["items"] ?? []) as DocLineItem[]).map((it, i) => ({ ...it, id: it.id ?? `item-${i}` })));
       if (Array.isArray(p["terms"])) setTerms(p["terms"] as DocTerm[]);
       showToast(`Loaded draft ${doc.number}`);
@@ -103,7 +105,7 @@ function PurchaseOrderPageInner() {
     try {
       const totalAmount = items.reduce((s, i) => s + i.unitPrice * i.qty, 0);
       const payload: Record<string, unknown> = {
-        refNo, date, supplierOfferRef, supplierOfferDate, supplier, subject, openingText, items, terms, declaration, showQr,
+        refNo, date, supplierOfferRef, supplierOfferDate, supplier, subject, openingText, items, terms, declaration, signatoryImage, showQr,
         totals: { totalAmount },
       };
       const doc = docId
@@ -127,7 +129,7 @@ function PurchaseOrderPageInner() {
     }
   };
 
-  const po = { refNo, date, supplierOfferRef, supplierOfferDate, supplier, subject, openingText, items, terms, declaration, showQr, publicUrl: publicToken ? publicDocumentUrl(publicToken) : undefined };
+  const po = { refNo, date, supplierOfferRef, supplierOfferDate, supplier, subject, openingText, items, terms, declaration, signatoryImage, showQr, publicUrl: publicToken ? publicDocumentUrl(publicToken) : undefined };
 
   const addItem = (product: any) => {
     setItems(prev => [...prev, { id: `item-${Date.now()}-${Math.random()}`, title: product.name, subDetails: product.description || "", model: product.model || product.partNumber || "", tag: "CE Certified & CPRI Tested", qty: 1, unit: "NOS.", unitPrice: product.price }]);
@@ -381,6 +383,11 @@ function PurchaseOrderPageInner() {
             <div className="card rounded-xl p-5 space-y-4">
               <h3 className="section-title mb-3">Declaration</h3>
               <textarea className="input w-full rounded-lg text-sm resize-none" rows={4} value={declaration} onChange={e => setDeclaration(e.target.value)} />
+            </div>
+
+            <div className="card rounded-xl p-5 space-y-4">
+              <h3 className="section-title mb-3">Authorised Signatory</h3>
+              <SignatoryImageField value={signatoryImage} onChange={setSignatoryImage} />
             </div>
 
             <div className="card rounded-xl p-5 space-y-3">
